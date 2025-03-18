@@ -1,9 +1,22 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>SOAVEL VEÍCULOS</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="Plataforma de venda de veículos" />
+    <meta name="author" content="Soavel Veículos" />
+    <title>Soavel Veículos</title>
+    <link rel="icon" type="image/x-icon" href="logo.svg" />
+    <meta name="keywords" content="venda de carros" />
+
+    <!-- Meta Tags Open Graph para compartilhamento em redes sociais -->
+    <meta property="og:title" content="Soavel Veículos - Encontre o veículo dos seus sonhos aqui">
+    <meta property="og:description" content="Encontre o veículo dos seus sonhos aqui">
+    <meta property="og:image" content="/img/logo/soavel-fundo.png">
+    <meta property="og:url" content="https://soavelveiculos.com.br/">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="pt_BR">
+
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <style>
