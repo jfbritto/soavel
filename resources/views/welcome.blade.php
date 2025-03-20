@@ -661,7 +661,7 @@
   </div>
   <!-- Rodapé -->
   <footer class="bg-dark text-white text-center py-3 mt-4">
-    <p>Telefone: <a href="https://api.whatsapp.com/send?phone=5527998490472&text=Olá Adolfo, estou procurando um veículo!">(27) 99849-0472</a></p>
+    <p>Telefone: <a href="https://api.whatsapp.com/send?phone=5527998490472&text=Olá Adolfo, pode me ajudar a encontrar um novo veículo?">(27) 99849-0472</a></p>
     <p>Horário: Segunda a Sábado, 9h às 18h</p>
     <a href="https://www.facebook.com/adolfo.busteke.1/" class="text-white">Facebook</a> |
     <a href="https://www.instagram.com/soavel_veiculos" class="text-white">Instagram</a>
@@ -691,7 +691,7 @@
         const text = card.querySelector('.card-text').textContent.trim();
         const valor = card.querySelector('.font-weight-bold').textContent.trim();
 
-        const mensagem = encodeURIComponent(`Olá, gostaria de mais informações sobre: ${titulo} | ${text} | ${valor}`);
+        const mensagem = encodeURIComponent(`Olá Adolfo, o veículo: ${titulo} | ${text} | ${valor} está disponível?`);
 
         const url = `https://api.whatsapp.com/send?phone=5527998490472&text=${mensagem}`;
 
