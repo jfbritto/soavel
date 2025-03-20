@@ -275,6 +275,64 @@
         </div>
       </div>
 
+      <!-- Carro Slide -->
+      <div class="col-md-4 mb-3">
+        <div class="card">
+          <div id="CarIndicator4" class="carousel slide card-img-top" data-ride="carousel">
+            <ol class="carousel-indicators">
+              <li data-target="#CarIndicator4" data-slide-to="1" class="active"></li>
+              <li data-target="#CarIndicator4" data-slide-to="2"></li>
+              <li data-target="#CarIndicator4" data-slide-to="3"></li>
+              <li data-target="#CarIndicator4" data-slide-to="4"></li>
+              <li data-target="#CarIndicator4" data-slide-to="5"></li>
+              <li data-target="#CarIndicator4" data-slide-to="6"></li>
+              <li data-target="#CarIndicator4" data-slide-to="7"></li>
+              <li data-target="#CarIndicator4" data-slide-to="8"></li>
+            </ol>
+            <div class="carousel-inner">
+              <div class="carousel-item active">
+                <img class="d-block w-100" src="/img/carros/strada-1-1/strada-1-1.jpeg" alt="Primeiro Slide">
+              </div>
+              <div class="carousel-item">
+                <img class="d-block w-100" src="/img/carros/strada-1-1/strada-1-2.jpeg" alt="Segundo Slide">
+              </div>
+              <div class="carousel-item">
+                <img class="d-block w-100" src="/img/carros/strada-1-1/strada-1-3.jpeg" alt="Terceiro Slide">
+              </div>
+              <div class="carousel-item">
+                <img class="d-block w-100" src="/img/carros/strada-1-1/strada-1-4.jpeg" alt="Querto Slide">
+              </div>
+              <div class="carousel-item">
+                <img class="d-block w-100" src="/img/carros/strada-1-1/strada-1-5.jpeg" alt="Quinto Slide">
+              </div>
+              <div class="carousel-item">
+                <img class="d-block w-100" src="/img/carros/strada-1-1/strada-1-6.jpeg" alt="Sexto Slide">
+              </div>
+              <div class="carousel-item">
+                <img class="d-block w-100" src="/img/carros/strada-1-1/strada-1-7.jpeg" alt="Setimo Slide">
+              </div>
+              <div class="carousel-item">
+                <img class="d-block w-100" src="/img/carros/strada-1-1/strada-1-8.jpeg" alt="Oitavo Slide">
+              </div>
+            </div>
+            <a class="carousel-control-prev" href="#CarIndicator4" role="button" data-slide="prev">
+              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              <span class="sr-only">Anterior</span>
+            </a>
+            <a class="carousel-control-next" href="#CarIndicator4" role="button" data-slide="next">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="sr-only">Próximo</span>
+            </a>
+          </div>
+          <div class="card-body">
+            <h5 class="card-title">Fiat Strada</h5>
+            <p class="card-text">Ano: | Km: 44.693 | Manual</p>
+            <p class="font-weight-bold">R$</p>
+            <a href="#" class="btn btn-success btn-block btn-whatsapp"><i class="fa-brands fa-whatsapp"></i> Gostei desse</a>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
