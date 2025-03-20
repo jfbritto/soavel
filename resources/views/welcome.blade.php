@@ -10,7 +10,7 @@
     <meta name="keywords" content="venda de carros" />
 
     <!-- Meta Tags Open Graph para compartilhamento em redes sociais -->
-    <meta property="og:title" content="Soavel Veículos - Encontre o veículo dos seus sonhos aqui">
+    <meta property="og:title" content="Soavel Veículos">
     <meta property="og:description" content="Encontre o veículo dos seus sonhos aqui">
     <meta property="og:image" content="/img/logo/soavel-fundo.png">
     <meta property="og:url" content="https://soavelveiculos.com.br/">
