@@ -6,7 +6,7 @@
     <meta name="description" content="Plataforma de venda de veículos" />
     <meta name="author" content="Soavel Veículos" />
     <title>Soavel Veículos</title>
-    <link rel="icon" type="image/x-icon" href="logo.svg" />
+    <link rel="icon" type="image/x-icon" href="/img/logo/soavel-fundo.svg" />
     <meta name="keywords" content="venda de carros" />
 
     <!-- Meta Tags Open Graph para compartilhamento em redes sociais -->
