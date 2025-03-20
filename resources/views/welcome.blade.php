@@ -88,117 +88,194 @@
   <div class="container">
     <h2 class="text-center my-4">Destaques</h2>
     <div class="row">
-      <!-- Exemplo Carro 1 -->
+
+      <!-- Carro Slide -->
       <div class="col-md-4 mb-3">
         <div class="card">
-          <div id="carouselExampleIndicators" class="carousel slide card-img-top" data-ride="carousel">
+          <div id="CarIndicator1" class="carousel slide card-img-top" data-ride="carousel">
             <ol class="carousel-indicators">
-              <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
-              <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
-              <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+              <li data-target="#CarIndicator1" data-slide-to="1" class="active"></li>
+              <li data-target="#CarIndicator1" data-slide-to="2"></li>
+              <li data-target="#CarIndicator1" data-slide-to="3"></li>
+              <li data-target="#CarIndicator1" data-slide-to="4"></li>
+              <li data-target="#CarIndicator1" data-slide-to="5"></li>
+              <li data-target="#CarIndicator1" data-slide-to="6"></li>
+              <li data-target="#CarIndicator1" data-slide-to="7"></li>
+              <li data-target="#CarIndicator1" data-slide-to="8"></li>
+              <li data-target="#CarIndicator1" data-slide-to="9"></li>
             </ol>
             <div class="carousel-inner">
               <div class="carousel-item active">
-                <img class="d-block w-100" src="/img/carros/argo-1.jpeg" alt="Primeiro Slide">
+                <img class="d-block w-100" src="/img/carros/hb20-1-1/hb20-1-1.jpeg" alt="Primeiro Slide">
               </div>
               <div class="carousel-item">
-                <img class="d-block w-100" src="/img/carros/gol-1.jpeg" alt="Segundo Slide">
+                <img class="d-block w-100" src="/img/carros/hb20-1-1/hb20-1-2.jpeg" alt="Segundo Slide">
               </div>
               <div class="carousel-item">
-                <img class="d-block w-100" src="/img/carros/voyage-1.jpeg" alt="Terceiro Slide">
+                <img class="d-block w-100" src="/img/carros/hb20-1-1/hb20-1-3.jpeg" alt="Terceiro Slide">
+              </div>
+              <div class="carousel-item">
+                <img class="d-block w-100" src="/img/carros/hb20-1-1/hb20-1-4.jpeg" alt="Querto Slide">
+              </div>
+              <div class="carousel-item">
+                <img class="d-block w-100" src="/img/carros/hb20-1-1/hb20-1-5.jpeg" alt="Quinto Slide">
+              </div>
+              <div class="carousel-item">
+                <img class="d-block w-100" src="/img/carros/hb20-1-1/hb20-1-6.jpeg" alt="Sexto Slide">
+              </div>
+              <div class="carousel-item">
+                <img class="d-block w-100" src="/img/carros/hb20-1-1/hb20-1-7.jpeg" alt="Setimo Slide">
+              </div>
+              <div class="carousel-item">
+                <img class="d-block w-100" src="/img/carros/hb20-1-1/hb20-1-8.jpeg" alt="Oitavo Slide">
+              </div>
+              <div class="carousel-item">
+                <img class="d-block w-100" src="/img/carros/hb20-1-1/hb20-1-9.jpeg" alt="Nono Slide">
               </div>
             </div>
-            <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+            <a class="carousel-control-prev" href="#CarIndicator1" role="button" data-slide="prev">
               <span class="carousel-control-prev-icon" aria-hidden="true"></span>
               <span class="sr-only">Anterior</span>
             </a>
-            <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+            <a class="carousel-control-next" href="#CarIndicator1" role="button" data-slide="next">
               <span class="carousel-control-next-icon" aria-hidden="true"></span>
               <span class="sr-only">Próximo</span>
             </a>
           </div>
           <div class="card-body">
-            <h5 class="card-title">Ford Ka SE 1.0</h5>
-            <p class="card-text">Ano: 2020 | Km: 35.000</p>
-            <p class="font-weight-bold">R$ 49.900</p>
+            <h5 class="card-title">Hyundai HB20 1.0 Evolution</h5>
+            <p class="card-text">Ano: 2022 | Km: 13.500 | Manual</p>
+            <p class="font-weight-bold">R$ 69.900</p>
             <a href="#" class="btn btn-success btn-block btn-whatsapp"><i class="fa-brands fa-whatsapp"></i> Gostei desse</a>
           </div>
         </div>
       </div>
-      {{-- <!-- Exemplo Carro 1 -->
-      <div class="col-md-4 mb-3">
-        <div class="card">
-          <img src="/img/carros/argo-1.jpeg" class="card-img-top" alt="Ford Ka">
-          <div class="card-body">
-            <h5 class="card-title">Ford Ka SE 1.0</h5>
-            <p class="card-text">Ano: 2020 | Km: 35.000</p>
-            <p class="font-weight-bold">R$ 49.900</p>
-            <a href="#" class="btn btn-success btn-block btn-whatsapp"><i class="fa-brands fa-whatsapp"></i> Gostei desse</a>
-          </div>
-        </div>
-      </div> --}}
-      <!-- Exemplo Carro 2 -->
-      <div class="col-md-4 mb-3">
-        <div class="card">
-          <img src="/img/carros/gol-1.jpeg" class="card-img-top" alt="Chevrolet Onix">
-          <div class="card-body">
-            <h5 class="card-title">Chevrolet Onix LT 1.0</h5>
-            <p class="card-text">Ano: 2021 | Km: 20.000</p>
-            <p class="font-weight-bold">R$ 59.900</p>
-            <a href="#" class="btn btn-success btn-block btn-whatsapp"><i class="fa-brands fa-whatsapp"></i> Gostei desse</a>
-          </div>
-        </div>
-      </div>
-      <!-- Exemplo Carro 3 -->
-      <div class="col-md-4 mb-3">
-        <div class="card">
-          <img src="/img/carros/onix-1.jpeg" class="card-img-top" alt="Volkswagen Gol">
-          <div class="card-body">
-            <h5 class="card-title">Volkswagen Gol 1.6</h5>
-            <p class="card-text">Ano: 2019 | Km: 45.000</p>
-            <p class="font-weight-bold">R$ 44.900</p>
-            <a href="#" class="btn btn-success btn-block btn-whatsapp"><i class="fa-brands fa-whatsapp"></i> Gostei desse</a>
-          </div>
-        </div>
-      </div>
-      <!-- Exemplo Carro 1 -->
-      <div class="col-md-4 mb-3">
-        <div class="card">
-          <img src="/img/carros/voyage-1.jpeg" class="card-img-top" alt="Ford Ka">
-          <div class="card-body">
-            <h5 class="card-title">Ford Ka SE 1.0</h5>
-            <p class="card-text">Ano: 2020 | Km: 35.000</p>
-            <p class="font-weight-bold">R$ 49.900</p>
-            <a href="#" class="btn btn-success btn-block btn-whatsapp"><i class="fa-brands fa-whatsapp"></i> Gostei desse</a>
-          </div>
-        </div>
-      </div>
-      <!-- Exemplo Carro 2 -->
-      <div class="col-md-4 mb-3">
-        <div class="card">
-          <img src="/img/carros/onix-2.jpeg" class="card-img-top" alt="Chevrolet Onix">
-          <div class="card-body">
-            <h5 class="card-title">Chevrolet Onix LT 1.0</h5>
-            <p class="card-text">Ano: 2021 | Km: 20.000</p>
-            <p class="font-weight-bold">R$ 59.900</p>
-            <a href="#" class="btn btn-success btn-block btn-whatsapp"><i class="fa-brands fa-whatsapp"></i> Gostei desse</a>
-          </div>
-        </div>
-      </div>
-      <!-- Exemplo Carro 2 -->
-      <div class="col-md-4 mb-3">
-        <div class="card">
-          <img src="/img/carros/onix-2.jpeg" class="card-img-top" alt="Chevrolet Onix">
-          <div class="card-body">
-            <h5 class="card-title">Chevrolet Onix LT 1.0</h5>
-            <p class="card-text">Ano: 2021 | Km: 20.000</p>
-            <p class="font-weight-bold">R$ 59.900</p>
-            <a href="#" class="btn btn-success btn-block btn-whatsapp"><i class="fa-brands fa-whatsapp"></i> Gostei desse</a>
-          </div>
-        </div>
-      </div>
-    </div>
 
+      <!-- Carro Slide -->
+      <div class="col-md-4 mb-3">
+        <div class="card">
+          <div id="CarIndicator2" class="carousel slide card-img-top" data-ride="carousel">
+            <ol class="carousel-indicators">
+              <li data-target="#CarIndicator2" data-slide-to="1" class="active"></li>
+              <li data-target="#CarIndicator2" data-slide-to="2"></li>
+              <li data-target="#CarIndicator2" data-slide-to="3"></li>
+              <li data-target="#CarIndicator2" data-slide-to="4"></li>
+              <li data-target="#CarIndicator2" data-slide-to="5"></li>
+              <li data-target="#CarIndicator2" data-slide-to="6"></li>
+              <li data-target="#CarIndicator2" data-slide-to="7"></li>
+              <li data-target="#CarIndicator2" data-slide-to="8"></li>
+              <li data-target="#CarIndicator2" data-slide-to="9"></li>
+            </ol>
+            <div class="carousel-inner">
+              <div class="carousel-item active">
+                <img class="d-block w-100" src="/img/carros/onix-1-1/onix-1-1.jpeg" alt="Primeiro Slide">
+              </div>
+              <div class="carousel-item">
+                <img class="d-block w-100" src="/img/carros/onix-1-1/onix-1-2.jpeg" alt="Segundo Slide">
+              </div>
+              <div class="carousel-item">
+                <img class="d-block w-100" src="/img/carros/onix-1-1/onix-1-3.jpeg" alt="Terceiro Slide">
+              </div>
+              <div class="carousel-item">
+                <img class="d-block w-100" src="/img/carros/onix-1-1/onix-1-4.jpeg" alt="Querto Slide">
+              </div>
+              <div class="carousel-item">
+                <img class="d-block w-100" src="/img/carros/onix-1-1/onix-1-5.jpeg" alt="Quinto Slide">
+              </div>
+              <div class="carousel-item">
+                <img class="d-block w-100" src="/img/carros/onix-1-1/onix-1-6.jpeg" alt="Sexto Slide">
+              </div>
+              <div class="carousel-item">
+                <img class="d-block w-100" src="/img/carros/onix-1-1/onix-1-7.jpeg" alt="Setimo Slide">
+              </div>
+              <div class="carousel-item">
+                <img class="d-block w-100" src="/img/carros/onix-1-1/onix-1-8.jpeg" alt="Oitavo Slide">
+              </div>
+              <div class="carousel-item">
+                <img class="d-block w-100" src="/img/carros/onix-1-1/onix-1-9.jpeg" alt="Nono Slide">
+              </div>
+            </div>
+            <a class="carousel-control-prev" href="#CarIndicator2" role="button" data-slide="prev">
+              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              <span class="sr-only">Anterior</span>
+            </a>
+            <a class="carousel-control-next" href="#CarIndicator2" role="button" data-slide="next">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="sr-only">Próximo</span>
+            </a>
+          </div>
+          <div class="card-body">
+            <h5 class="card-title">Chevrolet Onix LT 1.0 aspirado</h5>
+            <p class="card-text">Ano: 22/23 | Km: 59.830 | Manual</p>
+            <p class="font-weight-bold">R$ 72.000</p>
+            <a href="#" class="btn btn-success btn-block btn-whatsapp"><i class="fa-brands fa-whatsapp"></i> Gostei desse</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carro Slide -->
+      <div class="col-md-4 mb-3">
+        <div class="card">
+          <div id="CarIndicator3" class="carousel slide card-img-top" data-ride="carousel">
+            <ol class="carousel-indicators">
+              <li data-target="#CarIndicator3" data-slide-to="1" class="active"></li>
+              <li data-target="#CarIndicator3" data-slide-to="2"></li>
+              <li data-target="#CarIndicator3" data-slide-to="3"></li>
+              <li data-target="#CarIndicator3" data-slide-to="4"></li>
+              <li data-target="#CarIndicator3" data-slide-to="5"></li>
+              <li data-target="#CarIndicator3" data-slide-to="6"></li>
+              <li data-target="#CarIndicator3" data-slide-to="7"></li>
+              <li data-target="#CarIndicator3" data-slide-to="8"></li>
+              <li data-target="#CarIndicator3" data-slide-to="9"></li>
+            </ol>
+            <div class="carousel-inner">
+              <div class="carousel-item active">
+                <img class="d-block w-100" src="/img/carros/voyage-1-1/voyage-1-1.jpeg" alt="Primeiro Slide">
+              </div>
+              <div class="carousel-item">
+                <img class="d-block w-100" src="/img/carros/voyage-1-1/voyage-1-2.jpeg" alt="Segundo Slide">
+              </div>
+              <div class="carousel-item">
+                <img class="d-block w-100" src="/img/carros/voyage-1-1/voyage-1-3.jpeg" alt="Terceiro Slide">
+              </div>
+              <div class="carousel-item">
+                <img class="d-block w-100" src="/img/carros/voyage-1-1/voyage-1-4.jpeg" alt="Querto Slide">
+              </div>
+              <div class="carousel-item">
+                <img class="d-block w-100" src="/img/carros/voyage-1-1/voyage-1-5.jpeg" alt="Quinto Slide">
+              </div>
+              <div class="carousel-item">
+                <img class="d-block w-100" src="/img/carros/voyage-1-1/voyage-1-6.jpeg" alt="Sexto Slide">
+              </div>
+              <div class="carousel-item">
+                <img class="d-block w-100" src="/img/carros/voyage-1-1/voyage-1-7.jpeg" alt="Setimo Slide">
+              </div>
+              <div class="carousel-item">
+                <img class="d-block w-100" src="/img/carros/voyage-1-1/voyage-1-8.jpeg" alt="Oitavo Slide">
+              </div>
+              <div class="carousel-item">
+                <img class="d-block w-100" src="/img/carros/voyage-1-1/voyage-1-9.jpeg" alt="Nono Slide">
+              </div>
+            </div>
+            <a class="carousel-control-prev" href="#CarIndicator3" role="button" data-slide="prev">
+              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              <span class="sr-only">Anterior</span>
+            </a>
+            <a class="carousel-control-next" href="#CarIndicator3" role="button" data-slide="next">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="sr-only">Próximo</span>
+            </a>
+          </div>
+          <div class="card-body">
+            <h5 class="card-title">VW Voyage MB5 1.6</h5>
+            <p class="card-text">Ano: 19/20 | Km: 89.540 | Manual</p>
+            <p class="font-weight-bold">R$ 53.500</p>
+            <a href="#" class="btn btn-success btn-block btn-whatsapp"><i class="fa-brands fa-whatsapp"></i> Gostei desse</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
   </div>
 
   <div class="map-container">
