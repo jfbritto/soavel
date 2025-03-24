@@ -660,8 +660,8 @@
                         </a>
                     </div>
                     <div class="card-body">
-                        <h5 class="card-title">Jeep Compass</h5>
-                        <p class="card-text">Ano: 2017 | Km: | Automático</p>
+                        <h5 class="card-title">Jeep Compass Longitude 4x4 c/ Teto panorâmico</h5>
+                        <p class="card-text">Ano: 2017 | Km: 97.365 | Automático</p>
                         <p class="font-weight-bold">R$ 120.000</p>
                         <a href="#" class="btn btn-success btn-block btn-whatsapp"><i class="fa-brands fa-whatsapp"></i>
                             Gostei desse</a>
