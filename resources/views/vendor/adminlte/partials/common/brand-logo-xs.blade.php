@@ -15,15 +15,15 @@
         class="brand-link {{ config('adminlte.classes_brand') }}"
     @endif>
 
-    {{-- Small brand logo --}}
-    <img src="{{ asset(config('adminlte.logo_img', 'vendor/adminlte/dist/img/AdminLTELogo.png')) }}"
-         alt="{{ config('adminlte.logo_img_alt', 'AdminLTE') }}"
-         class="{{ config('adminlte.logo_img_class', 'brand-image img-circle elevation-3') }}"
-         style="opacity:.8">
-
-    {{-- Brand text --}}
-    <span class="brand-text font-weight-light {{ config('adminlte.classes_brand_text') }}">
-        {!! config('adminlte.logo', '<b>Admin</b>LTE') !!}
+    {{-- Logo + nome empilhados verticalmente --}}
+    <span class="d-flex flex-column align-items-center" style="line-height:1.1">
+        <img src="{{ config('adminlte.logo_img') && config('adminlte.logo_img') !== 'vendor/adminlte/dist/img/AdminLTELogo.png' ? asset(config('adminlte.logo_img')) : asset('img/default-logo.svg') }}"
+             alt="{{ config('adminlte.logo_img_alt', 'AdminLTE') }}"
+             class="{{ config('adminlte.logo_img_class', 'brand-image') }}"
+             style="max-height:44px;max-width:120px;width:auto;margin:0">
+        <span class="brand-text font-weight-light {{ config('adminlte.classes_brand_text') }}" style="font-size:.95rem;opacity:.95">
+            {!! config('adminlte.logo', '<b>Admin</b>LTE') !!}
+        </span>
     </span>
 
 </a>
