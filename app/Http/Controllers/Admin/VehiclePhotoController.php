@@ -23,17 +23,16 @@ class VehiclePhotoController extends Controller
         $created        = [];
 
         foreach ($request->file('photos') as $index => $file) {
-            $filename    = Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $filename    = Str::uuid() . '.jpg';
             $storagePath = "vehicles/{$vehicle->id}/{$filename}";
 
-            // Resize and save using Intervention Image if available, otherwise store directly
+            // Crop to standard 4:3 (800×600) — prevents distorted cards on the site
             try {
                 $img = \Intervention\Image\Facades\Image::make($file)
-                    ->resize(1200, null, function ($constraint) {
-                        $constraint->aspectRatio();
+                    ->fit(800, 600, function ($constraint) {
                         $constraint->upsize();
                     });
-                Storage::disk('public')->put($storagePath, $img->encode());
+                Storage::disk('public')->put($storagePath, $img->encode('jpg', 85));
             } catch (\Throwable $e) {
                 $file->storeAs("vehicles/{$vehicle->id}", $filename, 'public');
             }

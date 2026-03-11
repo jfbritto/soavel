@@ -189,8 +189,11 @@
 
     <hr class="footer-divider m-0">
     <div class="footer-bottom">
-        <div class="container">
+        <div class="container d-flex flex-wrap justify-content-between align-items-center" style="gap:6px">
             <p class="mb-0">© {{ date('Y') }} {{ $nomeSistema }}. Todos os direitos reservados.</p>
+            <p class="mb-0" style="font-size:.78rem;opacity:.7">
+                Desenvolvido por <a href="https://wa.me/5528999743099" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">HELPFLUX SOLUÇÕES EM TECNOLOGIA LTDA</a>
+            </p>
         </div>
     </div>
 </footer>

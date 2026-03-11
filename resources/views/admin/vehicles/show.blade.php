@@ -2,6 +2,14 @@
 
 @section('title', $vehicle->titulo . ' — Soavel')
 
+@section('css')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
+<style>
+#cropWrap { background:#1a1a1a; height:520px; position:relative; }
+#cropWrap img { display:block; max-width:100%; }
+</style>
+@endsection
+
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
         <div class="d-flex align-items-center" style="gap:10px">
@@ -177,16 +185,16 @@
                         @csrf
                         <div class="input-group mb-1">
                             <div class="custom-file">
-                                <input type="file" class="custom-file-input" name="photos[]" id="photoInput" multiple accept="image/*" required>
-                                <label class="custom-file-label" for="photoInput" style="font-size:.9rem">Selecionar fotos...</label>
+                                <input type="file" class="custom-file-input" id="photoInput" multiple accept="image/*">
+                                <label class="custom-file-label" for="photoInput" style="font-size:.9rem">Selecionar fotos para recortar...</label>
                             </div>
                             <div class="input-group-append">
-                                <button type="submit" class="btn btn-secondary" title="Enviar as fotos selecionadas">
+                                <button type="button" id="photoSubmitBtn" class="btn btn-secondary" disabled title="Selecione as fotos primeiro">
                                     <i class="fas fa-upload mr-1"></i>Enviar
                                 </button>
                             </div>
                         </div>
-                        <small class="text-muted">JPG, PNG, WebP · máx. 5 MB por foto</small>
+                        <small class="text-muted">JPG, PNG, WebP · máx. 5 MB · proporção 4:3 (800×600)</small>
                     </form>
 
                     @if($vehicle->photos->isNotEmpty())
@@ -499,14 +507,179 @@
 </div>
 @endsection
 
+{{-- Modal Crop Fotos --}}
+<div class="modal fade" id="cropModal" tabindex="-1" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header py-2">
+                <h5 class="modal-title" style="font-size:.95rem;font-weight:600">
+                    <i class="fas fa-crop-alt mr-2 text-muted"></i>Recortar Foto
+                    <span id="cropCounter" class="text-muted ml-1" style="font-weight:400;font-size:.85rem"></span>
+                </h5>
+            </div>
+            <div id="cropWrap">
+                <img id="cropImage" src="" alt="Foto para recorte">
+            </div>
+            <div class="modal-footer justify-content-between py-2">
+                <div>
+                    <button type="button" id="btnCropCancel" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-times mr-1"></i>Cancelar tudo
+                    </button>
+                    <button type="button" id="btnCropSkip" class="btn btn-outline-warning btn-sm ml-1">
+                        Pular esta foto
+                    </button>
+                </div>
+                <button type="button" id="btnCropConfirm" class="btn btn-primary btn-sm">
+                    <i class="fas fa-check mr-1"></i>Confirmar recorte
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section('js')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
 <script>
-document.getElementById('photoInput').addEventListener('change', function () {
-    var label = this.nextElementSibling;
-    label.textContent = this.files.length > 1
-        ? this.files.length + ' fotos selecionadas'
-        : (this.files[0] ? this.files[0].name : 'Selecionar fotos...');
-});
+// ── Crop flow ───────────────────────────────────────────────
+(function () {
+    var cropQueue    = [];
+    var cropIndex    = 0;
+    var croppedBlobs = [];
+    var cropper      = null;
+
+    var photoInput   = document.getElementById('photoInput');
+    var submitBtn    = document.getElementById('photoSubmitBtn');
+    var cropModal    = document.getElementById('cropModal');
+    var cropImage    = document.getElementById('cropImage');
+    var cropCounter  = document.getElementById('cropCounter');
+    var btnConfirm   = document.getElementById('btnCropConfirm');
+    var btnSkip      = document.getElementById('btnCropSkip');
+    var btnCancel    = document.getElementById('btnCropCancel');
+    var uploadUrl    = '{{ route("admin.vehicles.photos.store", $vehicle) }}';
+    var csrfToken    = '{{ csrf_token() }}';
+
+    photoInput.addEventListener('change', function () {
+        if (!this.files.length) return;
+        cropQueue    = Array.from(this.files);
+        cropIndex    = 0;
+        croppedBlobs = [];
+        submitBtn.disabled = true;
+        openCrop();
+    });
+
+    var CROP_OPTS = {
+        aspectRatio: 4 / 3,
+        viewMode: 1,
+        autoCropArea: 0.95,
+        movable: true,
+        zoomable: true,
+        rotatable: true,
+        scalable: false,
+    };
+
+    function initCropper() {
+        if (cropper) { cropper.destroy(); cropper = null; }
+        cropper = new Cropper(cropImage, CROP_OPTS);
+    }
+
+    // First open: init after animation completes
+    $('#cropModal').on('shown.bs.modal', initCropper);
+
+    $('#cropModal').on('hidden.bs.modal', function () {
+        if (cropper) { cropper.destroy(); cropper = null; }
+    });
+
+    function openCrop() {
+        if (cropIndex >= cropQueue.length) {
+            $(cropModal).modal('hide');
+            if (croppedBlobs.length) enableSend();
+            return;
+        }
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            cropCounter.textContent = '— foto ' + (cropIndex + 1) + ' de ' + cropQueue.length;
+
+            var modalOpen = $(cropModal).hasClass('show');
+            if (!modalOpen) {
+                // shown.bs.modal will call initCropper after animation
+                cropImage.src = e.target.result;
+                $(cropModal).modal('show');
+            } else {
+                // Modal already visible: destroy, swap image, reinit after load
+                if (cropper) { cropper.destroy(); cropper = null; }
+                cropImage.src = '';
+                cropImage.onload = function () {
+                    cropImage.onload = null;
+                    initCropper();
+                };
+                cropImage.src = e.target.result;
+            }
+        };
+        reader.readAsDataURL(cropQueue[cropIndex]);
+    }
+
+    btnConfirm.addEventListener('click', function () {
+        if (!cropper) return;
+        btnConfirm.disabled = true;
+        cropper.getCroppedCanvas({ width: 800, height: 600 }).toBlob(function (blob) {
+            croppedBlobs.push(blob);
+            cropIndex++;
+            btnConfirm.disabled = false;
+            openCrop();
+        }, 'image/jpeg', 0.85);
+    });
+
+    btnSkip.addEventListener('click', function () {
+        cropIndex++;
+        openCrop();
+    });
+
+    btnCancel.addEventListener('click', function () {
+        $(cropModal).modal('hide');
+        reset();
+    });
+
+    function enableSend() {
+        var label = photoInput.nextElementSibling;
+        label.textContent = croppedBlobs.length + ' foto(s) prontas para enviar';
+        submitBtn.disabled = false;
+        submitBtn.onclick = sendPhotos;
+    }
+
+    function reset() {
+        photoInput.value = '';
+        cropQueue = []; croppedBlobs = []; cropIndex = 0;
+        if (cropper) { cropper.destroy(); cropper = null; }
+        submitBtn.disabled = true;
+        submitBtn.onclick = null;
+        photoInput.nextElementSibling.textContent = 'Selecionar fotos para recortar...';
+    }
+
+    async function sendPhotos() {
+        if (!croppedBlobs.length) return;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Enviando...';
+        var fd = new FormData();
+        fd.append('_token', csrfToken);
+        croppedBlobs.forEach(function (blob, i) {
+            fd.append('photos[' + i + ']', blob, 'foto_' + (i + 1) + '.jpg');
+        });
+        try {
+            var resp = await fetch(uploadUrl, { method: 'POST', body: fd });
+            if (resp.ok) {
+                window.location.reload();
+            } else {
+                alert('Erro ao enviar fotos. Tente novamente.');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-upload mr-1"></i>Enviar';
+            }
+        } catch (e) {
+            alert('Erro de conexão. Tente novamente.');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-upload mr-1"></i>Enviar';
+        }
+    }
+})();
 
 // Máscara de moeda no modal de despesa
 (function () {
