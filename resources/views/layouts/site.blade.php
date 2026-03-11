@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="@yield('meta_description', 'Soavel Veículos - Carros Seminovos em Santa Maria de Jetibá, ES. Confira nosso estoque e encontre o veículo ideal para você.')">
     <title>@yield('meta_title', 'Soavel Veículos | Seminovos em Santa Maria de Jetibá - ES')</title>
 
     <link rel="canonical" href="@yield('canonical', url()->current())">
@@ -29,10 +28,12 @@
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{{ $faviconSrc }}">
 
+    <meta name="description" content="@yield('meta_description', $descricaoEmpresa)">
+
     <!-- Open Graph -->
     <meta property="og:title"       content="@yield('meta_title', $nomeSistema)">
-    <meta property="og:description" content="@yield('meta_description', 'Carros Seminovos em Santa Maria de Jetibá, ES')">
-    <meta property="og:image"       content="@yield('og_image', asset('img/logo/soavel-fundo.png'))">
+    <meta property="og:description" content="@yield('meta_description', $descricaoEmpresa)">
+    <meta property="og:image"       content="@yield('og_image', $logoSrc)">
     <meta property="og:url"         content="{{ url()->current() }}">
     <meta property="og:type"        content="website">
 
