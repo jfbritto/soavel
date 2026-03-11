@@ -12,43 +12,43 @@
 /* ── Clean & Modern (default / :root) ── */
 :root,
 [data-theme="clean-modern"] {
-    --bg:              #FFFFFF;
-    --bg-alt:          #F5F7FA;
+    --bg:              #F8FAFC;
+    --bg-alt:          #F1F5F9;
     --bg-card:         #FFFFFF;
-    --bg-input:        #F0F2F5;
+    --bg-input:        #F1F5F9;
     --accent:          #0066FF;
     --accent-hover:    #0052CC;
     --accent-subtle:   rgba(0,102,255,0.08);
-    --accent-glow:     rgba(0,102,255,0.25);
-    --text:            #111827;
-    --text-2:          #374151;
-    --text-3:          #6B7280;
-    --border:          #E5E7EB;
-    --border-2:        #D1D5DB;
+    --accent-glow:     rgba(0,102,255,0.22);
+    --text:            #0F172A;
+    --text-2:          #1E293B;
+    --text-3:          #64748B;
+    --border:          #E2E8F0;
+    --border-2:        #CBD5E1;
     --price:           #0052CC;
     --card-radius:     12px;
     --btn-radius:      8px;
     --badge-radius:    20px;
     --input-radius:    8px;
-    --card-shadow:     0 2px 12px rgba(0,0,0,0.07);
-    --card-shadow-h:   0 8px 32px rgba(0,0,0,0.13);
-    --navbar-bg:       rgba(255,255,255,0.95);
-    --navbar-border:   1px solid rgba(0,0,0,0.08);
-    --navbar-link:     #374151;
+    --card-shadow:     0 2px 16px rgba(15,23,42,0.08);
+    --card-shadow-h:   0 12px 40px rgba(15,23,42,0.15);
+    --navbar-bg:       rgba(255,255,255,0.96);
+    --navbar-border:   1px solid rgba(15,23,42,0.08);
+    --navbar-link:     #334155;
     --navbar-link-h:   #0066FF;
-    --navbar-text:     #111827;
-    --hero-bg:         linear-gradient(135deg,#EEF4FF 0%,#F5F7FA 100%);
-    --hero-text:       #111827;
+    --navbar-text:     #0F172A;
+    --hero-bg:         linear-gradient(150deg,#EFF6FF 0%,#F1F5F9 60%,#E2E8F0 100%);
+    --hero-text:       #0F172A;
     --hero-text-acc:   #0066FF;
-    --sidebar-bg:      #F5F7FA;
-    --footer-bg:       #111827;
-    --footer-text:     rgba(255,255,255,0.72);
+    --sidebar-bg:      #F1F5F9;
+    --footer-bg:       #0F172A;
+    --footer-text:     rgba(248,250,252,0.65);
     --footer-head:     #FFFFFF;
     --footer-link-h:   #0066FF;
-    --footer-border:   rgba(255,255,255,0.10);
+    --footer-border:   rgba(255,255,255,0.08);
     --eyebrow-color:   #0066FF;
-    --eyebrow-ls:      0.15em;
-    --font-heading:    'Inter', sans-serif;
+    --eyebrow-ls:      0.12em;
+    --font-heading:    'Space Grotesk', 'Inter', sans-serif;
     --font-body:       'Inter', sans-serif;
     --navbar-h:        70px;
     --whatsapp:        #25D366;
@@ -143,6 +143,128 @@
     --navbar-h:        70px;
     --whatsapp:        #25D366;
     --whatsapp-h:      #1EBE5C;
+}
+
+/* ── Automotive (dark hero + red CTA — skill recommendation) ── */
+[data-theme="automotive"] {
+    --bg:              #F8FAFC;
+    --bg-alt:          #F1F5F9;
+    --bg-card:         #FFFFFF;
+    --bg-input:        #F1F5F9;
+    --accent:          #DC2626;
+    --accent-hover:    #B91C1C;
+    --accent-subtle:   rgba(220,38,38,0.08);
+    --accent-glow:     rgba(220,38,38,0.22);
+    --text:            #0F172A;
+    --text-2:          #1E293B;
+    --text-3:          #64748B;
+    --border:          #E2E8F0;
+    --border-2:        #CBD5E1;
+    --price:           #0F172A;
+    --card-radius:     8px;
+    --btn-radius:      6px;
+    --badge-radius:    4px;
+    --input-radius:    6px;
+    --card-shadow:     0 2px 16px rgba(15,23,42,0.08);
+    --card-shadow-h:   0 16px 48px rgba(15,23,42,0.18);
+    --navbar-bg:       rgba(15,23,42,0.97);
+    --navbar-border:   1px solid rgba(255,255,255,0.06);
+    --navbar-link:     #CBD5E1;
+    --navbar-link-h:   #DC2626;
+    --navbar-text:     #F8FAFC;
+    --hero-bg:         linear-gradient(150deg,#0F172A 0%,#1E293B 50%,#0F172A 100%);
+    --hero-text:       #F8FAFC;
+    --hero-text-acc:   #DC2626;
+    --sidebar-bg:      #F1F5F9;
+    --footer-bg:       #0F172A;
+    --footer-text:     rgba(248,250,252,0.60);
+    --footer-head:     #FFFFFF;
+    --footer-link-h:   #DC2626;
+    --footer-border:   rgba(255,255,255,0.07);
+    --eyebrow-color:   #DC2626;
+    --eyebrow-ls:      0.10em;
+    --font-heading:    'Syncopate', 'Space Grotesk', sans-serif;
+    --font-body:       'Inter', sans-serif;
+    --navbar-h:        70px;
+    --whatsapp:        #25D366;
+    --whatsapp-h:      #1EBE5C;
+}
+
+/* Automotive — hero text always light on dark bg */
+[data-theme="automotive"] .hero-section {
+    background: var(--hero-bg) !important;
+}
+
+[data-theme="automotive"] .hero-eyebrow,
+[data-theme="automotive"] .hero-title,
+[data-theme="automotive"] .hero-subtitle,
+[data-theme="automotive"] .hero-stat-value {
+    color: var(--hero-text);
+}
+
+[data-theme="automotive"] .hero-stat-label {
+    color: rgba(248,250,252,0.6);
+}
+
+[data-theme="automotive"] .hero-search {
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(255,255,255,0.12);
+    backdrop-filter: blur(12px);
+}
+
+[data-theme="automotive"] .hero-search .form-control,
+[data-theme="automotive"] .hero-search select {
+    background: rgba(255,255,255,0.10);
+    border-color: rgba(255,255,255,0.15);
+    color: #F8FAFC;
+}
+
+[data-theme="automotive"] .hero-search select option {
+    background: #1E293B;
+    color: #F8FAFC;
+}
+
+[data-theme="automotive"] .hero-search .form-control::placeholder {
+    color: rgba(248,250,252,0.5);
+}
+
+[data-theme="automotive"] .hero-stats {
+    background: rgba(255,255,255,0.05);
+    border-color: rgba(255,255,255,0.10);
+}
+
+[data-theme="automotive"] .hero-stat {
+    border-right-color: rgba(255,255,255,0.10);
+}
+
+/* Automotive — card accent stripe on hover */
+[data-theme="automotive"] .vehicle-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transition: transform 0.25s ease;
+}
+
+[data-theme="automotive"] .vehicle-card:hover::after {
+    transform: scaleX(1);
+}
+
+[data-theme="automotive"] .vehicle-card-name {
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.9rem;
+}
+
+[data-theme="automotive"] .btn-ver-detalhes {
+    background: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.78rem;
 }
 
 /* ═══════════════════════════════════════════════════
@@ -418,16 +540,18 @@ a:hover {
     color: #fff;
     border: none;
     border-radius: var(--btn-radius);
-    padding: 10px 22px;
+    padding: 13px 20px;
     font-weight: 700;
-    font-size: 0.9rem;
-    transition: background 0.2s, transform 0.15s;
+    font-size: 1rem;
+    letter-spacing: 0.02em;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
     white-space: nowrap;
 }
 
 .hero-search .btn-search:hover {
     background: var(--accent-hover);
     transform: translateY(-1px);
+    box-shadow: 0 4px 16px var(--accent-glow);
 }
 
 .hero-stats {
@@ -497,9 +621,9 @@ a:hover {
 }
 
 .vehicle-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-6px);
     box-shadow: var(--card-shadow-h);
-    border-color: var(--border-2);
+    border-color: var(--accent);
 }
 
 .vehicle-card-img {
@@ -547,7 +671,7 @@ a:hover {
 }
 
 .vehicle-card-body {
-    padding: 16px;
+    padding: 18px 16px 16px;
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -558,7 +682,7 @@ a:hover {
     font-weight: 700;
     font-size: 1rem;
     color: var(--text);
-    margin-bottom: 2px;
+    margin-bottom: 4px;
     line-height: 1.3;
 }
 
@@ -594,12 +718,13 @@ a:hover {
 
 .vehicle-card-price {
     font-family: var(--font-heading);
-    font-size: 1.35rem;
+    font-size: 1.4rem;
     font-weight: 800;
     color: var(--price);
     margin-top: auto;
-    padding-top: 8px;
+    padding-top: 10px;
     margin-bottom: 12px;
+    letter-spacing: -0.01em;
 }
 
 .vehicle-card-actions {
@@ -614,19 +739,21 @@ a:hover {
     color: #fff !important;
     border: none;
     border-radius: var(--btn-radius);
-    padding: 9px 14px;
+    padding: 10px 14px;
     font-size: 0.85rem;
     font-weight: 700;
     text-align: center;
-    transition: background 0.2s, transform 0.15s;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
     cursor: pointer;
     display: block;
+    letter-spacing: 0.01em;
 }
 
 .btn-ver-detalhes:hover {
     background: var(--accent-hover);
     color: #fff !important;
     transform: translateY(-1px);
+    box-shadow: 0 4px 12px var(--accent-glow);
 }
 
 .btn-whatsapp-card {
@@ -1045,26 +1172,23 @@ a:hover {
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     font-weight: 700;
-    letter-spacing: var(--eyebrow-ls);
+    letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--eyebrow-color);
     margin-bottom: 10px;
+    padding-left: 12px;
+    border-left: 3px solid var(--eyebrow-color);
 }
 
 .section-eyebrow::before {
-    content: '';
-    display: inline-block;
-    width: 24px;
-    height: 2px;
-    background: var(--eyebrow-color);
-    flex-shrink: 0;
+    display: none;
 }
 
 .section-title {
     font-family: var(--font-heading);
-    font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
     font-weight: 800;
     color: var(--text);
     margin-bottom: 10px;
@@ -1203,6 +1327,12 @@ a:hover {
    13. WHATSAPP FLOAT
    ═══════════════════════════════════════════════════ */
 
+@keyframes waPulse {
+    0%   { box-shadow: 0 0 0 0 rgba(37,211,102,0.5); }
+    70%  { box-shadow: 0 0 0 12px rgba(37,211,102,0); }
+    100% { box-shadow: 0 0 0 0 rgba(37,211,102,0); }
+}
+
 .whatsapp-float {
     position: fixed;
     bottom: 28px;
@@ -1214,22 +1344,24 @@ a:hover {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 58px;
-    height: 58px;
+    width: 62px;
+    height: 62px;
     background: var(--whatsapp);
     border-radius: 50%;
     color: #fff;
-    font-size: 1.7rem;
-    box-shadow: 0 4px 20px rgba(37,211,102,0.45);
+    font-size: 1.8rem;
+    box-shadow: 0 6px 28px rgba(37,211,102,0.50);
     transition: transform 0.2s, box-shadow 0.2s;
     text-decoration: none;
+    animation: waPulse 2.5s ease-out infinite;
 }
 
 .whatsapp-float a:hover {
     transform: scale(1.1);
-    box-shadow: 0 6px 28px rgba(37,211,102,0.60);
+    box-shadow: 0 8px 36px rgba(37,211,102,0.70);
     color: #fff;
     text-decoration: none;
+    animation: none;
 }
 
 /* ═══════════════════════════════════════════════════
@@ -1617,16 +1749,52 @@ a:hover {
     }
 
     .whatsapp-float {
-        bottom: 18px;
-        right: 18px;
+        bottom: 16px;
+        right: 16px;
     }
 
+    .whatsapp-float a {
+        width: 54px;
+        height: 54px;
+        font-size: 1.6rem;
+    }
+
+    /* Navbar collapse — absoluto abaixo do navbar fixo */
     .navbar-collapse {
+        position: absolute;
+        top: var(--navbar-h);
+        left: 0;
+        right: 0;
         background: var(--navbar-bg);
-        border-top: 1px solid var(--border);
-        padding: 12px 0;
-        margin-top: 8px;
-        border-radius: 0 0 var(--card-radius) var(--card-radius);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-top: var(--navbar-border);
+        border-bottom: var(--navbar-border);
+        box-shadow: 0 8px 32px rgba(0,0,0,.14);
+        padding: 4px 0 16px;
+        z-index: 999;
+    }
+
+    /* Itens do menu — maiores para toque */
+    .navbar-site .navbar-nav .nav-link {
+        padding: 14px 24px !important;
+        font-size: 1rem !important;
+        border-bottom: 1px solid var(--border, rgba(0,0,0,.06));
+    }
+
+    .navbar-site .navbar-nav .nav-item:last-child .nav-link {
+        border-bottom: none;
+    }
+
+    /* Botão WhatsApp no menu mobile */
+    .navbar-site .btn-nav-cta {
+        display: block !important;
+        margin: 12px 16px 0 !important;
+        padding: 13px 20px !important;
+        border-radius: 8px !important;
+        text-align: center;
+        font-size: 1rem !important;
+        border-bottom: none !important;
     }
 }
 
@@ -1635,8 +1803,175 @@ a:hover {
         padding: 20px 16px;
     }
 
-    .hero-search .row > .col-12 + .col-12,
-    .hero-search .row > [class*="col-"] + [class*="col-"] {
-        margin-top: 10px;
+    /* Hero search: 2 cols (marca+categoria) + preço full width */
+    .hero-search form .row.no-gutters {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        column-gap: 10px;
+        row-gap: 16px;
     }
+
+    .hero-search form .row.no-gutters > div {
+        width: auto !important;
+        max-width: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        flex: none !important;
+    }
+
+    .hero-search form .row.no-gutters > div:last-child {
+        grid-column: 1 / -1;
+    }
+
+    .hero-search form .mt-2 { margin-top: 16px !important; }
+
+    /* Touch-friendly inputs */
+    .hero-search .form-control,
+    .hero-search select {
+        height: 46px;
+        font-size: 16px;
+        padding: 10px 12px;
+    }
+
+    .hero-search .btn-search {
+        height: 50px;
+        font-size: 1rem;
+        font-weight: 700;
+    }
+
+    /* Stats: 3 colunas com divisórias */
+    .hero-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0;
+        border: 1px solid var(--border, rgba(0,0,0,.1));
+        border-radius: 10px;
+        overflow: hidden;
+        background: var(--accent-subtle, rgba(0,0,0,.04));
+        padding: 0;
+        margin-top: 20px;
+    }
+
+    .hero-stat {
+        padding: 12px 8px;
+        border-right: 1px solid var(--border, rgba(0,0,0,.1));
+        text-align: center;
+        align-items: center;
+        flex-direction: column;
+    }
+
+    .hero-stat:last-child { border-right: none; }
+
+    .hero-stat-value { font-size: 1.2rem; }
+    .hero-stat-label { font-size: .63rem; text-align: center; }
+
+    /* Hero — ritmo vertical */
+    .hero-section   { padding: 36px 0 44px; }
+    .hero-eyebrow   { margin-bottom: 10px; }
+    .hero-title     { margin-bottom: 10px; }
+    .hero-subtitle  { font-size: .9rem; margin-bottom: 28px; }
+    .hero-search    { padding: 20px 18px; margin-bottom: 0; }
+    .hero-stats     { margin-top: 24px; }
+}
+
+/* ════════════════════════════════════════
+   MOBILE-FIRST ENHANCEMENTS
+   ════════════════════════════════════════ */
+
+/* Vehicle detail — gallery */
+.vehicle-gallery-main {
+    width: 100%;
+    height: clamp(200px, 56vw, 420px);
+    object-fit: cover;
+    display: block;
+}
+
+.vehicle-gallery-nophoto {
+    height: clamp(200px, 56vw, 420px);
+}
+
+/* Vehicle detail — thumbnails */
+.vehicle-thumb-img {
+    height: clamp(50px, 13vw, 80px);
+    width: 100%;
+    object-fit: cover;
+    cursor: pointer;
+    opacity: .85;
+    transition: opacity .2s;
+    border-radius: 4px;
+    display: block;
+}
+.vehicle-thumb-img:hover { opacity: 1; }
+
+/* Vehicle detail — price display */
+.vehicle-price-display {
+    font-size: clamp(1.5rem, 6vw, 2.2rem);
+    font-weight: 800;
+    line-height: 1.1;
+}
+
+/* Sort bar gap */
+.sort-bar { gap: 10px; }
+
+/* ── Sticky mobile CTA bar ─────────────── */
+.mobile-cta-bar { display: none; }
+
+@media (max-width: 991px) {
+    .mobile-cta-bar {
+        display: flex;
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        z-index: 500;
+        background: var(--card-bg, #fff);
+        border-top: 1px solid var(--border, #e5e7eb);
+        padding: 10px 16px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        box-shadow: 0 -4px 20px rgba(0,0,0,.13);
+    }
+
+    .mobile-cta-bar__price {
+        font-size: clamp(1.15rem, 4.5vw, 1.4rem);
+        font-weight: 800;
+        color: var(--price, var(--accent));
+        white-space: nowrap;
+        line-height: 1.1;
+    }
+
+    .mobile-cta-bar__btn {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        background: #25d366;
+        color: #fff !important;
+        padding: 11px 14px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: .9rem;
+        text-decoration: none;
+        white-space: nowrap;
+        max-width: 220px;
+    }
+
+    .vehicle-detail-pb { padding-bottom: 76px; }
+}
+
+@media (max-width: 575px) {
+    /* Map height on phones */
+    .map-section { height: 250px !important; }
+
+    /* Reduce container vertical padding on phones */
+    .py-5 { padding-top: 1.5rem !important; padding-bottom: 1.5rem !important; }
+
+    /* Navbar menu touch targets */
+    .nav-link { padding: 10px 16px !important; font-size: 1rem; }
+
+    /* Footer columns full-width stacked */
+    .site-footer .col-md-4 { margin-bottom: 2rem; }
+
+    /* Breadcrumb smaller */
+    .breadcrumb { font-size: .8rem; }
 }

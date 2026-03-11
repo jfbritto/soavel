@@ -48,7 +48,7 @@
         <div class="row align-items-center">
 
             {{-- Left: Text + Search --}}
-            <div class="col-lg-6 mb-5 mb-lg-0">
+            <div class="col-lg-6 mb-0 mb-lg-0">
                 <div class="hero-eyebrow">ESTOQUE ATUALIZADO</div>
 
                 <h1 class="hero-title">
@@ -288,7 +288,7 @@
         <div class="row align-items-stretch">
             {{-- Map --}}
             <div class="col-lg-7 mb-4 mb-lg-0">
-                <div class="map-section" style="height:360px">
+                <div class="map-section" style="height:clamp(220px,60vw,360px)">
                     <iframe
                         src="{{ $mapsEmbedUrl }}"
                         width="100%"

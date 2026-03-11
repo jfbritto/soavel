@@ -431,6 +431,29 @@
                                         </label>
                                     </div>
 
+                                    {{-- Theme 4: Automotive --}}
+                                    <div class="col-md-4 mb-3">
+                                        <label class="d-block theme-card-label" style="cursor:pointer">
+                                            <input type="radio" name="site_layout" value="automotive"
+                                                   class="theme-radio d-none"
+                                                   {{ $currentLayout === 'automotive' ? 'checked' : '' }}>
+                                            <div class="card theme-option-card {{ $currentLayout === 'automotive' ? 'border-primary' : '' }}" style="border-width:2px;transition:border-color .2s">
+                                                <div style="height:80px;background:linear-gradient(135deg,#0F172A,#1E293B);border-radius:4px 4px 0 0;display:flex;align-items:center;justify-content:center;gap:8px">
+                                                    <div style="width:40px;height:24px;background:#1E293B;border-radius:3px;border:1px solid rgba(220,38,38,.3)"></div>
+                                                    <div style="display:flex;flex-direction:column;gap:4px">
+                                                        <div style="width:50px;height:6px;background:#DC2626;border-radius:2px"></div>
+                                                        <div style="width:36px;height:4px;background:rgba(248,250,252,.15);border-radius:2px"></div>
+                                                        <div style="width:44px;height:4px;background:rgba(248,250,252,.15);border-radius:2px"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body py-2 px-3">
+                                                    <div class="font-weight-bold" style="font-size:.88rem">Automotive</div>
+                                                    <small class="text-muted">Navy escuro, vermelho CTA, tipografia Syncopate — moderno e sofisticado.</small>
+                                                </div>
+                                            </div>
+                                        </label>
+                                    </div>
+
                                 </div>
                                 <small class="text-muted">Escolha o estilo visual do site público. A alteração é imediata após salvar.</small>
                             </div>

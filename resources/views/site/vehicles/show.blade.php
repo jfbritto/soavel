@@ -35,7 +35,7 @@
 @endsection
 
 @section('content')
-<div class="container py-5">
+<div class="container py-4 py-md-5 vehicle-detail-pb">
 
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="mb-4">
@@ -63,24 +63,22 @@
                     <!-- Foto principal -->
                     <a href="{{ $vehicle->photos->first()->url }}" class="glightbox" data-gallery="vehicle-{{ $vehicle->id }}">
                         <img src="{{ $vehicle->photos->first()->url }}" alt="{{ $vehicle->titulo }}"
-                             class="img-fluid rounded shadow" style="width:100%;height:420px;object-fit:cover">
+                             class="vehicle-gallery-main rounded shadow">
                     </a>
                     <!-- Thumbnails -->
                     @if($vehicle->photos->count() > 1)
                     <div class="row mt-2 mx-0">
                         @foreach($vehicle->photos->skip(1) as $photo)
-                        <div class="col-3 p-1">
+                        <div class="col-4 col-sm-3 p-1">
                             <a href="{{ $photo->url }}" class="glightbox" data-gallery="vehicle-{{ $vehicle->id }}">
-                                <img src="{{ $photo->url }}" alt="{{ $vehicle->titulo }}" class="img-fluid rounded"
-                                     style="height:80px;width:100%;object-fit:cover;cursor:pointer;opacity:0.85;transition:opacity 0.2s"
-                                     onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.85">
+                                <img src="{{ $photo->url }}" alt="{{ $vehicle->titulo }}" class="vehicle-thumb-img rounded">
                             </a>
                         </div>
                         @endforeach
                     </div>
                     @endif
                 @else
-                    <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height:420px">
+                    <div class="bg-light rounded d-flex align-items-center justify-content-center vehicle-gallery-nophoto">
                         <i class="fas fa-car fa-5x text-muted"></i>
                     </div>
                 @endif
@@ -172,7 +170,7 @@
             <div class="card shadow-sm mb-4 border-0" style="border-radius:12px;overflow:hidden">
                 <div class="card-body" style="background:var(--azul);color:#fff">
                     <div class="text-center py-3">
-                        <div style="font-size:2.2rem;font-weight:800">{{ $vehicle->preco_formatado }}</div>
+                        <div class="vehicle-price-display">{{ $vehicle->preco_formatado }}</div>
                         @if($vehicle->status !== 'disponivel')
                         <span class="badge badge-{{ $vehicle->status_color }} mt-1">{{ $vehicle->status_label }}</span>
                         @endif
@@ -228,4 +226,15 @@
     @endif
 
 </div>
+
+{{-- Sticky CTA bar — mobile only --}}
+@if($vehicle->status === 'disponivel')
+<div class="mobile-cta-bar d-lg-none">
+    <div class="mobile-cta-bar__price">{{ $vehicle->preco_formatado }}</div>
+    <a href="https://wa.me/{{ config('app.whatsapp_number', '5527998490472') }}?text={{ urlencode('Olá! Tenho interesse no ' . $vehicle->titulo . ' ' . $vehicle->ano_modelo . ' por ' . $vehicle->preco_formatado . '. Vi no site. Podemos conversar?') }}"
+       target="_blank" rel="noopener" class="mobile-cta-bar__btn">
+        <i class="fab fa-whatsapp"></i> Tenho interesse!
+    </a>
+</div>
+@endif
 @endsection
