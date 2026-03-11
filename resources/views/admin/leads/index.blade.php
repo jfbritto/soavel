@@ -72,11 +72,11 @@
                     <tr style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:#6c757d;border-top:0">
                         <th class="border-top-0 pl-3">Nome</th>
                         <th class="border-top-0">Telefone</th>
-                        <th class="border-top-0">Veículo / Interesse</th>
-                        <th class="border-top-0">Origem</th>
+                        <th class="border-top-0 d-none d-md-table-cell">Veículo / Interesse</th>
+                        <th class="border-top-0 d-none d-lg-table-cell">Origem</th>
                         <th class="border-top-0">Status</th>
-                        <th class="border-top-0">Data</th>
-                        <th class="border-top-0">Atribuído</th>
+                        <th class="border-top-0 d-none d-md-table-cell">Data</th>
+                        <th class="border-top-0 d-none d-lg-table-cell">Atribuído</th>
                         <th class="border-top-0" style="width:60px"></th>
                     </tr>
                 </thead>
@@ -92,7 +92,7 @@
                                 <i class="fab fa-whatsapp mr-1"></i>{{ $lead->telefone }}
                             </a>
                         </td>
-                        <td class="align-middle" style="font-size:.85rem">
+                        <td class="align-middle d-none d-md-table-cell" style="font-size:.85rem">
                             @if($lead->vehicle?->id)
                                 <a href="{{ route('admin.vehicles.show', $lead->vehicle) }}" class="text-dark">
                                     {{ $lead->vehicle->titulo }}
@@ -101,7 +101,7 @@
                                 <span class="text-muted">{{ $lead->interesse ?: '—' }}</span>
                             @endif
                         </td>
-                        <td class="align-middle">
+                        <td class="align-middle d-none d-lg-table-cell">
                             <span class="badge badge-secondary" style="font-size:.72rem;padding:3px 7px">
                                 {{ $lead->origem_label }}
                             </span>
@@ -111,10 +111,10 @@
                                 {{ $lead->status_label }}
                             </span>
                         </td>
-                        <td class="align-middle text-muted" style="font-size:.82rem;white-space:nowrap">
+                        <td class="align-middle text-muted d-none d-md-table-cell" style="font-size:.82rem;white-space:nowrap">
                             {{ $lead->created_at->format('d/m/Y') }}
                         </td>
-                        <td class="align-middle text-muted" style="font-size:.85rem">
+                        <td class="align-middle text-muted d-none d-lg-table-cell" style="font-size:.85rem">
                             {{ $lead->user?->name ?? '—' }}
                         </td>
                         <td class="align-middle text-right pr-3">

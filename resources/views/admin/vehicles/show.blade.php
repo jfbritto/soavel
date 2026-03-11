@@ -505,8 +505,6 @@
         </div>
     </div>
 </div>
-@endsection
-
 {{-- Modal Crop Fotos --}}
 <div class="modal fade" id="cropModal" tabindex="-1" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog modal-xl">
@@ -536,6 +534,8 @@
         </div>
     </div>
 </div>
+
+@endsection
 
 @section('js')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>

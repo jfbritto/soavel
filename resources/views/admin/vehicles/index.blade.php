@@ -60,8 +60,8 @@
                     <tr style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:#6c757d;border-top:0">
                         <th class="border-top-0 pl-3" style="width:76px">Foto</th>
                         <th class="border-top-0">Veículo</th>
-                        <th class="border-top-0">Ano</th>
-                        <th class="border-top-0">KM</th>
+                        <th class="border-top-0 d-none d-md-table-cell">Ano</th>
+                        <th class="border-top-0 d-none d-md-table-cell">KM</th>
                         <th class="border-top-0">Preço</th>
                         <th class="border-top-0">Status</th>
                         <th class="border-top-0" style="width:60px"></th>
@@ -90,10 +90,10 @@
                             </div>
                             <div class="text-muted" style="font-size:.78rem">{{ $vehicle->cor }} · {{ ucfirst($vehicle->categoria) }}</div>
                         </td>
-                        <td class="align-middle text-muted" style="font-size:.88rem;white-space:nowrap">
+                        <td class="align-middle text-muted d-none d-md-table-cell" style="font-size:.88rem;white-space:nowrap">
                             {{ $vehicle->ano_fabricacao }}/{{ $vehicle->ano_modelo }}
                         </td>
-                        <td class="align-middle text-muted" style="font-size:.88rem;white-space:nowrap">
+                        <td class="align-middle text-muted d-none d-md-table-cell" style="font-size:.88rem;white-space:nowrap">
                             {{ $vehicle->km_formatado }}
                         </td>
                         <td class="align-middle" style="white-space:nowrap">

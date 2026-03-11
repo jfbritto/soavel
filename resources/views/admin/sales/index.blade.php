@@ -55,12 +55,12 @@
             <table class="table table-hover mb-0">
                 <thead>
                     <tr style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:#6c757d;border-top:0">
-                        <th class="border-top-0 pl-3">Data</th>
+                        <th class="border-top-0 pl-3 d-none d-md-table-cell">Data</th>
                         <th class="border-top-0">Veículo</th>
                         <th class="border-top-0">Cliente</th>
-                        <th class="border-top-0">Pagamento</th>
+                        <th class="border-top-0 d-none d-lg-table-cell">Pagamento</th>
                         <th class="border-top-0">Valor</th>
-                        <th class="border-top-0">Vendedor</th>
+                        <th class="border-top-0 d-none d-lg-table-cell">Vendedor</th>
                         <th class="border-top-0">Status</th>
                         <th class="border-top-0" style="width:60px"></th>
                     </tr>
@@ -68,7 +68,7 @@
                 <tbody>
                     @forelse($sales as $sale)
                     <tr>
-                        <td class="pl-3 align-middle text-muted" style="font-size:.85rem;white-space:nowrap">
+                        <td class="pl-3 align-middle text-muted d-none d-md-table-cell" style="font-size:.85rem;white-space:nowrap">
                             {{ $sale->data_venda->format('d/m/Y') }}
                         </td>
                         <td class="align-middle" style="font-size:.88rem">
@@ -77,13 +77,13 @@
                         <td class="align-middle" style="font-size:.88rem">
                             {{ $sale->customer?->nome ?? '—' }}
                         </td>
-                        <td class="align-middle text-muted" style="font-size:.85rem">
+                        <td class="align-middle text-muted d-none d-lg-table-cell" style="font-size:.85rem">
                             {{ $sale->tipo_pagamento_label }}
                         </td>
                         <td class="align-middle font-weight-600" style="font-size:.9rem;color:#1a7a3c;white-space:nowrap">
                             {{ $sale->preco_venda_formatado }}
                         </td>
-                        <td class="align-middle text-muted" style="font-size:.85rem">
+                        <td class="align-middle text-muted d-none d-lg-table-cell" style="font-size:.85rem">
                             {{ $sale->user?->name ?? '—' }}
                         </td>
                         <td class="align-middle">

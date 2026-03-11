@@ -38,11 +38,11 @@
                 <thead>
                     <tr style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:#6c757d;border-top:0">
                         <th class="border-top-0 pl-3">Nome</th>
-                        <th class="border-top-0">CPF</th>
+                        <th class="border-top-0 d-none d-lg-table-cell">CPF</th>
                         <th class="border-top-0">Telefone</th>
-                        <th class="border-top-0">E-mail</th>
-                        <th class="border-top-0">Cidade</th>
-                        <th class="border-top-0 text-center">Compras</th>
+                        <th class="border-top-0 d-none d-md-table-cell">E-mail</th>
+                        <th class="border-top-0 d-none d-md-table-cell">Cidade</th>
+                        <th class="border-top-0 text-center d-none d-lg-table-cell">Compras</th>
                         <th class="border-top-0" style="width:110px"></th>
                     </tr>
                 </thead>
@@ -55,18 +55,18 @@
                                 {{ $customer->nome }}
                             </a>
                         </td>
-                        <td class="align-middle text-muted" style="font-size:.88rem">{{ $customer->cpf ?? '—' }}</td>
+                        <td class="align-middle text-muted d-none d-lg-table-cell" style="font-size:.88rem">{{ $customer->cpf ?? '—' }}</td>
                         <td class="align-middle" style="font-size:.88rem">
                             <a href="https://wa.me/55{{ preg_replace('/\D/', '', $customer->telefone) }}"
                                target="_blank" class="text-success" style="white-space:nowrap">
                                 <i class="fab fa-whatsapp mr-1"></i>{{ $customer->telefone }}
                             </a>
                         </td>
-                        <td class="align-middle text-muted" style="font-size:.88rem">{{ $customer->email ?? '—' }}</td>
-                        <td class="align-middle text-muted" style="font-size:.88rem">
+                        <td class="align-middle text-muted d-none d-md-table-cell" style="font-size:.88rem">{{ $customer->email ?? '—' }}</td>
+                        <td class="align-middle text-muted d-none d-md-table-cell" style="font-size:.88rem">
                             {{ $customer->cidade ? $customer->cidade.'/'.$customer->estado : '—' }}
                         </td>
-                        <td class="align-middle text-center">
+                        <td class="align-middle text-center d-none d-lg-table-cell">
                             @if($customer->sales_count > 0)
                                 <span class="badge badge-light border" style="font-size:.78rem">{{ $customer->sales_count }}</span>
                             @else

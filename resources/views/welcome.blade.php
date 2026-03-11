@@ -66,7 +66,7 @@
                 <div class="hero-search">
                     <form action="{{ route('site.vehicles.index') }}" method="GET">
                         <div class="row no-gutters" style="gap:0">
-                            <div class="col-12 col-sm-4 pr-sm-1 mb-2 mb-sm-0">
+                            <div class="col-12 col-sm-4 pr-sm-1 mb-3 mb-sm-0">
                                 <select name="marca" class="form-control">
                                     <option value="">Todas as marcas</option>
                                     @foreach($marcas as $marca)
@@ -74,7 +74,7 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="col-12 col-sm-4 px-sm-1 mb-2 mb-sm-0">
+                            <div class="col-12 col-sm-4 px-sm-1 mb-3 mb-sm-0">
                                 <select name="categoria" class="form-control">
                                     <option value="">Categoria</option>
                                     <option value="hatch">Hatch</option>

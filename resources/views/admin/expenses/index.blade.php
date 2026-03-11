@@ -51,10 +51,10 @@
             <table class="table table-hover mb-0">
                 <thead>
                     <tr style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:#6c757d;border-top:0">
-                        <th class="border-top-0 pl-3">Data</th>
+                        <th class="border-top-0 pl-3 d-none d-md-table-cell">Data</th>
                         <th class="border-top-0">Descrição</th>
-                        <th class="border-top-0">Categoria</th>
-                        <th class="border-top-0">Veículo</th>
+                        <th class="border-top-0 d-none d-md-table-cell">Categoria</th>
+                        <th class="border-top-0 d-none d-lg-table-cell">Veículo</th>
                         <th class="border-top-0 text-right">Valor</th>
                         <th class="border-top-0" style="width:80px"></th>
                     </tr>
@@ -62,10 +62,10 @@
                 <tbody>
                     @forelse($expenses as $expense)
                     <tr>
-                        <td class="pl-3 align-middle text-muted" style="font-size:.85rem;white-space:nowrap">{{ $expense->data->format('d/m/Y') }}</td>
+                        <td class="pl-3 align-middle text-muted d-none d-md-table-cell" style="font-size:.85rem;white-space:nowrap">{{ $expense->data->format('d/m/Y') }}</td>
                         <td class="align-middle" style="font-size:.9rem">{{ $expense->descricao }}</td>
-                        <td class="align-middle"><span class="badge badge-light border" style="font-size:.75rem">{{ $expense->categoria_label }}</span></td>
-                        <td class="align-middle" style="font-size:.88rem">
+                        <td class="align-middle d-none d-md-table-cell"><span class="badge badge-light border" style="font-size:.75rem">{{ $expense->categoria_label }}</span></td>
+                        <td class="align-middle d-none d-lg-table-cell" style="font-size:.88rem">
                             @if($expense->vehicle_id && $expense->vehicle)
                                 <a href="{{ route('admin.vehicles.show', $expense->vehicle->id) }}" class="text-dark">{{ $expense->vehicle->titulo }}</a>
                             @else

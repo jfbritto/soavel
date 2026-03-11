@@ -1681,6 +1681,11 @@ a:hover {
    ═══════════════════════════════════════════════════ */
 
 @media (max-width: 991px) {
+    .navbar-site .container {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
     .btn-filter-mobile {
         display: flex !important;
     }
@@ -1807,8 +1812,8 @@ a:hover {
     .hero-search form .row.no-gutters {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        column-gap: 14px;
-        row-gap: 14px;
+        column-gap: 12px;
+        row-gap: 24px;
     }
 
     .hero-search form .row.no-gutters > div {

@@ -1,0 +1,185 @@
+/* ============================================================
+   ADMIN MOBILE — Soavel
+   Correções mobile-first para o painel AdminLTE
+   ============================================================ */
+
+/* ── Content header: title + botão lado a lado sempre ───── */
+.content-header .d-flex.justify-content-between {
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.content-header h1.m-0 {
+    font-size: clamp(1.1rem, 4vw, 1.5rem);
+}
+
+/* ── Filtros: form-inline vira coluna no mobile ─────────── */
+@media (max-width: 767px) {
+    .form-inline {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 8px !important;
+    }
+    .form-inline .form-control,
+    .form-inline select.form-control,
+    .form-inline .custom-select {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        height: 42px;
+        font-size: 16px; /* evita zoom no iOS */
+    }
+    .form-inline .input-group {
+        width: 100% !important;
+        display: flex !important;
+    }
+    .form-inline .input-group .form-control {
+        flex: 1;
+    }
+    .form-inline .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    .form-inline .btn-link {
+        width: auto;
+        align-self: center;
+    }
+    /* Card dos filtros: menos padding */
+    .card-body.py-2 {
+        padding: 12px 14px !important;
+    }
+}
+
+/* ── Tabelas: scroll horizontal como fallback + compactar── */
+.table-responsive-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+/* Wrapper nos cards com tabela */
+@media (max-width: 767px) {
+    .card > .card-body.p-0 {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+@media (max-width: 767px) {
+    .table th,
+    .table td {
+        white-space: nowrap;
+        font-size: .82rem !important;
+        padding: 8px 10px;
+    }
+    .table th:first-child,
+    .table td:first-child {
+        padding-left: 12px !important;
+    }
+    .table th:last-child,
+    .table td:last-child {
+        padding-right: 12px !important;
+    }
+}
+
+/* ── Modais: padding lateral menor no mobile ────────────── */
+@media (max-width: 575px) {
+    .modal-dialog {
+        margin: 8px;
+    }
+    .modal-body {
+        padding: 14px;
+    }
+    .modal-footer {
+        padding: 10px 14px;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .modal-footer .btn {
+        flex: 1;
+    }
+    /* Modais grandes viram full-width */
+    .modal-lg, .modal-xl {
+        max-width: calc(100vw - 16px) !important;
+    }
+}
+
+/* ── Formulários: colunas empilham no mobile ────────────── */
+@media (max-width: 575px) {
+    .row > [class*="col-md-"],
+    .row > [class*="col-sm-"] {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    .form-control,
+    select.form-control,
+    .custom-select {
+        height: 44px;
+        font-size: 16px; /* evita zoom iOS */
+    }
+    textarea.form-control {
+        height: auto;
+        font-size: 16px;
+    }
+    /* Botões de submit full-width */
+    .card-footer .btn {
+        width: 100%;
+    }
+}
+
+/* ── Cards KPI (dashboard) ──────────────────────────────── */
+@media (max-width: 575px) {
+    .small-box .inner h3 {
+        font-size: 1.6rem;
+    }
+    .small-box .inner p {
+        font-size: .8rem;
+    }
+    .small-box .icon {
+        display: none;
+    }
+}
+
+/* ── Info-box (leads) ───────────────────────────────────── */
+@media (max-width: 575px) {
+    .info-box {
+        min-height: 60px;
+    }
+    .info-box-icon {
+        width: 50px;
+        font-size: 1.2rem;
+        line-height: 60px;
+    }
+    .info-box-content {
+        padding: 8px 10px;
+    }
+    .info-box-number {
+        font-size: 1.2rem !important;
+    }
+}
+
+/* ── Paginação ──────────────────────────────────────────── */
+@media (max-width: 575px) {
+    .pagination {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 2px;
+    }
+    .page-link {
+        padding: 6px 10px;
+        font-size: .82rem;
+    }
+}
+
+
+/* ── Navbar AdminLTE: sidebar toggle visível ────────────── */
+@media (max-width: 767px) {
+    .main-header .navbar {
+        padding: 0 8px;
+    }
+}
+
+/* ── Sort bar e stat inline (vendas/despesas) ───────────── */
+@media (max-width: 575px) {
+    .d-flex.align-items-baseline {
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+}
