@@ -64,7 +64,7 @@
                         <th class="border-top-0 d-none d-md-table-cell">KM</th>
                         <th class="border-top-0">Preço</th>
                         <th class="border-top-0">Status</th>
-                        <th class="border-top-0" style="width:60px"></th>
+                        <th class="border-top-0" style="width:100px"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -104,16 +104,16 @@
                                 {{ $vehicle->status_label }}
                             </span>
                         </td>
-                        <td class="align-middle text-right pr-3" onclick="event.stopPropagation()">
-                            <button class="btn btn-sm btn-link p-0 mr-2 btn-destaque"
+                        <td class="align-middle text-right pr-3" style="white-space:nowrap" onclick="event.stopPropagation()">
+                            <button class="btn btn-sm btn-link p-0 btn-destaque"
                                     data-vehicle-id="{{ $vehicle->id }}"
                                     data-destaque="{{ $vehicle->destaque ? '1' : '0' }}"
                                     title="{{ $vehicle->destaque ? 'Remover destaque' : 'Marcar como destaque' }}"
-                                    style="font-size:1.1rem;line-height:1">
+                                    style="font-size:1rem;line-height:1;vertical-align:middle">
                                 <i class="fa{{ $vehicle->destaque ? 's' : 'r' }} fa-star text-{{ $vehicle->destaque ? 'warning' : 'muted' }}"></i>
                             </button>
                             <a href="{{ route('admin.vehicles.show', $vehicle) }}"
-                               class="btn btn-sm btn-outline-secondary" style="font-size:.78rem;padding:2px 10px"
+                               class="btn btn-sm btn-outline-secondary ml-1" style="font-size:.78rem;padding:2px 10px;vertical-align:middle"
                                title="Ver detalhes do veículo">
                                 Abrir
                             </a>
