@@ -119,14 +119,27 @@
                 </div>
             </div>
 
-            {{-- Right: Decorative --}}
+            {{-- Right: Hero image --}}
             <div class="col-lg-6 d-none d-lg-flex justify-content-center align-items-center">
+                @if($destaques->isNotEmpty() && $destaques->first()->principalPhoto)
+                <a href="{{ route('site.vehicles.show', $destaques->first()->slug) }}" style="width:100%;max-width:480px;display:block;text-decoration:none">
+                    <div style="width:100%;aspect-ratio:4/3;border-radius:var(--card-radius);overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.12)">
+                        <img src="{{ $destaques->first()->principalPhoto->url }}" alt="{{ $destaques->first()->titulo }}"
+                             style="width:100%;height:100%;object-fit:cover;display:block">
+                    </div>
+                    <div style="text-align:center;margin-top:10px">
+                        <span style="font-size:.85rem;font-weight:600;color:var(--text-2)">{{ $destaques->first()->titulo }}</span>
+                        <span style="font-size:.85rem;color:var(--accent);font-weight:700;margin-left:8px">{{ $destaques->first()->preco_formatado }}</span>
+                    </div>
+                </a>
+                @else
                 <div style="width:100%;max-width:480px;aspect-ratio:4/3;background:var(--accent-subtle);border-radius:var(--card-radius);display:flex;align-items:center;justify-content:center;border:1px dashed var(--border-2)">
                     <div style="text-align:center;color:var(--text-3)">
                         <i class="fas fa-car" style="font-size:4rem;margin-bottom:12px;display:block;color:var(--accent);opacity:.35"></i>
                         <span style="font-size:.85rem;letter-spacing:.08em;text-transform:uppercase;opacity:.5">Seu próximo veículo</span>
                     </div>
                 </div>
+                @endif
             </div>
 
         </div>
