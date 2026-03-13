@@ -119,19 +119,25 @@
                 </div>
             </div>
 
-            {{-- Right: Hero image --}}
+            {{-- Right: Hero carousel --}}
             <div class="col-lg-6 d-none d-lg-flex justify-content-center align-items-center">
-                @if($destaques->isNotEmpty() && $destaques->first()->principalPhoto)
-                <a href="{{ route('site.vehicles.show', $destaques->first()->slug) }}" style="width:100%;max-width:480px;display:block;text-decoration:none">
-                    <div style="width:100%;aspect-ratio:4/3;border-radius:var(--card-radius);overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.12)">
-                        <img src="{{ $destaques->first()->principalPhoto->url }}" alt="{{ $destaques->first()->titulo }}"
-                             style="width:100%;height:100%;object-fit:cover;display:block">
-                    </div>
-                    <div style="text-align:center;margin-top:10px">
-                        <span style="font-size:.85rem;font-weight:600;color:var(--text-2)">{{ $destaques->first()->titulo }}</span>
-                        <span style="font-size:.85rem;color:var(--accent);font-weight:700;margin-left:8px">{{ $destaques->first()->preco_formatado }}</span>
-                    </div>
-                </a>
+                @php $heroVehicles = $destaques->filter(fn($v) => $v->principalPhoto); @endphp
+                @if($heroVehicles->isNotEmpty())
+                <div id="heroCarousel" style="width:100%;max-width:480px;position:relative">
+                    @foreach($heroVehicles as $i => $hv)
+                    <a href="{{ route('site.vehicles.show', $hv->slug) }}"
+                       class="hero-slide" style="display:{{ $i === 0 ? 'block' : 'none' }};text-decoration:none;opacity:{{ $i === 0 ? '1' : '0' }};transition:opacity .6s ease">
+                        <div style="width:100%;aspect-ratio:4/3;border-radius:var(--card-radius);overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.12)">
+                            <img src="{{ $hv->principalPhoto->url }}" alt="{{ $hv->titulo }}"
+                                 style="width:100%;height:100%;object-fit:cover;display:block">
+                        </div>
+                        <div style="text-align:center;margin-top:10px">
+                            <span style="font-size:.85rem;font-weight:600;color:var(--text-2)">{{ $hv->titulo }}</span>
+                            <span style="font-size:.85rem;color:var(--accent);font-weight:700;margin-left:8px">{{ $hv->preco_formatado }}</span>
+                        </div>
+                    </a>
+                    @endforeach
+                </div>
                 @else
                 <div style="width:100%;max-width:480px;aspect-ratio:4/3;background:var(--accent-subtle);border-radius:var(--card-radius);display:flex;align-items:center;justify-content:center;border:1px dashed var(--border-2)">
                     <div style="text-align:center;color:var(--text-3)">
@@ -378,4 +384,26 @@
     </div>
 </section>
 
+@endsection
+
+@section('js')
+<script>
+(function () {
+    var slides = document.querySelectorAll('#heroCarousel .hero-slide');
+    if (slides.length < 2) return;
+    var current = 0;
+
+    setInterval(function () {
+        var prev = current;
+        current = (current + 1) % slides.length;
+
+        slides[prev].style.opacity = '0';
+        setTimeout(function () {
+            slides[prev].style.display = 'none';
+            slides[current].style.display = 'block';
+            setTimeout(function () { slides[current].style.opacity = '1'; }, 30);
+        }, 600);
+    }, 4000);
+})();
+</script>
 @endsection
