@@ -7,6 +7,8 @@
 <style>
 #cropWrap { background:#1a1a1a; height:520px; position:relative; }
 #cropWrap img { display:block; max-width:100%; }
+.sortable-ghost { opacity:.35; }
+.drag-handle:active { cursor:grabbing; }
 </style>
 @endsection
 
@@ -202,6 +204,9 @@
                         @foreach($vehicle->photos as $photo)
                         <div class="col-md-3 col-sm-4 mb-3" data-photo-id="{{ $photo->id }}">
                             <div class="position-relative" style="border-radius:6px;overflow:hidden;border:2px solid {{ $photo->principal ? '#28a745' : '#dee2e6' }}">
+                                <div class="drag-handle text-center py-1" style="cursor:grab;background:#f8f9fa;font-size:.65rem;color:#999">
+                                    <i class="fas fa-grip-horizontal"></i>
+                                </div>
                                 <img src="{{ $photo->url }}" style="width:100%;height:110px;object-fit:cover;display:block">
                                 <div class="d-flex justify-content-between align-items-center px-1 py-1" style="background:#fff">
                                     @if($photo->principal)
@@ -539,6 +544,7 @@
 
 @section('js')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
 <script>
 // ── Crop flow ───────────────────────────────────────────────
 (function () {
@@ -692,6 +698,33 @@
         var num = parseInt(raw, 10) / 100;
         hid.value = num.toFixed(2);
         this.value = num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    });
+})();
+
+// ── Drag-and-drop reorder fotos ──────────────────────────────
+(function () {
+    var grid = document.getElementById('photoGrid');
+    if (!grid) return;
+
+    Sortable.create(grid, {
+        animation: 150,
+        handle: '.drag-handle',
+        ghostClass: 'sortable-ghost',
+        onEnd: function () {
+            var items = grid.querySelectorAll('[data-photo-id]');
+            var order = Array.from(items).map(function (el) {
+                return parseInt(el.getAttribute('data-photo-id'));
+            });
+            fetch('{{ route("admin.vehicles.photos.reorder", $vehicle) }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ order: order })
+            });
+        }
     });
 })();
 
