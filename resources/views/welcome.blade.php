@@ -386,7 +386,7 @@
 
 @endsection
 
-@section('js')
+@section('extra_js')
 <script>
 (function () {
     var slides = document.querySelectorAll('#heroCarousel .hero-slide');
