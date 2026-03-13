@@ -105,6 +105,13 @@
                             </span>
                         </td>
                         <td class="align-middle text-right pr-3" onclick="event.stopPropagation()">
+                            <button class="btn btn-sm btn-link p-0 mr-2 btn-destaque"
+                                    data-vehicle-id="{{ $vehicle->id }}"
+                                    data-destaque="{{ $vehicle->destaque ? '1' : '0' }}"
+                                    title="{{ $vehicle->destaque ? 'Remover destaque' : 'Marcar como destaque' }}"
+                                    style="font-size:1.1rem;line-height:1">
+                                <i class="fa{{ $vehicle->destaque ? 's' : 'r' }} fa-star text-{{ $vehicle->destaque ? 'warning' : 'muted' }}"></i>
+                            </button>
                             <a href="{{ route('admin.vehicles.show', $vehicle) }}"
                                class="btn btn-sm btn-outline-secondary" style="font-size:.78rem;padding:2px 10px"
                                title="Ver detalhes do veículo">
@@ -136,5 +143,44 @@
 @section('css')
 <style>
     .vehicle-row:hover { background-color: #f8f9fa !important; }
+    .btn-destaque:hover i.fa-star { transform: scale(1.2); }
+    .btn-destaque i { transition: all .15s ease; }
 </style>
+@endsection
+
+@section('js')
+<script>
+document.querySelectorAll('.btn-destaque').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        var id = this.getAttribute('data-vehicle-id');
+        var icon = this.querySelector('i');
+        var badge = this.closest('tr').querySelector('.badge-light');
+
+        fetch('/admin/vehicles/' + id + '/destaque', {
+            method: 'PATCH',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            }
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            if (data.destaque) {
+                icon.className = 'fas fa-star text-warning';
+                btn.setAttribute('data-destaque', '1');
+                btn.title = 'Remover destaque';
+                if (!badge) {
+                    var nameEl = btn.closest('tr').querySelector('td:nth-child(2) div:first-child');
+                    nameEl.insertAdjacentHTML('beforeend', ' <span class="badge badge-light border ml-1" style="font-size:.7rem;font-weight:500">Destaque</span>');
+                }
+            } else {
+                icon.className = 'far fa-star text-muted';
+                btn.setAttribute('data-destaque', '0');
+                btn.title = 'Marcar como destaque';
+                if (badge) badge.remove();
+            }
+        });
+    });
+});
+</script>
 @endsection

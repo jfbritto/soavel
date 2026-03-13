@@ -123,4 +123,14 @@ class VehicleController extends Controller
         return redirect()->route('admin.vehicles.index')
             ->with('success', 'Veículo excluído com sucesso.');
     }
+
+    public function toggleDestaque(Vehicle $vehicle)
+    {
+        $vehicle->update(['destaque' => !$vehicle->destaque]);
+
+        return response()->json([
+            'success'  => true,
+            'destaque' => $vehicle->destaque,
+        ]);
+    }
 }

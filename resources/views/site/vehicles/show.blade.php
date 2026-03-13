@@ -88,7 +88,7 @@
             <div class="card shadow-sm mb-4">
                 <div class="card-body">
                     <h2 class="font-weight-800" style="color:var(--azul)">{{ $vehicle->titulo }}</h2>
-                    <div class="d-flex flex-wrap gap-2 mb-3">
+                    <div class="d-flex flex-wrap mb-3" style="gap:8px">
                         <span class="badge badge-primary px-3 py-2">{{ ucfirst($vehicle->categoria) }}</span>
                         <span class="badge badge-{{ $vehicle->status_color }} px-3 py-2">{{ $vehicle->status_label }}</span>
                         @if($vehicle->destaque)<span class="badge badge-warning px-3 py-2">⭐ Destaque</span>@endif
