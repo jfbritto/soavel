@@ -13,8 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Soavel Veículos'),
-    'whatsapp_number' => env('WHATSAPP_NUMBER', '5527998490472'),
+    'name' => env('APP_NAME', 'Minha Loja de Veículos'),
 
     /*
     |--------------------------------------------------------------------------

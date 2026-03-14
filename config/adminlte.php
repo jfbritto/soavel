@@ -14,7 +14,7 @@ return [
     |
     */
 
-    'title' => 'Soavel Veículos',
+    'title' => env('APP_NAME', 'Minha Loja de Veículos'),
     'title_prefix' => '',
     'title_postfix' => '',
 
@@ -63,7 +63,7 @@ return [
     |
     */
 
-    'logo' => '<b>Soavel</b> Veículos',
+    'logo' => '<b>' . env('APP_NAME', 'Minha Loja') . '</b>',
     'logo_img' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
     'logo_img_class' => 'brand-image',
     'logo_img_xl' => null,

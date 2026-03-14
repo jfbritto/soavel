@@ -1,5 +1,5 @@
 @extends('adminlte::page')
-@section('title', 'Editar Despesa — Soavel')
+@section('title', 'Editar Despesa — ' . config('adminlte.title'))
 @section('content_header')
     <div class="d-flex justify-content-between">
         <h1><i class="fas fa-edit mr-2"></i>Editar Despesa</h1>

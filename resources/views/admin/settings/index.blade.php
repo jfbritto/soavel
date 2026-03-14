@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', 'Configurações — Soavel')
+@section('title', 'Configurações — ' . config('adminlte.title'))
 
 @section('css')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
@@ -58,8 +58,8 @@
                                 <div class="form-group">
                                     <label class="font-weight-bold" style="font-size:.85rem">Nome do Sistema *</label>
                                     <input type="text" name="nome_sistema" class="form-control"
-                                        value="{{ $settings['nome_sistema']->value ?? 'Soavel Veículos' }}"
-                                        placeholder="Ex: Soavel Veículos">
+                                        value="{{ $settings['nome_sistema']->value ?? config('app.name') }}"
+                                        placeholder="Ex: Minha Loja de Veículos">
                                     <small class="text-muted">Aparece no título das páginas e na barra lateral.</small>
                                 </div>
                             </div>
@@ -197,7 +197,7 @@
                                     <label class="font-weight-bold" style="font-size:.85rem">Cidade / Estado</label>
                                     <input type="text" name="cidade_estado" class="form-control"
                                         value="{{ $settings['cidade_estado']->value ?? '' }}"
-                                        placeholder="Ex: Santa Maria de Jetibá – ES">
+                                        placeholder="Ex: São Paulo – SP">
                                 </div>
                             </div>
                         </div>
@@ -215,7 +215,7 @@
                                     <label class="font-weight-bold" style="font-size:.85rem">Endereço Completo</label>
                                     <input type="text" name="endereco_completo" class="form-control"
                                         value="{{ $settings['endereco_completo']->value ?? '' }}"
-                                        placeholder="Ex: Rua das Flores, 123 – Centro – Santa Maria de Jetibá, ES">
+                                        placeholder="Ex: Rua das Flores, 123 – Centro – São Paulo, SP">
                                     <small class="text-muted">Exibido no rodapé e na seção de contato do site.</small>
                                 </div>
                             </div>
@@ -243,11 +243,11 @@
                             <div class="col-12">
                                 <div class="form-group">
                                     <label class="font-weight-bold" style="font-size:.85rem">URL de Incorporação do Google Maps <small class="text-muted font-weight-normal">(embed)</small></label>
-                                    <input type="url" name="maps_embed_url" class="form-control"
+                                    <input type="url" name="maps_embed_url" id="maps_embed_url" class="form-control"
                                         value="{{ $settings['maps_embed_url']->value ?? '' }}"
                                         placeholder="https://www.google.com/maps/embed?pb=...">
                                     <small class="text-muted">
-                                        No Google Maps, clique em <strong>Compartilhar → Incorporar mapa</strong> e copie apenas a URL do atributo <code>src</code>.
+                                        <strong>Como pegar:</strong> Google Maps → pesquise sua loja → <strong>Compartilhar</strong> → aba <strong>"Incorporar um mapa"</strong> → <strong>COPIAR HTML</strong> → cole aqui (a URL sera extraida automaticamente).
                                     </small>
                                 </div>
                             </div>
@@ -308,7 +308,7 @@
                                     <label class="font-weight-bold" style="font-size:.85rem">Título da Página Inicial</label>
                                     <input type="text" name="site_titulo_home" class="form-control"
                                         value="{{ $settings['site_titulo_home']->value ?? '' }}"
-                                        placeholder="Ex: Soavel Veículos | Seminovos">
+                                        placeholder="Ex: Minha Loja | Seminovos">
                                     <small class="text-muted">Aparece na aba do navegador na home do site.</small>
                                 </div>
                             </div>
@@ -317,7 +317,7 @@
                                     <label class="font-weight-bold" style="font-size:.85rem">Descrição (meta description)</label>
                                     <input type="text" name="site_descricao_home" class="form-control"
                                         value="{{ $settings['site_descricao_home']->value ?? '' }}"
-                                        placeholder="Ex: Carros Seminovos em Santa Maria de Jetibá, ES"
+                                        placeholder="Ex: Carros Seminovos na sua cidade"
                                         maxlength="160">
                                     <small class="text-muted">Exibida nos resultados de busca (Google). Máx. 160 caracteres.</small>
                                 </div>
@@ -458,6 +458,7 @@
                                 <small class="text-muted">Escolha o estilo visual do site público. A alteração é imediata após salvar.</small>
                             </div>
                         </div>
+
                     </div>
 
                 </div>{{-- /tab-content --}}
@@ -738,5 +739,21 @@ var phoneMask = function (val) { return val.replace(/\D/g, '').length === 11 ? '
 var phoneOpts = { onKeyPress: function (val, e, field, opts) { field.mask(phoneMask.apply({}, arguments), opts); } };
 $('[name="telefone_comercial"]').mask(phoneMask, phoneOpts);
 $('[name="whatsapp_number"]').on('input', function () { this.value = this.value.replace(/\D/g, ''); });
+
+// ── Google Maps: extrai URL se colar HTML do iframe ─────────
+$('#maps_embed_url').on('paste', function() {
+    var field = this;
+    setTimeout(function() {
+        var val = field.value.trim();
+        if (val.indexOf('<iframe') !== -1 || val.indexOf('src=') !== -1) {
+            var match = val.match(/src=["']([^"']+)["']/);
+            if (match && match[1]) {
+                field.value = match[1];
+                $(field).css('background', '#f0fdf4');
+                setTimeout(function() { $(field).css('background', ''); }, 1500);
+            }
+        }
+    }, 50);
+});
 </script>
 @endsection

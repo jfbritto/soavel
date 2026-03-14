@@ -1,30 +1,24 @@
 @extends('layouts.site')
 
-@section('meta_title', \App\Models\Setting::get('site_titulo_home', 'Soavel Veículos | Seminovos em Santa Maria de Jetibá - ES'))
-@section('meta_description', \App\Models\Setting::get('site_descricao_home', 'Encontre carros seminovos de qualidade em Santa Maria de Jetibá-ES. Confira nosso estoque e encontre o veículo ideal para você.'))
+@section('meta_title', \App\Models\Setting::get('site_titulo_home', config('app.name') . ' | Seminovos'))
+@section('meta_description', \App\Models\Setting::get('site_descricao_home', 'Encontre carros seminovos de qualidade. Confira nosso estoque e encontre o veículo ideal para você.'))
 
 @section('schema')
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "AutoDealer",
-  "name": "{{ \App\Models\Setting::get('nome_sistema', 'Soavel Veículos') }}",
+  "name": "{{ \App\Models\Setting::get('nome_sistema', config('app.name')) }}",
   "description": "{{ \App\Models\Setting::get('descricao_empresa', 'Sua loja de confiança para encontrar o carro seminovo ideal.') }}",
-  "image": "{{ \App\Models\Setting::get('logo_path') ? asset('storage/' . \App\Models\Setting::get('logo_path')) : asset('img/logo/soavel-fundo.png') }}",
+  "image": "{{ \App\Models\Setting::get('logo_path') ? asset('storage/' . \App\Models\Setting::get('logo_path')) : asset('img/default-logo.svg') }}",
   "@id": "{{ url('/') }}",
   "url": "{{ url('/') }}",
-  "telephone": "+{{ \App\Models\Setting::get('whatsapp_number', '5527998490472') }}",
+  "telephone": "+{{ \App\Models\Setting::get('whatsapp_number', '') }}",
   "address": {
     "@type": "PostalAddress",
     "streetAddress": "{{ \App\Models\Setting::get('endereco_completo', '') }}",
-    "addressLocality": "Santa Maria de Jetibá",
-    "addressRegion": "ES",
+    "addressLocality": "{{ \App\Models\Setting::get('cidade_estado', '') }}",
     "addressCountry": "BR"
-  },
-  "geo": {
-    "@type": "GeoCoordinates",
-    "latitude": "-20.0013",
-    "longitude": "-40.7441"
   },
   "openingHoursSpecification": [
     {
@@ -53,7 +47,7 @@
 {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  "name": "{{ \App\Models\Setting::get('nome_sistema', 'Soavel Veículos') }}",
+  "name": "{{ \App\Models\Setting::get('nome_sistema', config('app.name')) }}",
   "url": "{{ url('/') }}",
   "potentialAction": {
     "@type": "SearchAction",
@@ -67,17 +61,17 @@
 @section('content')
 
 @php
-    $whatsapp         = \App\Models\Setting::get('whatsapp_number', '5527998490472');
+    $whatsapp         = \App\Models\Setting::get('whatsapp_number', '');
     $slogan           = \App\Models\Setting::get('slogan', 'Seu próximo carro está aqui');
-    $nomeSistema      = \App\Models\Setting::get('nome_sistema', 'Soavel Veículos');
-    $telefone         = \App\Models\Setting::get('telefone_comercial', '(27) 99849-0472');
-    $cidadeEstado     = \App\Models\Setting::get('cidade_estado', 'Santa Maria de Jetibá – ES');
+    $nomeSistema      = \App\Models\Setting::get('nome_sistema', config('app.name'));
+    $telefone         = \App\Models\Setting::get('telefone_comercial', '');
+    $cidadeEstado     = \App\Models\Setting::get('cidade_estado', '');
     $enderecoCompleto = \App\Models\Setting::get('endereco_completo', '');
     $horarioAten      = \App\Models\Setting::get('horario_atendimento', 'Seg–Sex 8h–18h | Sáb 8h–12h');
     $heroTitulo       = \App\Models\Setting::get('hero_titulo', '');
     $statClientes     = \App\Models\Setting::get('stat_clientes', '500+');
     $statAnos         = \App\Models\Setting::get('stat_anos', '10');
-    $mapsEmbedUrl     = \App\Models\Setting::get('maps_embed_url', 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4417.9692150682395!2d-40.74408482403657!3d-20.001308640534603!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xb77d27c247513d%3A0xc155ed404cf6cdcd!2sSoavel%20Ve%C3%ADculos!5e1!3m2!1spt-BR!2sbr!4v1742262481187!5m2!1spt-BR!2sbr');
+    $mapsEmbedUrl     = \App\Models\Setting::get('maps_embed_url', '');
 @endphp
 
 {{-- ═══════════════════════════════════════════════

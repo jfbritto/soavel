@@ -10,12 +10,15 @@ class AdminUserSeeder extends Seeder
 {
     public function run()
     {
+        $email    = env('ADMIN_EMAIL', 'admin@admin.com');
+        $password = env('ADMIN_PASSWORD', 'admin123');
+
         User::firstOrCreate(
-            ['email' => 'admin@soavel.com.br'],
+            ['email' => $email],
             [
                 'name'     => 'Administrador',
-                'email'    => 'admin@soavel.com.br',
-                'password' => Hash::make('soavel@2024'),
+                'email'    => $email,
+                'password' => Hash::make($password),
             ]
         );
     }

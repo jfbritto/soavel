@@ -1,5 +1,5 @@
 @extends('adminlte::page')
-@section('title', $customer->nome . ' — Soavel')
+@section('title', $customer->nome . ' — ' . config('adminlte.title'))
 @section('content_header')
     <div class="d-flex justify-content-between">
         <h1><i class="fas fa-user mr-2"></i>{{ $customer->nome }}</h1>

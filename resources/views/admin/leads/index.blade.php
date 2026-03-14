@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', 'Leads — Soavel')
+@section('title', 'Leads — ' . config('adminlte.title'))
 
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">

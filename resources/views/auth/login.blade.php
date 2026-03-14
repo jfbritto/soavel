@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login — {{ config('adminlte.title', 'Soavel Veículos') }}</title>
+    <title>Login — {{ config('adminlte.title', config('app.name')) }}</title>
     @php
         $logoPath = \App\Models\Setting::get('logo_path');
         $faviconPath = \App\Models\Setting::get('favicon_path');
-        $logoSrc = $logoPath ? asset('storage/' . $logoPath) : asset('img/logo/soavel-fundo.png');
+        $logoSrc = $logoPath ? asset('storage/' . $logoPath) : asset('img/default-logo.svg');
         $faviconSrc = $faviconPath ? asset('storage/' . $faviconPath) : asset('img/default-favicon.svg');
         $corPrimaria = \App\Models\Setting::get('cor_primaria', '#1e3a5f');
     @endphp

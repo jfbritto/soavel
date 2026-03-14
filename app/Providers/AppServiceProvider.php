@@ -17,7 +17,7 @@ class AppServiceProvider extends ServiceProvider
     {
         try {
             if (Schema::hasTable('settings')) {
-                $nome = Setting::get('nome_sistema', config('adminlte.title', 'Soavel'));
+                $nome = Setting::get('nome_sistema', config('adminlte.title', config('app.name')));
                 $logo = Setting::get('logo_path');
 
                 config([

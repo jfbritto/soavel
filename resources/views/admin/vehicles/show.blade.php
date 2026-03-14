@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', $vehicle->titulo . ' — Soavel')
+@section('title', $vehicle->titulo . ' — ' . config('adminlte.title'))
 
 @section('css')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">

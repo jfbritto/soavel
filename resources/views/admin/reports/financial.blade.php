@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', 'Relatório Financeiro — Soavel')
+@section('title', 'Relatório Financeiro — ' . config('adminlte.title'))
 
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">

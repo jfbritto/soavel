@@ -35,78 +35,94 @@ Route::post('/interesse/{vehicle}', [Site\ContactController::class, 'interesse']
 
 Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
 
+    // Onboarding (sem middleware de onboarding para evitar loop)
+    Route::prefix('onboarding')->name('onboarding.')->group(function () {
+        Route::get('/', [Admin\OnboardingController::class, 'index'])->name('index');
+        Route::get('/step/{step}', [Admin\OnboardingController::class, 'step'])->name('step');
+        Route::post('/step/{step}', [Admin\OnboardingController::class, 'save'])->name('save');
+        Route::get('/complete', [Admin\OnboardingController::class, 'complete'])->name('complete');
+        Route::get('/finish', [Admin\OnboardingController::class, 'finish'])->name('finish');
+        Route::post('/ai-generate', [Admin\OnboardingController::class, 'aiGenerate'])->name('ai');
+
+    });
+
     // Dashboard
-    Route::get('/', [Admin\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/', [Admin\DashboardController::class, 'index'])->name('dashboard')->middleware('onboarding');
 
-    // Veículos
-    Route::resource('vehicles', Admin\VehicleController::class);
-    Route::patch('vehicles/{vehicle}/destaque', [Admin\VehicleController::class, 'toggleDestaque'])->name('vehicles.toggleDestaque');
-    Route::post('vehicles/suggest-features', [Admin\VehicleController::class, 'suggestFeatures'])->name('vehicles.suggestFeatures');
-    Route::post('vehicles/review', [Admin\VehicleController::class, 'reviewVehicle'])->name('vehicles.review');
-
-    // Fotos dos veículos
-    Route::prefix('vehicles/{vehicle}/photos')->name('vehicles.photos.')->group(function () {
-        Route::post('/', [Admin\VehiclePhotoController::class, 'store'])->name('store');
-        Route::delete('/{photo}', [Admin\VehiclePhotoController::class, 'destroy'])->name('destroy');
-        Route::patch('/{photo}/principal', [Admin\VehiclePhotoController::class, 'setPrincipal'])->name('principal');
-        Route::post('/reorder', [Admin\VehiclePhotoController::class, 'reorder'])->name('reorder');
-    });
-
-    // Documentos dos veículos
-    Route::prefix('vehicles/{vehicle}/documents')->name('vehicles.documents.')->group(function () {
-        Route::post('/', [Admin\VehicleDocumentController::class, 'store'])->name('store');
-        Route::delete('/{document}', [Admin\VehicleDocumentController::class, 'destroy'])->name('destroy');
-        Route::get('/{document}/download', [Admin\VehicleDocumentController::class, 'download'])->name('download');
-    });
-
-    // Vendas
-    Route::get('sales', [Admin\SaleController::class, 'index'])->name('sales.index');
-    Route::get('sales/create', [Admin\SaleController::class, 'create'])->name('sales.create');
-    Route::post('sales', [Admin\SaleController::class, 'store'])->name('sales.store');
-    Route::get('sales/{sale}', [Admin\SaleController::class, 'show'])->name('sales.show');
-    Route::patch('sales/{sale}/status', [Admin\SaleController::class, 'updateStatus'])->name('sales.status');
-
-    // Clientes (rotas específicas ANTES do resource para evitar conflito com {customer})
-    Route::get('customers/cpf-check', [Admin\CustomerController::class, 'cpfCheck'])->name('customers.cpf-check');
-    Route::post('customers/quick-store', [Admin\CustomerController::class, 'quickStore'])->name('customers.quick-store');
-    Route::resource('customers', Admin\CustomerController::class);
-
-    // Leads
-    Route::get('leads', [Admin\LeadController::class, 'index'])->name('leads.index');
-    Route::get('leads/create', [Admin\LeadController::class, 'create'])->name('leads.create');
-    Route::post('leads', [Admin\LeadController::class, 'store'])->name('leads.store');
-    Route::get('leads/{lead}/edit', [Admin\LeadController::class, 'edit'])->name('leads.edit');
-    Route::put('leads/{lead}', [Admin\LeadController::class, 'update'])->name('leads.update');
-    Route::delete('leads/{lead}', [Admin\LeadController::class, 'destroy'])->name('leads.destroy');
-    Route::patch('leads/{lead}/status', [Admin\LeadController::class, 'updateStatus'])->name('leads.status');
-    Route::patch('leads/{lead}/assign', [Admin\LeadController::class, 'assign'])->name('leads.assign');
-
-    // FIPE (proxy)
-    Route::prefix('fipe')->name('fipe.')->group(function () {
-        Route::get('/marcas',                       [Admin\FipeController::class, 'marcas'])->name('marcas');
-        Route::get('/modelos/{marca}',              [Admin\FipeController::class, 'modelos'])->name('modelos');
-        Route::get('/anos/{marca}/{modelo}',        [Admin\FipeController::class, 'anos'])->name('anos');
-        Route::get('/preco/{marca}/{modelo}/{ano}', [Admin\FipeController::class, 'preco'])->name('preco');
-    });
-
-    // Sócios
-    Route::resource('partners', Admin\PartnerController::class)->except(['show']);
-    Route::post('vehicles/{vehicle}/partners', [Admin\PartnerController::class, 'attachVehicle'])->name('vehicles.partners.attach');
-    Route::delete('vehicles/{vehicle}/partners/{partner}', [Admin\PartnerController::class, 'detachVehicle'])->name('vehicles.partners.detach');
-
-    // Despesas
-    Route::resource('expenses', Admin\ExpenseController::class)->except(['show']);
-
-    // Configurações
+    // Configurações (acessível mesmo sem onboarding completo)
     Route::get('settings', [Admin\SettingController::class, 'index'])->name('settings.index');
     Route::put('settings', [Admin\SettingController::class, 'update'])->name('settings.update');
 
-    // Relatórios
-    Route::prefix('reports')->name('reports.')->group(function () {
-        Route::get('/financial', [Admin\ReportController::class, 'financial'])->name('financial');
-        Route::get('/vehicles', [Admin\ReportController::class, 'vehicles'])->name('vehicles');
-        Route::get('/financial/export', [Admin\ReportController::class, 'exportFinancial'])->name('financial.export');
-    });
+    // ── Rotas protegidas pelo onboarding ──────────────────────────────────
+    Route::middleware('onboarding')->group(function () {
+
+        // Veículos
+        Route::resource('vehicles', Admin\VehicleController::class);
+        Route::patch('vehicles/{vehicle}/destaque', [Admin\VehicleController::class, 'toggleDestaque'])->name('vehicles.toggleDestaque');
+        Route::post('vehicles/suggest-features', [Admin\VehicleController::class, 'suggestFeatures'])->name('vehicles.suggestFeatures');
+        Route::post('vehicles/review', [Admin\VehicleController::class, 'reviewVehicle'])->name('vehicles.review');
+
+        // Fotos dos veículos
+        Route::prefix('vehicles/{vehicle}/photos')->name('vehicles.photos.')->group(function () {
+            Route::post('/', [Admin\VehiclePhotoController::class, 'store'])->name('store');
+            Route::delete('/{photo}', [Admin\VehiclePhotoController::class, 'destroy'])->name('destroy');
+            Route::patch('/{photo}/principal', [Admin\VehiclePhotoController::class, 'setPrincipal'])->name('principal');
+            Route::post('/reorder', [Admin\VehiclePhotoController::class, 'reorder'])->name('reorder');
+        });
+
+        // Documentos dos veículos
+        Route::prefix('vehicles/{vehicle}/documents')->name('vehicles.documents.')->group(function () {
+            Route::post('/', [Admin\VehicleDocumentController::class, 'store'])->name('store');
+            Route::delete('/{document}', [Admin\VehicleDocumentController::class, 'destroy'])->name('destroy');
+            Route::get('/{document}/download', [Admin\VehicleDocumentController::class, 'download'])->name('download');
+        });
+
+        // Vendas
+        Route::get('sales', [Admin\SaleController::class, 'index'])->name('sales.index');
+        Route::get('sales/create', [Admin\SaleController::class, 'create'])->name('sales.create');
+        Route::post('sales', [Admin\SaleController::class, 'store'])->name('sales.store');
+        Route::get('sales/{sale}', [Admin\SaleController::class, 'show'])->name('sales.show');
+        Route::patch('sales/{sale}/status', [Admin\SaleController::class, 'updateStatus'])->name('sales.status');
+
+        // Clientes (rotas específicas ANTES do resource para evitar conflito com {customer})
+        Route::get('customers/cpf-check', [Admin\CustomerController::class, 'cpfCheck'])->name('customers.cpf-check');
+        Route::post('customers/quick-store', [Admin\CustomerController::class, 'quickStore'])->name('customers.quick-store');
+        Route::resource('customers', Admin\CustomerController::class);
+
+        // Leads
+        Route::get('leads', [Admin\LeadController::class, 'index'])->name('leads.index');
+        Route::get('leads/create', [Admin\LeadController::class, 'create'])->name('leads.create');
+        Route::post('leads', [Admin\LeadController::class, 'store'])->name('leads.store');
+        Route::get('leads/{lead}/edit', [Admin\LeadController::class, 'edit'])->name('leads.edit');
+        Route::put('leads/{lead}', [Admin\LeadController::class, 'update'])->name('leads.update');
+        Route::delete('leads/{lead}', [Admin\LeadController::class, 'destroy'])->name('leads.destroy');
+        Route::patch('leads/{lead}/status', [Admin\LeadController::class, 'updateStatus'])->name('leads.status');
+        Route::patch('leads/{lead}/assign', [Admin\LeadController::class, 'assign'])->name('leads.assign');
+
+        // FIPE (proxy)
+        Route::prefix('fipe')->name('fipe.')->group(function () {
+            Route::get('/marcas',                       [Admin\FipeController::class, 'marcas'])->name('marcas');
+            Route::get('/modelos/{marca}',              [Admin\FipeController::class, 'modelos'])->name('modelos');
+            Route::get('/anos/{marca}/{modelo}',        [Admin\FipeController::class, 'anos'])->name('anos');
+            Route::get('/preco/{marca}/{modelo}/{ano}', [Admin\FipeController::class, 'preco'])->name('preco');
+        });
+
+        // Sócios
+        Route::resource('partners', Admin\PartnerController::class)->except(['show']);
+        Route::post('vehicles/{vehicle}/partners', [Admin\PartnerController::class, 'attachVehicle'])->name('vehicles.partners.attach');
+        Route::delete('vehicles/{vehicle}/partners/{partner}', [Admin\PartnerController::class, 'detachVehicle'])->name('vehicles.partners.detach');
+
+        // Despesas
+        Route::resource('expenses', Admin\ExpenseController::class)->except(['show']);
+
+        // Relatórios
+        Route::prefix('reports')->name('reports.')->group(function () {
+            Route::get('/financial', [Admin\ReportController::class, 'financial'])->name('financial');
+            Route::get('/vehicles', [Admin\ReportController::class, 'vehicles'])->name('vehicles');
+            Route::get('/financial/export', [Admin\ReportController::class, 'exportFinancial'])->name('financial.export');
+        });
+
+    }); // fim onboarding
 });
 
 // Redireciona /home para o admin dashboard

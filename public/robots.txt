@@ -9,4 +9,4 @@ Disallow: /verify-email
 Disallow: /confirm-password
 Disallow: /home
 
-Sitemap: https://soavelveiculos.com.br/sitemap.xml
+Sitemap: /sitemap.xml

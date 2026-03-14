@@ -1,5 +1,5 @@
 @extends('adminlte::page')
-@section('title', 'Novo Cliente — Soavel')
+@section('title', 'Novo Cliente — ' . config('adminlte.title'))
 @section('content_header')
     <div class="d-flex justify-content-between">
         <h1><i class="fas fa-user-plus mr-2"></i>Novo Cliente</h1>

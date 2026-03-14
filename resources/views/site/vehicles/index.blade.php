@@ -1,16 +1,18 @@
 @extends('layouts.site')
 
 @php
+    $nomeLoja = \App\Models\Setting::get('nome_sistema', config('app.name'));
+    $cidadeLoja = \App\Models\Setting::get('cidade_estado', '');
     $seoMarca = request('marca');
     $seoCategoria = request('categoria');
     $seoTitle = $seoMarca
-        ? $seoMarca . ' Seminovos | Soavel Veículos'
+        ? $seoMarca . ' Seminovos | ' . $nomeLoja
         : ($seoCategoria
-            ? ucfirst($seoCategoria) . ' Seminovos | Soavel Veículos'
-            : 'Estoque de Seminovos | Soavel Veículos');
+            ? ucfirst($seoCategoria) . ' Seminovos | ' . $nomeLoja
+            : 'Estoque de Seminovos | ' . $nomeLoja);
     $seoDesc = $seoMarca
-        ? 'Encontre ' . $seoMarca . ' seminovos com ótimos preços em Santa Maria de Jetibá - ES. Financiamento facilitado.'
-        : 'Confira nosso estoque de carros seminovos em Santa Maria de Jetibá - ES. Filtros por marca, modelo, preço e mais.';
+        ? 'Encontre ' . $seoMarca . ' seminovos com ótimos preços' . ($cidadeLoja ? ' em ' . $cidadeLoja : '') . '. Financiamento facilitado.'
+        : 'Confira nosso estoque de carros seminovos' . ($cidadeLoja ? ' em ' . $cidadeLoja : '') . '. Filtros por marca, modelo, preço e mais.';
 @endphp
 @section('meta_title', $seoTitle)
 @section('meta_description', $seoDesc)
@@ -153,7 +155,7 @@
                 @elseif(request('categoria'))
                     {{ ucfirst(request('categoria')) }} Seminovos
                 @else
-                    Carros Seminovos em Santa Maria de Jetibá
+                    Carros Seminovos{{ $cidadeLoja ? ' em ' . $cidadeLoja : '' }}
                 @endif
             </h1>
 

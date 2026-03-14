@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', 'Dashboard — Soavel Veículos')
+@section('title', 'Dashboard — ' . config('adminlte.title'))
 
 @section('content_header')
     <h1 class="m-0">Dashboard</h1>

@@ -3,27 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>@yield('meta_title', 'Soavel Veículos | Seminovos em Santa Maria de Jetibá - ES')</title>
-
-    <link rel="canonical" href="@yield('canonical', url()->current())">
-
     @php
         $siteTheme   = \App\Models\Setting::get('site_layout', 'clean-modern');
         $logoPath    = \App\Models\Setting::get('logo_path');
         $faviconPath = \App\Models\Setting::get('favicon_path');
-        $nomeSistema = \App\Models\Setting::get('nome_sistema', 'Soavel Veículos');
-        $whatsappNum = \App\Models\Setting::get('whatsapp_number', '5527998490472');
+        $nomeSistema = \App\Models\Setting::get('nome_sistema', config('app.name'));
+        $whatsappNum = \App\Models\Setting::get('whatsapp_number', '');
         $instagramUrl = \App\Models\Setting::get('instagram_url', '');
         $facebookUrl  = \App\Models\Setting::get('facebook_url', '');
-        $telefone     = \App\Models\Setting::get('telefone_comercial', '(27) 99849-0472');
-        $cidadeEstado     = \App\Models\Setting::get('cidade_estado', 'Santa Maria de Jetibá – ES');
+        $telefone     = \App\Models\Setting::get('telefone_comercial', '');
+        $cidadeEstado     = \App\Models\Setting::get('cidade_estado', '');
         $enderecoCompleto = \App\Models\Setting::get('endereco_completo', '');
         $horarioAten      = \App\Models\Setting::get('horario_atendimento', 'Seg–Sex 8h–18h | Sáb 8h–12h');
         $descricaoEmpresa = \App\Models\Setting::get('descricao_empresa', 'Sua loja de confiança para encontrar o carro seminovo ideal. Qualidade e transparência em cada negociação.');
         $corPrimaria      = \App\Models\Setting::get('cor_primaria', '');
-        $logoSrc          = $logoPath ? asset('storage/' . $logoPath) : asset('img/logo/soavel-fundo.png');
+        $logoSrc          = $logoPath ? asset('storage/' . $logoPath) : asset('img/default-logo.svg');
         $faviconSrc       = $faviconPath ? asset('storage/' . $faviconPath) : asset('img/default-favicon.svg');
     @endphp
+
+    <title>@yield('meta_title', $nomeSistema . ' | Seminovos')</title>
+    <link rel="canonical" href="@yield('canonical', url()->current())">
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{{ $faviconSrc }}">
@@ -226,9 +225,7 @@
     <div class="footer-bottom">
         <div class="container d-flex flex-wrap justify-content-between align-items-center" style="gap:6px">
             <p class="mb-0">&copy; {{ date('Y') }} {{ $nomeSistema }}. Todos os direitos reservados.</p>
-            <p class="mb-0" style="font-size:.78rem;opacity:.7">
-                Desenvolvido por <a href="https://wa.me/5528999743099" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">HELPFLUX SOLUÇÕES EM TECNOLOGIA LTDA</a>
-            </p>
+            <p class="mb-0" style="font-size:.78rem;opacity:.7">Desenvolvido por <a href="https://helpflux.com.br/" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">HELPFLUX</a></p>
         </div>
     </div>
 </footer>

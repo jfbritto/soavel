@@ -46,7 +46,7 @@
             <div class="vehicle-card-price">{{ $vehicle->preco_formatado }}</div>
             <div class="vehicle-card-actions">
                 <a href="{{ route('site.vehicles.show', $vehicle->slug) }}" class="btn-ver-detalhes">Ver detalhes</a>
-                <a href="https://wa.me/{{ \App\Models\Setting::get('whatsapp_number', '5527998490472') }}?text={{ urlencode('Olá! Tenho interesse no ' . $vehicle->titulo . '. Vi no site.') }}"
+                <a href="https://wa.me/{{ \App\Models\Setting::get('whatsapp_number', '') }}?text={{ urlencode('Olá! Tenho interesse no ' . $vehicle->titulo . '. Vi no site.') }}"
                    target="_blank"
                    rel="noopener"
                    class="btn-whatsapp-card"

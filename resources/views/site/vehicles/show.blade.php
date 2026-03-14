@@ -1,7 +1,7 @@
 @extends('layouts.site')
 
-@section('meta_title', $vehicle->titulo . ' ' . $vehicle->ano_modelo . ' | Soavel Veículos')
-@section('meta_description', 'Compre ' . $vehicle->titulo . ' ' . $vehicle->ano_modelo . ' por ' . $vehicle->preco_formatado . '. ' . $vehicle->km_formatado . ', ' . ucfirst($vehicle->combustivel) . '. Soavel Veículos, Santa Maria de Jetibá - ES.')
+@section('meta_title', $vehicle->titulo . ' ' . $vehicle->ano_modelo . ' | ' . \App\Models\Setting::get('nome_sistema', config('app.name')))
+@section('meta_description', 'Compre ' . $vehicle->titulo . ' ' . $vehicle->ano_modelo . ' por ' . $vehicle->preco_formatado . '. ' . $vehicle->km_formatado . ', ' . ucfirst($vehicle->combustivel) . '. ' . \App\Models\Setting::get('nome_sistema', config('app.name')) . (\App\Models\Setting::get('cidade_estado') ? ', ' . \App\Models\Setting::get('cidade_estado') : '') . '.')
 @if($vehicle->photos->isNotEmpty())
 @section('og_image', ($vehicle->photos->firstWhere('principal', true) ?? $vehicle->photos->first())->url)
 @endif
@@ -47,14 +47,13 @@
     },
     "seller": {
         "@type": "AutoDealer",
-        "name": "{{ \App\Models\Setting::get('nome_sistema', 'Soavel Veículos') }}",
-        "telephone": "+{{ \App\Models\Setting::get('whatsapp_number', '5527998490472') }}",
+        "name": "{{ \App\Models\Setting::get('nome_sistema', config('app.name')) }}",
+        "telephone": "+{{ \App\Models\Setting::get('whatsapp_number', '') }}",
         "url": "{{ url('/') }}",
         "address": {
             "@type": "PostalAddress",
             "streetAddress": "{{ \App\Models\Setting::get('endereco_completo', '') }}",
-            "addressLocality": "Santa Maria de Jetibá",
-            "addressRegion": "ES",
+            "addressLocality": "{{ \App\Models\Setting::get('cidade_estado', '') }}",
             "addressCountry": "BR"
         }
     }
@@ -254,13 +253,14 @@
                         </div>
 
                         {{-- Botão WhatsApp --}}
-                        <a href="https://wa.me/{{ config('app.whatsapp_number', '5527998490472') }}?text={{ urlencode('Olá! Tenho interesse no ' . $vehicle->titulo . ' ' . $vehicle->ano_modelo . ' por ' . $vehicle->preco_formatado . '. Vi no site da Soavel Veículos. Podemos conversar?') }}"
+                        @php $wpNum = \App\Models\Setting::get('whatsapp_number', ''); @endphp
+                        <a href="https://wa.me/{{ $wpNum }}?text={{ urlencode('Olá! Tenho interesse no ' . $vehicle->titulo . ' ' . $vehicle->ano_modelo . ' por ' . $vehicle->preco_formatado . '. Vi no site. Podemos conversar?') }}"
                            target="_blank" class="btn btn-whatsapp btn-block btn-lg mb-2" style="font-size:1rem;padding:12px">
                             <i class="fab fa-whatsapp mr-2"></i>Quero este veículo!
                         </a>
 
                         {{-- Ligar --}}
-                        <a href="tel:+{{ config('app.whatsapp_number', '5527998490472') }}" class="btn btn-outline-secondary btn-block mb-0" style="font-size:.9rem">
+                        <a href="tel:+{{ $wpNum }}" class="btn btn-outline-secondary btn-block mb-0" style="font-size:.9rem">
                             <i class="fas fa-phone-alt mr-1"></i>Ligar agora
                         </a>
                     </div>
@@ -318,7 +318,7 @@
 @if($vehicle->status === 'disponivel')
 <div class="mobile-cta-bar d-lg-none">
     <div class="mobile-cta-bar__price">{{ $vehicle->preco_formatado }}</div>
-    <a href="https://wa.me/{{ config('app.whatsapp_number', '5527998490472') }}?text={{ urlencode('Olá! Tenho interesse no ' . $vehicle->titulo . ' ' . $vehicle->ano_modelo . ' por ' . $vehicle->preco_formatado . '. Vi no site. Podemos conversar?') }}"
+    <a href="https://wa.me/{{ \App\Models\Setting::get('whatsapp_number', '') }}?text={{ urlencode('Olá! Tenho interesse no ' . $vehicle->titulo . ' ' . $vehicle->ano_modelo . ' por ' . $vehicle->preco_formatado . '. Vi no site. Podemos conversar?') }}"
        target="_blank" rel="noopener" class="mobile-cta-bar__btn">
         <i class="fab fa-whatsapp"></i> Tenho interesse!
     </a>
