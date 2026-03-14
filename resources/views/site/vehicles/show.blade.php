@@ -188,47 +188,78 @@
 
         <!-- Sidebar CTA -->
         <div class="col-lg-4">
-            <div class="card shadow-sm mb-4 border-0" style="border-radius:12px;overflow:hidden">
-                <div class="card-body" style="background:var(--azul);color:#fff">
-                    <div class="text-center py-3">
+            <div style="position:sticky;top:90px">
+                {{-- Preço + Status --}}
+                <div class="card shadow-sm mb-3 border-0" style="border-radius:12px;overflow:hidden">
+                    <div style="background:var(--azul);color:#fff;padding:24px 20px;text-align:center">
+                        <div style="font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;opacity:.8;margin-bottom:4px">Preço</div>
                         <div class="vehicle-price-display">{{ $vehicle->preco_formatado }}</div>
                         @if($vehicle->status !== 'disponivel')
-                        <span class="badge badge-{{ $vehicle->status_color }} mt-1">{{ $vehicle->status_label }}</span>
+                        <span class="badge badge-{{ $vehicle->status_color }} mt-2" style="font-size:.85rem">{{ $vehicle->status_label }}</span>
                         @endif
                     </div>
+
+                    <div class="card-body" style="padding:20px">
+                        {{-- Resumo rápido --}}
+                        <div class="d-flex justify-content-between mb-3 pb-2 border-bottom" style="font-size:.85rem">
+                            <span class="text-muted"><i class="fas fa-calendar-alt mr-1"></i>Ano</span>
+                            <strong>{{ $vehicle->ano_fabricacao }}/{{ $vehicle->ano_modelo }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3 pb-2 border-bottom" style="font-size:.85rem">
+                            <span class="text-muted"><i class="fas fa-tachometer-alt mr-1"></i>KM</span>
+                            <strong>{{ $vehicle->km_formatado }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3 pb-2 border-bottom" style="font-size:.85rem">
+                            <span class="text-muted"><i class="fas fa-cog mr-1"></i>Câmbio</span>
+                            <strong>{{ ucfirst($vehicle->transmissao) }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3" style="font-size:.85rem">
+                            <span class="text-muted"><i class="fas fa-gas-pump mr-1"></i>Combustível</span>
+                            <strong>{{ ucfirst($vehicle->combustivel) }}</strong>
+                        </div>
+
+                        {{-- Botão WhatsApp --}}
+                        <a href="https://wa.me/{{ config('app.whatsapp_number', '5527998490472') }}?text={{ urlencode('Olá! Tenho interesse no ' . $vehicle->titulo . ' ' . $vehicle->ano_modelo . ' por ' . $vehicle->preco_formatado . '. Vi no site da Soavel Veículos. Podemos conversar?') }}"
+                           target="_blank" class="btn btn-whatsapp btn-block btn-lg mb-2" style="font-size:1rem;padding:12px">
+                            <i class="fab fa-whatsapp mr-2"></i>Quero este veículo!
+                        </a>
+
+                        {{-- Ligar --}}
+                        <a href="tel:+{{ config('app.whatsapp_number', '5527998490472') }}" class="btn btn-outline-secondary btn-block mb-0" style="font-size:.9rem">
+                            <i class="fas fa-phone-alt mr-1"></i>Ligar agora
+                        </a>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <a href="https://wa.me/{{ config('app.whatsapp_number', '5527998490472') }}?text={{ urlencode('Olá! Tenho interesse no ' . $vehicle->titulo . ' ' . $vehicle->ano_modelo . ' por ' . $vehicle->preco_formatado . '. Vi no site da Soavel Veículos. Podemos conversar?') }}"
-                       target="_blank" class="btn btn-whatsapp btn-block btn-lg mb-3">
-                        <i class="fab fa-whatsapp mr-2"></i>Quero este veículo!
-                    </a>
 
-                    <hr>
+                {{-- Formulário de contato --}}
+                <div class="card shadow-sm mb-4 border-0" style="border-radius:12px">
+                    <div class="card-body" style="padding:20px">
+                        <h6 class="font-weight-700 mb-1"><i class="fas fa-envelope mr-1" style="color:var(--azul)"></i>Solicitar Informações</h6>
+                        <p class="text-muted mb-3" style="font-size:.8rem">Preencha e entraremos em contato</p>
 
-                    <h6 class="font-weight-700 mb-3">Solicitar Informações</h6>
-
-                    @if(session('contact_success'))
-                    <div class="alert alert-success p-2">{{ session('contact_success') }}</div>
-                    @else
-                    <form action="{{ route('site.interesse.store', $vehicle) }}" method="POST">
-                        @csrf
-                        <div class="form-group">
-                            <input type="text" name="nome" class="form-control" placeholder="Seu nome *" required value="{{ old('nome') }}">
-                        </div>
-                        <div class="form-group">
-                            <input type="text" name="telefone" class="form-control" placeholder="Seu WhatsApp *" required value="{{ old('telefone') }}">
-                        </div>
-                        <div class="form-group">
-                            <input type="email" name="email" class="form-control" placeholder="E-mail (opcional)" value="{{ old('email') }}">
-                        </div>
-                        <div class="form-group">
-                            <textarea name="mensagem" class="form-control" rows="3" placeholder="Mensagem (opcional)">{{ old('mensagem') }}</textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary-site btn-block text-white">
-                            <i class="fas fa-paper-plane mr-1"></i>Enviar Interesse
-                        </button>
-                    </form>
-                    @endif
+                        @if(session('contact_success'))
+                        <div class="alert alert-success p-2">{{ session('contact_success') }}</div>
+                        @else
+                        <form action="{{ route('site.interesse.store', $vehicle) }}" method="POST">
+                            @csrf
+                            <div class="form-group mb-2">
+                                <input type="text" name="nome" class="form-control form-control-sm" placeholder="Seu nome *" required value="{{ old('nome') }}">
+                            </div>
+                            <div class="form-group mb-2">
+                                <input type="text" name="telefone" class="form-control form-control-sm" placeholder="Seu WhatsApp *" required value="{{ old('telefone') }}">
+                            </div>
+                            <div class="form-group mb-2">
+                                <input type="email" name="email" class="form-control form-control-sm" placeholder="E-mail (opcional)" value="{{ old('email') }}">
+                            </div>
+                            <div class="form-group mb-2">
+                                <textarea name="mensagem" class="form-control form-control-sm" rows="2" placeholder="Mensagem (opcional)">{{ old('mensagem') }}</textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary-site btn-block text-white" style="font-size:.9rem">
+                                <i class="fas fa-paper-plane mr-1"></i>Enviar Interesse
+                            </button>
+                        </form>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
