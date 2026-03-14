@@ -19,6 +19,23 @@
 @section('content')
 <div class="container-fluid">
 
+    {{-- Banner IA --}}
+    <div class="callout callout-info" id="aiBanner" style="background:linear-gradient(135deg,#f3f0ff,#eef2ff);border-color:#c7d2fe;border-left:4px solid #7c3aed">
+        <div class="d-flex align-items-center flex-wrap" style="gap:12px">
+            <i class="fas fa-wand-magic-sparkles fa-lg" style="color:#7c3aed"></i>
+            <div style="flex:1;min-width:200px">
+                <strong style="color:#4338ca;font-size:.9rem">Assistente IA</strong>
+                <p class="mb-0" style="font-size:.8rem;color:#6366f1">Gere automaticamente slogan, descrição, textos SEO e do banner com base no nome da loja.</p>
+            </div>
+            <button type="button" class="btn btn-sm" id="btnAiSettings" onclick="generateSettingsAI()"
+                    style="background:linear-gradient(135deg,#7c3aed,#4361ee);color:#fff;font-weight:600;border:none;border-radius:8px;padding:8px 18px;font-size:.82rem;box-shadow:0 2px 8px rgba(67,97,238,.25)">
+                <i class="fas fa-wand-magic-sparkles mr-1"></i>
+                <span id="btnAiText">Gerar com IA</span>
+                <span id="btnAiSpinner" class="d-none"><i class="fas fa-spinner fa-spin"></i> Gerando...</span>
+            </button>
+        </div>
+    </div>
+
     <form action="{{ route('admin.settings.update') }}" method="POST" enctype="multipart/form-data">
         @csrf @method('PUT')
 
@@ -65,8 +82,8 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="font-weight-bold" style="font-size:.85rem">Slogan</label>
-                                    <input type="text" name="slogan" class="form-control"
+                                    <label class="font-weight-bold" style="font-size:.85rem">Slogan <span class="badge" style="background:#f3f0ff;color:#7c3aed;font-size:.65rem;vertical-align:middle"><i class="fas fa-wand-magic-sparkles"></i> IA</span></label>
+                                    <input type="text" name="slogan" id="ai_slogan" class="form-control"
                                         value="{{ $settings['slogan']->value ?? '' }}"
                                         placeholder="Ex: Seu próximo carro está aqui">
                                     <small class="text-muted">Exibido na home do site público.</small>
@@ -223,8 +240,8 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label class="font-weight-bold" style="font-size:.85rem">Horário de Atendimento</label>
-                                    <input type="text" name="horario_atendimento" class="form-control"
+                                    <label class="font-weight-bold" style="font-size:.85rem">Horário de Atendimento <span class="badge" style="background:#f3f0ff;color:#7c3aed;font-size:.65rem;vertical-align:middle"><i class="fas fa-wand-magic-sparkles"></i> IA</span></label>
+                                    <input type="text" name="horario_atendimento" id="ai_horario_atendimento" class="form-control"
                                         value="{{ $settings['horario_atendimento']->value ?? '' }}"
                                         placeholder="Ex: Seg–Sex 8h–18h | Sáb 8h–12h">
                                     <small class="text-muted">Exibido no rodapé e na seção de contato do site.</small>
@@ -232,8 +249,8 @@
                             </div>
                             <div class="col-md-8">
                                 <div class="form-group">
-                                    <label class="font-weight-bold" style="font-size:.85rem">Descrição da Empresa <small class="text-muted font-weight-normal">(rodapé do site)</small></label>
-                                    <textarea name="descricao_empresa" class="form-control" rows="2"
+                                    <label class="font-weight-bold" style="font-size:.85rem">Descrição da Empresa <small class="text-muted font-weight-normal">(rodapé do site)</small> <span class="badge" style="background:#f3f0ff;color:#7c3aed;font-size:.65rem;vertical-align:middle"><i class="fas fa-wand-magic-sparkles"></i> IA</span></label>
+                                    <textarea name="descricao_empresa" id="ai_descricao_empresa" class="form-control" rows="2"
                                         placeholder="Ex: Sua loja de confiança para encontrar o carro seminovo ideal. Qualidade e transparência em cada negociação.">{{ $settings['descricao_empresa']->value ?? '' }}</textarea>
                                     <small class="text-muted">Texto curto exibido abaixo do logo no rodapé. Máx. 200 caracteres.</small>
                                 </div>
@@ -305,8 +322,8 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="font-weight-bold" style="font-size:.85rem">Título da Página Inicial</label>
-                                    <input type="text" name="site_titulo_home" class="form-control"
+                                    <label class="font-weight-bold" style="font-size:.85rem">Título da Página Inicial <span class="badge" style="background:#f3f0ff;color:#7c3aed;font-size:.65rem;vertical-align:middle"><i class="fas fa-wand-magic-sparkles"></i> IA</span></label>
+                                    <input type="text" name="site_titulo_home" id="ai_site_titulo_home" class="form-control"
                                         value="{{ $settings['site_titulo_home']->value ?? '' }}"
                                         placeholder="Ex: Minha Loja | Seminovos">
                                     <small class="text-muted">Aparece na aba do navegador na home do site.</small>
@@ -314,8 +331,8 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="font-weight-bold" style="font-size:.85rem">Descrição (meta description)</label>
-                                    <input type="text" name="site_descricao_home" class="form-control"
+                                    <label class="font-weight-bold" style="font-size:.85rem">Descrição (meta description) <span class="badge" style="background:#f3f0ff;color:#7c3aed;font-size:.65rem;vertical-align:middle"><i class="fas fa-wand-magic-sparkles"></i> IA</span></label>
+                                    <input type="text" name="site_descricao_home" id="ai_site_descricao_home" class="form-control"
                                         value="{{ $settings['site_descricao_home']->value ?? '' }}"
                                         placeholder="Ex: Carros Seminovos na sua cidade"
                                         maxlength="160">
@@ -327,8 +344,8 @@
                         <div class="row mt-2">
                             <div class="col-md-8">
                                 <div class="form-group">
-                                    <label class="font-weight-bold" style="font-size:.85rem">Título Principal (Hero)</label>
-                                    <input type="text" name="hero_titulo" class="form-control"
+                                    <label class="font-weight-bold" style="font-size:.85rem">Título Principal (Hero) <span class="badge" style="background:#f3f0ff;color:#7c3aed;font-size:.65rem;vertical-align:middle"><i class="fas fa-wand-magic-sparkles"></i> IA</span></label>
+                                    <input type="text" name="hero_titulo" id="ai_hero_titulo" class="form-control"
                                         value="{{ $settings['hero_titulo']->value ?? '' }}"
                                         placeholder="Ex: Encontre o carro perfeito para você">
                                     <small class="text-muted">Título grande exibido no banner principal da home.</small>
@@ -739,6 +756,85 @@ var phoneMask = function (val) { return val.replace(/\D/g, '').length === 11 ? '
 var phoneOpts = { onKeyPress: function (val, e, field, opts) { field.mask(phoneMask.apply({}, arguments), opts); } };
 $('[name="telefone_comercial"]').mask(phoneMask, phoneOpts);
 $('[name="whatsapp_number"]').on('input', function () { this.value = this.value.replace(/\D/g, ''); });
+
+// ── Assistente IA ────────────────────────────────────────────
+var aiSecondClick = false;
+function generateSettingsAI() {
+    var nomeLoja = $('[name="nome_sistema"]').val().trim();
+    var cidade   = $('[name="cidade_estado"]').val().trim();
+
+    if (!nomeLoja) {
+        toastr.warning('Preencha o Nome do Sistema antes de gerar com IA.');
+        $('[name="nome_sistema"]').focus();
+        return;
+    }
+
+    $('#btnAiText').addClass('d-none');
+    $('#btnAiSpinner').removeClass('d-none');
+    $('#btnAiSettings').prop('disabled', true);
+
+    $.ajax({
+        url: '{{ route("admin.onboarding.ai") }}',
+        method: 'POST',
+        contentType: 'application/json',
+        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+        data: JSON.stringify({
+            nome_loja: nomeLoja,
+            cidade: cidade,
+            segmento: 'seminovos e usados'
+        }),
+        success: function(data) {
+            $('#btnAiText').removeClass('d-none');
+            $('#btnAiSpinner').addClass('d-none');
+            $('#btnAiSettings').prop('disabled', false);
+
+            if (data.error) {
+                toastr.error(data.error);
+                return;
+            }
+
+            if (data.suggestions) {
+                var s = data.suggestions;
+                var mapping = {
+                    'slogan': '#ai_slogan',
+                    'descricao_empresa': '#ai_descricao_empresa',
+                    'horario_sugerido': '#ai_horario_atendimento',
+                    'hero_titulo': '#ai_hero_titulo',
+                    'site_titulo_home': '#ai_site_titulo_home',
+                    'site_descricao_home': '#ai_site_descricao_home'
+                };
+                var count = 0;
+                for (var key in mapping) {
+                    if (s[key]) {
+                        var $el = $(mapping[key]);
+                        if ($el.length) {
+                            if (!$el.val().trim() || aiSecondClick) {
+                                $el.val(s[key]);
+                                $el.css('background', '#f0fdf4');
+                                setTimeout((function(el) { return function() { el.css('background', ''); }; })($el), 1500);
+                                count++;
+                            }
+                        }
+                    }
+                }
+
+                if (count > 0) {
+                    toastr.success(count + ' campo(s) preenchido(s) pela IA!');
+                    aiSecondClick = false;
+                } else {
+                    toastr.info('Todos os campos já estão preenchidos. Clique novamente para sobrescrever.');
+                    aiSecondClick = true;
+                }
+            }
+        },
+        error: function() {
+            $('#btnAiText').removeClass('d-none');
+            $('#btnAiSpinner').addClass('d-none');
+            $('#btnAiSettings').prop('disabled', false);
+            toastr.error('Erro ao consultar IA. Tente novamente.');
+        }
+    });
+}
 
 // ── Google Maps: extrai URL se colar HTML do iframe ─────────
 $('#maps_embed_url').on('paste', function() {
