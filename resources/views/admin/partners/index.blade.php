@@ -29,15 +29,16 @@
                 </thead>
                 <tbody>
                     @forelse($partners as $partner)
-                    <tr>
+                    <tr class="partner-row" style="cursor:pointer" data-toggle="collapse" data-target="#vehicles-{{ $partner->id }}">
                         <td class="pl-3 align-middle font-weight-600" style="font-size:.9rem">
-                            {{ $partner->nome }}
+                            <i class="fas fa-chevron-right mr-2 text-muted toggle-icon" style="font-size:.65rem;transition:transform .2s"></i>{{ $partner->nome }}
                         </td>
                         <td class="align-middle text-muted" style="font-size:.88rem">{{ $partner->cpf ?? '—' }}</td>
                         <td class="align-middle" style="font-size:.88rem">
                             @if($partner->telefone)
                                 <a href="https://wa.me/55{{ preg_replace('/\D/', '', $partner->telefone) }}"
-                                   target="_blank" class="text-success" style="white-space:nowrap">
+                                   target="_blank" class="text-success" style="white-space:nowrap"
+                                   onclick="event.stopPropagation()">
                                     <i class="fab fa-whatsapp mr-1"></i>{{ $partner->telefone }}
                                 </a>
                             @else
@@ -47,12 +48,14 @@
                         <td class="align-middle text-muted" style="font-size:.88rem">{{ $partner->email ?? '—' }}</td>
                         <td class="align-middle text-center">
                             @if($partner->vehicles_count > 0)
-                                <span class="badge badge-light border" style="font-size:.78rem">{{ $partner->vehicles_count }}</span>
+                                <span class="badge badge-info" style="font-size:.78rem">
+                                    <i class="fas fa-handshake mr-1"></i>{{ $partner->vehicles_count }}
+                                </span>
                             @else
                                 <span class="text-muted" style="font-size:.88rem">—</span>
                             @endif
                         </td>
-                        <td class="align-middle text-right pr-3" style="white-space:nowrap">
+                        <td class="align-middle text-right pr-3" style="white-space:nowrap" onclick="event.stopPropagation()">
                             <button type="button" class="btn btn-sm btn-outline-secondary btn-editar"
                                 style="font-size:.75rem;padding:2px 8px"
                                 title="Editar dados do sócio"
@@ -76,6 +79,55 @@
                             </form>
                         </td>
                     </tr>
+                    {{-- Veículos em sociedade (expandível) --}}
+                    @if($partner->vehicles_count > 0)
+                    <tr class="collapse" id="vehicles-{{ $partner->id }}">
+                        <td colspan="6" class="p-0 border-top-0" style="background:#f8f9fb">
+                            <div class="px-3 py-2">
+                                <div class="d-flex align-items-center mb-2" style="gap:6px">
+                                    <i class="fas fa-car text-muted" style="font-size:.75rem"></i>
+                                    <span style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:#6c757d;font-weight:700">
+                                        Veículos em sociedade
+                                    </span>
+                                </div>
+                                @foreach($partner->vehicles as $pv)
+                                <a href="{{ route('admin.vehicles.show', $pv) }}"
+                                   class="d-flex align-items-center mb-2 text-decoration-none partner-vehicle-row"
+                                   style="gap:12px;padding:8px 10px;border-radius:8px;background:#fff;border:1px solid #e9ecef;transition:box-shadow .15s">
+                                    @if($pv->principalPhoto)
+                                        <img src="{{ $pv->principalPhoto->url }}" width="56" height="42"
+                                             style="object-fit:cover;border-radius:5px;flex-shrink:0;border:1px solid #e9ecef">
+                                    @else
+                                        <div style="width:56px;height:42px;background:#f0f0f0;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid #e9ecef">
+                                            <i class="fas fa-car" style="color:#ced4da;font-size:.8rem"></i>
+                                        </div>
+                                    @endif
+                                    <div style="flex:1;min-width:0">
+                                        <div style="font-size:.88rem;font-weight:600;color:#212529">
+                                            {{ trim("{$pv->marca} {$pv->modelo}") }}
+                                            <span class="text-muted font-weight-normal">{{ $pv->ano_modelo }}</span>
+                                        </div>
+                                        <div style="font-size:.78rem;color:#6c757d">
+                                            {{ $pv->versao }}
+                                        </div>
+                                    </div>
+                                    <div class="text-right" style="flex-shrink:0">
+                                        <div style="font-size:.88rem;font-weight:700;color:#1a7a3c">
+                                            R$ {{ number_format($pv->preco, 0, ',', '.') }}
+                                        </div>
+                                        <div style="font-size:.78rem">
+                                            <span class="badge badge-info" style="font-size:.72rem">{{ number_format($pv->pivot->percentual, 1, ',', '') }}%</span>
+                                            <span class="badge badge-{{ $pv->status === 'disponivel' ? 'success' : ($pv->status === 'vendido' ? 'danger' : 'warning') }}" style="font-size:.72rem">
+                                                {{ ucfirst($pv->status) }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </a>
+                                @endforeach
+                            </div>
+                        </td>
+                    </tr>
+                    @endif
                     @empty
                     <tr>
                         <td colspan="6" class="text-center text-muted py-5">
@@ -176,6 +228,14 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('css')
+<style>
+    .partner-row:hover { background-color: #f8f9fa !important; }
+    .partner-row[aria-expanded="true"] .toggle-icon { transform: rotate(90deg); }
+    .partner-vehicle-row:hover { box-shadow: 0 2px 8px rgba(0,0,0,.08) !important; }
+</style>
 @endsection
 
 @section('js')

@@ -14,7 +14,7 @@ class VehicleController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Vehicle::withCount(['photos', 'sales'])
+        $query = Vehicle::withCount(['photos', 'sales', 'partners'])
             ->with('principalPhoto');
 
         if ($request->filled('status')) {

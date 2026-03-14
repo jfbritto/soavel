@@ -87,6 +87,9 @@
                                 @if($vehicle->destaque)
                                     <span class="badge badge-light border ml-1" style="font-size:.7rem;font-weight:500">Destaque</span>
                                 @endif
+                                @if($vehicle->partners_count > 0)
+                                    <span class="badge badge-info ml-1" style="font-size:.68rem;font-weight:500"><i class="fas fa-handshake mr-1"></i>Sociedade</span>
+                                @endif
                             </div>
                             <div class="text-muted" style="font-size:.78rem">{{ $vehicle->cor }} · {{ ucfirst($vehicle->categoria) }}</div>
                         </td>

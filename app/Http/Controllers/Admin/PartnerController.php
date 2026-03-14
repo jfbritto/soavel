@@ -11,7 +11,10 @@ class PartnerController extends Controller
 {
     public function index()
     {
-        $partners = Partner::withCount('vehicles')->orderBy('nome')->paginate(20);
+        $partners = Partner::withCount('vehicles')
+            ->with(['vehicles' => fn($q) => $q->with('principalPhoto')->select('vehicles.id', 'marca', 'modelo', 'versao', 'ano_modelo', 'status', 'preco')])
+            ->orderBy('nome')
+            ->paginate(20);
         return view('admin.partners.index', compact('partners'));
     }
 
