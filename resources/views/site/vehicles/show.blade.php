@@ -191,9 +191,9 @@
             <div style="position:sticky;top:90px">
                 {{-- Preço + Status --}}
                 <div class="card shadow-sm mb-3 border-0" style="border-radius:12px;overflow:hidden">
-                    <div style="background:var(--azul);color:#fff;padding:24px 20px;text-align:center">
+                    <div style="background:#1e3a5f;color:#ffffff;padding:24px 20px;text-align:center">
                         <div style="font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;opacity:.8;margin-bottom:4px">Preço</div>
-                        <div class="vehicle-price-display">{{ $vehicle->preco_formatado }}</div>
+                        <div style="font-size:clamp(1.5rem,6vw,2.2rem);font-weight:800;color:#ffffff;line-height:1.1">{{ $vehicle->preco_formatado }}</div>
                         @if($vehicle->status !== 'disponivel')
                         <span class="badge badge-{{ $vehicle->status_color }} mt-2" style="font-size:.85rem">{{ $vehicle->status_label }}</span>
                         @endif
