@@ -608,8 +608,8 @@ function reviewVehicleAI() {
         }).then(function(result) {
             if (result.isConfirmed) {
                 applyAll();
-                // Submete o formulário automaticamente
-                var form = document.querySelector('form[method="POST"]');
+                // Submete o formulário do veículo (o form que contém o campo marca)
+                var form = document.querySelector('[name="marca"]').closest('form');
                 if (form) form.submit();
             }
             if (result.isDenied) {

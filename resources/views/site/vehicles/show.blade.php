@@ -95,10 +95,6 @@
                    target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary" title="Compartilhar no Facebook">
                     <i class="fab fa-facebook-f"></i>
                 </a>
-                <a href="https://twitter.com/intent/tweet?text={{ urlencode($vehicle->titulo . ' ' . $vehicle->ano_modelo . ' por ' . $vehicle->preco_formatado) }}&url={{ urlencode(request()->url()) }}"
-                   target="_blank" rel="noopener" class="btn btn-sm btn-outline-info" title="Compartilhar no X/Twitter">
-                    <i class="fab fa-twitter"></i>
-                </a>
                 <button type="button" class="btn btn-sm btn-outline-secondary" onclick="copyVehicleLink()" title="Copiar link">
                     <i class="fas fa-link"></i>
                 </button>
