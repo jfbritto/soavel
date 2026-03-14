@@ -239,9 +239,16 @@ class VehicleController extends Controller
             'descricao'       => 'nullable|string',
         ]);
 
-        $prompt = "Você é um consultor especialista em veículos seminovos do mercado brasileiro. "
-            . "Revise o cadastro abaixo e retorne sugestões de melhoria em JSON.\n\n"
-            . "Dados do veículo:\n"
+        $prompt = "Você é um consultor especialista em veículos do mercado brasileiro. "
+            . "Sua tarefa é revisar e CORRIGIR o cadastro de um veículo seminovo.\n\n"
+            . "REGRAS OBRIGATÓRIAS DE SEPARAÇÃO DOS CAMPOS:\n"
+            . "- MARCA: apenas o nome do fabricante, com grafia oficial. Ex: Volkswagen (não VolksWagen), Chevrolet (não chevrolet), Hyundai, Toyota, Fiat, Ford, Honda, Jeep, Renault, Nissan, Mitsubishi, Peugeot, Citroën, BMW, Mercedes-Benz, Audi\n"
+            . "- MODELO: apenas o nome do modelo, sem versão/motorização. Ex: Polo, Onix, HB20, Compass, Strada, Tracker, T-Cross, Creta, Kicks, Corolla, Civic, Hilux, S10\n"
+            . "- VERSÃO: tudo que não é marca nem modelo — motorização, acabamento, variante. Ex: 1.0 MPI, 1.0 TSI Comfortline, LTZ 1.4 Turbo, Platinum Plus 1.0 TGDI Flex, Longitude 2.0 Diesel 4x4\n\n"
+            . "Se o campo modelo contiver dados que deveriam estar na versão, SEPARE-OS.\n"
+            . "Se o campo marca tiver grafia errada, CORRIJA.\n"
+            . "SEMPRE retorne os campos corrigidos, mesmo se já estiverem certos (retorne o valor atual nesse caso).\n\n"
+            . "Dados do veículo cadastrado:\n"
             . "- Marca: {$data['marca']}\n"
             . "- Modelo: {$data['modelo']}\n"
             . "- Versão: " . ($data['versao'] ?? 'não informada') . "\n"
@@ -256,16 +263,18 @@ class VehicleController extends Controller
             . "- Preço de venda: " . ($data['preco'] ?? 'não informado') . "\n"
             . "- Preço de compra: " . ($data['preco_compra'] ?? 'não informado') . "\n"
             . "- Descrição: " . ($data['descricao'] ?: 'vazia') . "\n\n"
-            . "Responda APENAS com um JSON no formato:\n"
+            . "Responda APENAS com JSON no formato abaixo. TODOS os campos são obrigatórios:\n"
             . "{\n"
-            . "  \"marca_corrigida\": \"grafia correta da marca ou null se já está certa\",\n"
-            . "  \"modelo_corrigido\": \"grafia correta do modelo ou null\",\n"
-            . "  \"versao_sugerida\": \"versão provável se não informada, ou null\",\n"
-            . "  \"descricao_sugerida\": \"descrição atrativa para o site com 2-3 frases se estiver vazia, ou null\",\n"
-            . "  \"alertas\": [\"lista de inconsistências ou problemas encontrados\"],\n"
-            . "  \"dicas\": [\"lista de sugestões para melhorar o anúncio\"]\n"
+            . "  \"marca\": \"grafia oficial da marca\",\n"
+            . "  \"modelo\": \"apenas o nome do modelo, sem versão\",\n"
+            . "  \"versao\": \"versão/acabamento/motorização separados do modelo\",\n"
+            . "  \"cor\": \"cor corrigida com inicial maiúscula\",\n"
+            . "  \"motorizacao\": \"motorização correta (ex: 1.0, 1.6, 2.0 Turbo) ou null se não souber\",\n"
+            . "  \"descricao_sugerida\": \"descrição atrativa para o site com 2-3 frases destacando pontos fortes do veículo (sempre gerar, mesmo se já tiver descrição)\",\n"
+            . "  \"alertas\": [\"lista de inconsistências ou problemas encontrados, ou array vazio\"],\n"
+            . "  \"dicas\": [\"lista de sugestões para melhorar o anúncio, ou array vazio\"]\n"
             . "}\n"
-            . "Sem explicações adicionais, apenas o JSON.";
+            . "Sem explicações, apenas o JSON.";
 
         try {
             $response = \Illuminate\Support\Facades\Http::timeout(30)->withHeaders([

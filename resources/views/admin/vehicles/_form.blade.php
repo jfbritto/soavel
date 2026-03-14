@@ -494,31 +494,51 @@ function reviewVehicleAI() {
         var r = data.review;
         var html = '';
 
-        // Correções sugeridas
+        // Monta lista de todas as correções de campos
         var corrections = [];
-        if (r.marca_corrigida) corrections.push({ field: 'marca', label: 'Marca', from: marca.value, to: r.marca_corrigida });
-        if (r.modelo_corrigido) corrections.push({ field: 'modelo', label: 'Modelo', from: modelo.value, to: r.modelo_corrigido });
-        if (r.versao_sugerida) corrections.push({ field: 'versao', label: 'Versão', from: (document.querySelector('[name="versao"]') || {}).value || '(vazia)', to: r.versao_sugerida });
+        var fieldMap = {
+            marca:       { label: 'Marca',       el: '[name="marca"]' },
+            modelo:      { label: 'Modelo',       el: '[name="modelo"]' },
+            versao:      { label: 'Versão',       el: '[name="versao"]' },
+            cor:         { label: 'Cor',           el: '[name="cor"]' },
+            motorizacao: { label: 'Motorização',   el: '[name="motorizacao"]' },
+        };
 
+        Object.keys(fieldMap).forEach(function(key) {
+            if (r[key] !== undefined && r[key] !== null) {
+                var input = document.querySelector(fieldMap[key].el);
+                var current = input ? input.value.trim() : '';
+                var suggested = (r[key] || '').trim();
+                if (suggested && suggested !== current) {
+                    corrections.push({
+                        field: key,
+                        label: fieldMap[key].label,
+                        from: current || '(vazio)',
+                        to: suggested
+                    });
+                }
+            }
+        });
+
+        // Campos corrigidos
         if (corrections.length) {
-            html += '<div class="text-left mb-3"><h6 class="font-weight-bold" style="color:#3085d6"><i class="fas fa-pen mr-1"></i>Correções sugeridas</h6>';
+            html += '<div class="text-left mb-3"><h6 class="font-weight-bold" style="color:#3085d6"><i class="fas fa-pen mr-1"></i>Campos corrigidos</h6>';
             corrections.forEach(function(c) {
-                html += '<div class="d-flex align-items-center mb-2 p-2 rounded" style="background:#f0f7ff;gap:8px">'
-                    + '<span class="badge badge-secondary">' + c.label + '</span>'
-                    + '<span style="text-decoration:line-through;color:#999">' + c.from + '</span>'
-                    + '<i class="fas fa-arrow-right text-muted" style="font-size:.7rem"></i>'
-                    + '<strong style="color:#2563eb">' + c.to + '</strong>'
-                    + '<button type="button" class="btn btn-xs btn-outline-success ml-auto apply-correction" data-field="' + c.field + '" data-value="' + c.to.replace(/"/g, '&quot;') + '"><i class="fas fa-check"></i> Aplicar</button>'
+                html += '<div class="d-flex align-items-center flex-wrap mb-2 p-2 rounded" style="background:#f0f7ff;gap:6px">'
+                    + '<span class="badge badge-secondary" style="min-width:80px">' + c.label + '</span>'
+                    + '<span style="text-decoration:line-through;color:#999;font-size:.85rem">' + c.from + '</span>'
+                    + '<i class="fas fa-arrow-right text-muted" style="font-size:.65rem"></i>'
+                    + '<strong style="color:#2563eb;font-size:.9rem">' + c.to + '</strong>'
                     + '</div>';
             });
             html += '</div>';
         }
 
-        // Descrição sugerida
+        // Descrição
         if (r.descricao_sugerida) {
-            html += '<div class="text-left mb-3"><h6 class="font-weight-bold" style="color:#059669"><i class="fas fa-file-alt mr-1"></i>Descrição sugerida</h6>'
+            var descAtual = (document.querySelector('[name="descricao"]') || {}).value || '';
+            html += '<div class="text-left mb-3"><h6 class="font-weight-bold" style="color:#059669"><i class="fas fa-file-alt mr-1"></i>Descrição ' + (descAtual ? 'melhorada' : 'sugerida') + '</h6>'
                 + '<div class="p-2 rounded mb-1" style="background:#f0fdf4;font-size:.88rem">' + r.descricao_sugerida + '</div>'
-                + '<button type="button" class="btn btn-xs btn-outline-success apply-description"><i class="fas fa-check"></i> Usar esta descrição</button>'
                 + '</div>';
         }
 
@@ -546,64 +566,51 @@ function reviewVehicleAI() {
             html = '<p class="text-success"><i class="fas fa-check-circle mr-1"></i>Cadastro está ótimo! Nenhuma sugestão.</p>';
         }
 
+        // Função para aplicar tudo
+        function applyAll() {
+            corrections.forEach(function(c) {
+                var input = document.querySelector('[name="' + c.field + '"]');
+                if (input) input.value = c.to;
+            });
+            if (r.descricao_sugerida) {
+                var ta = document.querySelector('[name="descricao"]');
+                if (ta) ta.value = r.descricao_sugerida;
+            }
+            if (r.motorizacao) {
+                var mot = document.querySelector('[name="motorizacao"]');
+                if (mot) mot.value = r.motorizacao;
+            }
+        }
+
         Swal.fire({
             title: 'Revisão do Cadastro',
             html: '<div style="max-height:400px;overflow-y:auto">' + html + '</div>',
-            width: 600,
+            width: 620,
             showDenyButton: hasSuggestions,
+            showCancelButton: true,
             denyButtonText: '<i class="fas fa-magic"></i> Aplicar tudo',
             denyButtonColor: '#2563eb',
-            confirmButtonText: 'Fechar',
-            confirmButtonColor: '#6c757d',
-            didOpen: function() {
-                // Botões de aplicar correção
-                document.querySelectorAll('.apply-correction').forEach(function(btn) {
-                    btn.addEventListener('click', function() {
-                        var field = this.dataset.field;
-                        var value = this.dataset.value;
-                        var input = document.querySelector('[name="' + field + '"]');
-                        if (input) {
-                            input.value = value;
-                            this.innerHTML = '<i class="fas fa-check"></i> Aplicado';
-                            this.classList.remove('btn-outline-success');
-                            this.classList.add('btn-success');
-                            this.disabled = true;
-                        }
-                    });
-                });
-                // Botão de aplicar descrição
-                var descBtn = document.querySelector('.apply-description');
-                if (descBtn) {
-                    descBtn.addEventListener('click', function() {
-                        var ta = document.querySelector('[name="descricao"]');
-                        if (ta) {
-                            ta.value = r.descricao_sugerida;
-                            this.innerHTML = '<i class="fas fa-check"></i> Aplicada';
-                            this.classList.remove('btn-outline-success');
-                            this.classList.add('btn-success');
-                            this.disabled = true;
-                        }
-                    });
-                }
-            },
+            confirmButtonText: '<i class="fas fa-check"></i> Aplicar tudo e salvar',
+            confirmButtonColor: '#28a745',
+            cancelButtonText: 'Fechar sem aplicar',
+            cancelButtonColor: '#6c757d',
+            focusConfirm: false,
+            focusDeny: true,
             preDeny: function() {
-                // Aplicar todas as correções
-                corrections.forEach(function(c) {
-                    var input = document.querySelector('[name="' + c.field + '"]');
-                    if (input) input.value = c.to;
-                });
-                // Aplicar descrição
-                if (r.descricao_sugerida) {
-                    var ta = document.querySelector('[name="descricao"]');
-                    if (ta) ta.value = r.descricao_sugerida;
-                }
+                applyAll();
             }
         }).then(function(result) {
+            if (result.isConfirmed) {
+                applyAll();
+                // Submete o formulário automaticamente
+                var form = document.querySelector('form[method="POST"]');
+                if (form) form.submit();
+            }
             if (result.isDenied) {
                 Swal.fire({
                     icon: 'success',
-                    title: 'Sugestões aplicadas!',
-                    text: 'Todos os campos foram atualizados. Revise e salve o veículo.',
+                    title: 'Campos atualizados!',
+                    text: 'Revise os valores e clique em Salvar/Atualizar.',
                     confirmButtonColor: '#2563eb',
                     timer: 2500,
                     timerProgressBar: true,
