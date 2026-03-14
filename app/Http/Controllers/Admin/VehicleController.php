@@ -150,13 +150,39 @@ class VehicleController extends Controller
         $allFeatures = VehicleFeatureSeeder::allFeatures();
         $featureList = implode(', ', $allFeatures);
 
+        // Dados extras do formulário para contexto
+        $versao      = $request->input('versao', '');
+        $transmissao = $request->input('transmissao', '');
+        $combustivel = $request->input('combustivel', '');
+        $motorizacao = $request->input('motorizacao', '');
+        $categoria   = $request->input('categoria', '');
+        $portas      = $request->input('portas', '');
+
+        $contexto = "Dados do veículo cadastrado:\n"
+            . "- Marca: {$request->marca}\n"
+            . "- Modelo: {$request->modelo}\n"
+            . "- Versão/Acabamento: " . ($versao ?: 'não informada') . "\n"
+            . "- Ano: {$request->ano}\n"
+            . "- Transmissão: " . ($transmissao ?: 'não informada') . "\n"
+            . "- Combustível: " . ($combustivel ?: 'não informado') . "\n"
+            . "- Motorização: " . ($motorizacao ?: 'não informada') . "\n"
+            . "- Categoria: " . ($categoria ?: 'não informada') . "\n"
+            . "- Portas: " . ($portas ?: 'não informado') . "\n";
+
         $prompt = "Você é um especialista em veículos do mercado brasileiro. "
-            . "Para o veículo {$request->marca} {$request->modelo} ano {$request->ano}, "
-            . "quais destes opcionais geralmente vêm de fábrica na versão mais comum?\n\n"
+            . "Analise os dados do veículo abaixo e marque APENAS os opcionais que este veículo REALMENTE possui de fábrica.\n\n"
+            . $contexto . "\n"
+            . "REGRAS IMPORTANTES:\n"
+            . "- Se a transmissão é Manual, NÃO inclua 'Câmbio automático' nem 'Câmbio CVT'\n"
+            . "- Se a transmissão é Automático, inclua 'Câmbio automático' (não CVT, a menos que seja CVT)\n"
+            . "- Se o veículo não tem tração 4x4, NÃO inclua 'Tração 4x4'\n"
+            . "- Considere a versão/acabamento para saber o nível de equipamentos\n"
+            . "- Versões básicas têm menos opcionais que versões top de linha\n"
+            . "- Seja conservador: na dúvida, NÃO inclua o opcional\n\n"
             . "Lista de opcionais possíveis: {$featureList}\n\n"
-            . "Responda APENAS com um JSON array contendo os nomes exatos dos opcionais que o veículo possui. "
+            . "Responda APENAS com um JSON array contendo os nomes exatos dos opcionais. "
             . "Exemplo: [\"Ar-condicionado\", \"ABS\"]\n"
-            . "Não inclua explicações, apenas o JSON array.";
+            . "Sem explicações, apenas o JSON array.";
 
         try {
             $response = \Illuminate\Support\Facades\Http::timeout(30)->withHeaders([

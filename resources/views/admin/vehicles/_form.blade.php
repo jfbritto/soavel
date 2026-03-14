@@ -387,7 +387,13 @@ function suggestFeaturesAI() {
         body: JSON.stringify({
             marca: marca.value,
             modelo: modelo.value,
-            ano: ano.value
+            ano: ano.value,
+            versao: (document.querySelector('[name="versao"]') || {}).value || '',
+            transmissao: (document.querySelector('[name="transmissao"]') || {}).value || '',
+            combustivel: (document.querySelector('[name="combustivel"]') || {}).value || '',
+            motorizacao: (document.querySelector('[name="motorizacao"]') || {}).value || '',
+            categoria: (document.querySelector('[name="categoria"]') || {}).value || '',
+            portas: (document.querySelector('[name="portas"]') || {}).value || ''
         })
     })
     .then(function(r) { return r.json(); })
