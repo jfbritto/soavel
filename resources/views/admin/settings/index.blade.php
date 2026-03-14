@@ -7,6 +7,7 @@
 <style>
 .cropper-container { max-height: 420px; }
 #cropperPreview { width: 160px; height: 80px; overflow: hidden; border: 1px solid #dee2e6; border-radius: 4px; background: repeating-conic-gradient(#e0e0e0 0% 25%, #fff 0% 50%) 0 0 / 12px 12px; }
+.content-wrapper { min-height: calc(100vh - 57px) !important; }
 </style>
 @endsection
 
@@ -466,6 +467,52 @@
                                                 <div class="card-body py-2 px-3">
                                                     <div class="font-weight-bold" style="font-size:.88rem">Automotive</div>
                                                     <small class="text-muted">Navy escuro, vermelho CTA, tipografia Syncopate — moderno e sofisticado.</small>
+                                                </div>
+                                            </div>
+                                        </label>
+                                    </div>
+
+                                    {{-- Theme 5: Elegance --}}
+                                    <div class="col-md-4 mb-3">
+                                        <label class="d-block theme-card-label" style="cursor:pointer">
+                                            <input type="radio" name="site_layout" value="elegance"
+                                                   class="theme-radio d-none"
+                                                   {{ $currentLayout === 'elegance' ? 'checked' : '' }}>
+                                            <div class="card theme-option-card {{ $currentLayout === 'elegance' ? 'border-primary' : '' }}" style="border-width:2px;transition:border-color .2s">
+                                                <div style="height:80px;background:#FAFAF8;border-radius:4px 4px 0 0;display:flex;align-items:center;justify-content:center;gap:10px;border-bottom:1px solid #E8E6E1">
+                                                    <div style="text-align:center">
+                                                        <div style="width:60px;height:5px;background:#2D5A3D;margin-bottom:6px;margin-left:auto;margin-right:auto"></div>
+                                                        <div style="width:80px;height:3px;background:#E8E6E1;margin-bottom:4px;margin-left:auto;margin-right:auto"></div>
+                                                        <div style="width:50px;height:3px;background:#E8E6E1;margin-left:auto;margin-right:auto"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body py-2 px-3">
+                                                    <div class="font-weight-bold" style="font-size:.88rem">Elegance</div>
+                                                    <small class="text-muted">Minimalista, hero centralizado, tipografia serif, muito espaço em branco.</small>
+                                                </div>
+                                            </div>
+                                        </label>
+                                    </div>
+
+                                    {{-- Theme 6: Showcase --}}
+                                    <div class="col-md-4 mb-3">
+                                        <label class="d-block theme-card-label" style="cursor:pointer">
+                                            <input type="radio" name="site_layout" value="showcase"
+                                                   class="theme-radio d-none"
+                                                   {{ $currentLayout === 'showcase' ? 'checked' : '' }}>
+                                            <div class="card theme-option-card {{ $currentLayout === 'showcase' ? 'border-primary' : '' }}" style="border-width:2px;transition:border-color .2s">
+                                                <div style="height:80px;background:linear-gradient(135deg,#111 0%,#1A1A1A 100%);border-radius:4px 4px 0 0;display:flex;align-items:center;justify-content:center;gap:8px;position:relative;overflow:hidden">
+                                                    <div style="position:absolute;width:60px;height:60px;border-radius:50%;background:rgba(255,107,44,.08);top:-10px;right:20px"></div>
+                                                    <div style="display:flex;flex-direction:column;gap:5px;z-index:1">
+                                                        <div style="width:50px;height:6px;background:#FF6B2C;border-radius:50px"></div>
+                                                        <div style="width:38px;height:4px;background:rgba(255,255,255,.12);border-radius:50px"></div>
+                                                        <div style="width:46px;height:4px;background:rgba(255,255,255,.12);border-radius:50px"></div>
+                                                    </div>
+                                                    <div style="width:40px;height:28px;background:#1E1E1E;border-radius:8px;border:1px solid rgba(255,107,44,.3);z-index:1"></div>
+                                                </div>
+                                                <div class="card-body py-2 px-3">
+                                                    <div class="font-weight-bold" style="font-size:.88rem">Showcase</div>
+                                                    <small class="text-muted">Dark imersivo, hero full-screen, bordas arredondadas, foco na foto.</small>
                                                 </div>
                                             </div>
                                         </label>

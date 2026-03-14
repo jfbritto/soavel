@@ -564,6 +564,20 @@
                                 <div class="theme-name">Automotivo</div>
                             </label>
                         </div>
+                        <div class="col-6 col-md-3 mb-2">
+                            <label class="theme-option d-block {{ $currentLayout === 'elegance' ? 'selected' : '' }}" onclick="selectTheme(this)">
+                                <input type="radio" name="site_layout" value="elegance" {{ $currentLayout === 'elegance' ? 'checked' : '' }}>
+                                <div class="theme-swatch" style="background: linear-gradient(135deg, #f5f1eb 60%, #2D5A3D 100%)"></div>
+                                <div class="theme-name">Elegance</div>
+                            </label>
+                        </div>
+                        <div class="col-6 col-md-3 mb-2">
+                            <label class="theme-option d-block {{ $currentLayout === 'showcase' ? 'selected' : '' }}" onclick="selectTheme(this)">
+                                <input type="radio" name="site_layout" value="showcase" {{ $currentLayout === 'showcase' ? 'checked' : '' }}>
+                                <div class="theme-swatch" style="background: linear-gradient(135deg, #1a1a2e 60%, #FF6B2C 100%)"></div>
+                                <div class="theme-name">Showcase</div>
+                            </label>
+                        </div>
                     </div>
                 </div>
             @endif

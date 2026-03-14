@@ -2076,3 +2076,573 @@ a:hover {
     /* Breadcrumb smaller */
     .breadcrumb { font-size: .8rem; }
 }
+
+
+/* ═══════════════════════════════════════════════════
+   THEME: ELEGANCE — Minimalista, centralizado, serif
+   ═══════════════════════════════════════════════════ */
+
+[data-theme="elegance"] {
+    --bg:              #FAFAF8;
+    --bg-alt:          #F5F4F0;
+    --bg-card:         #FFFFFF;
+    --bg-input:        #F5F4F0;
+    --accent:          #2D5A3D;
+    --accent-hover:    #1E4A2E;
+    --accent-subtle:   rgba(45,90,61,0.06);
+    --accent-glow:     rgba(45,90,61,0.18);
+    --text:            #1A1A1A;
+    --text-2:          #333333;
+    --text-3:          #888888;
+    --border:          #E8E6E1;
+    --border-2:        #D5D2CC;
+    --price:           #1A1A1A;
+    --card-radius:     4px;
+    --btn-radius:      0px;
+    --badge-radius:    0px;
+    --input-radius:    0px;
+    --card-shadow:     none;
+    --card-shadow-h:   0 8px 30px rgba(0,0,0,0.08);
+    --navbar-bg:       rgba(250,250,248,0.98);
+    --navbar-border:   1px solid #E8E6E1;
+    --navbar-link:     #555;
+    --navbar-link-h:   #1A1A1A;
+    --navbar-text:     #1A1A1A;
+    --hero-bg:         #FAFAF8;
+    --hero-text:       #1A1A1A;
+    --hero-text-acc:   #2D5A3D;
+    --sidebar-bg:      #F5F4F0;
+    --footer-bg:       #1A1A1A;
+    --footer-text:     rgba(255,255,255,0.55);
+    --footer-head:     #FFFFFF;
+    --footer-link-h:   #2D5A3D;
+    --footer-border:   rgba(255,255,255,0.08);
+    --eyebrow-color:   #888;
+    --eyebrow-ls:      0.25em;
+    --font-heading:    'Playfair Display', 'Georgia', serif;
+    --font-body:       'Inter', sans-serif;
+    --navbar-h:        70px;
+    --whatsapp:        #25D366;
+    --whatsapp-h:      #1EBE5C;
+}
+
+/* Elegance — Hero: centralizado, sem carrossel lateral */
+[data-theme="elegance"] .hero-section {
+    text-align: center;
+    padding: 80px 0 60px;
+    min-height: auto;
+    border-bottom: 1px solid var(--border);
+}
+
+[data-theme="elegance"] .hero-section .col-lg-6:last-child {
+    display: none !important;
+}
+
+[data-theme="elegance"] .hero-section .col-lg-6:first-child {
+    flex: 0 0 100%;
+    max-width: 100%;
+}
+
+[data-theme="elegance"] .hero-eyebrow {
+    font-family: var(--font-body);
+    font-size: .7rem;
+    letter-spacing: .3em;
+    color: var(--text-3);
+    margin-bottom: 16px;
+}
+
+[data-theme="elegance"] .hero-title {
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 700;
+    font-style: italic;
+    line-height: 1.2;
+    max-width: 700px;
+    margin: 0 auto 12px;
+}
+
+[data-theme="elegance"] .hero-subtitle {
+    font-size: 1.05rem;
+    color: var(--text-3);
+    max-width: 500px;
+    margin: 0 auto 32px;
+}
+
+/* Elegance — Search: inline, minimalista */
+[data-theme="elegance"] .hero-search {
+    max-width: 680px;
+    margin: 0 auto;
+    background: none;
+    border: none;
+    padding: 0;
+    box-shadow: none;
+}
+
+[data-theme="elegance"] .hero-search .hero-search-fields {
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+[data-theme="elegance"] .hero-search .form-control {
+    border: none;
+    border-bottom: 2px solid var(--border);
+    border-radius: 0;
+    background: transparent;
+    padding: 10px 0;
+    font-size: .88rem;
+    transition: border-color .2s;
+}
+
+[data-theme="elegance"] .hero-search .form-control:focus {
+    border-bottom-color: var(--accent);
+    box-shadow: none;
+}
+
+[data-theme="elegance"] .btn-search {
+    background: var(--accent);
+    border-radius: 0;
+    text-transform: uppercase;
+    letter-spacing: .15em;
+    font-size: .78rem;
+    padding: 14px 24px;
+}
+
+/* Elegance — Stats: horizontal, centralizado */
+[data-theme="elegance"] .hero-stats {
+    justify-content: center;
+    gap: 48px;
+    margin-top: 40px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+}
+
+[data-theme="elegance"] .hero-stat-value {
+    font-family: var(--font-heading);
+    font-size: 2rem;
+    font-style: italic;
+}
+
+/* Elegance — Cards: 2 colunas com layout horizontal */
+[data-theme="elegance"] .vehicle-card {
+    border: 1px solid var(--border);
+    border-radius: var(--card-radius);
+    box-shadow: none;
+    transition: box-shadow .3s, transform .3s;
+}
+
+[data-theme="elegance"] .vehicle-card:hover {
+    box-shadow: var(--card-shadow-h);
+    transform: translateY(-2px);
+    border-color: var(--border-2);
+}
+
+[data-theme="elegance"] .vehicle-card-name {
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+[data-theme="elegance"] .vehicle-card-price {
+    font-family: var(--font-heading);
+    font-style: italic;
+    font-size: 1.3rem;
+    color: var(--text);
+}
+
+[data-theme="elegance"] .btn-ver-detalhes {
+    background: transparent !important;
+    color: var(--accent) !important;
+    border: 1px solid var(--accent) !important;
+    border-radius: 0;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    font-size: .72rem;
+    padding: 8px 20px;
+}
+
+[data-theme="elegance"] .btn-ver-detalhes:hover {
+    background: var(--accent);
+    color: #fff;
+}
+
+/* Elegance — Sections: mais espaço, clean */
+[data-theme="elegance"] .section-eyebrow {
+    font-size: .65rem;
+    letter-spacing: .3em;
+    color: var(--text-3);
+}
+
+[data-theme="elegance"] .section-title {
+    font-family: var(--font-heading);
+    font-style: italic;
+    font-weight: 700;
+}
+
+/* Elegance — Diferenciais: layout 2 colunas */
+[data-theme="elegance"] .diff-card {
+    text-align: left;
+    padding: 28px 24px;
+    border: 1px solid var(--border);
+    border-radius: 0;
+}
+
+[data-theme="elegance"] .diff-card .diff-icon {
+    margin: 0 0 12px 0;
+}
+
+/* Elegance — Categorias: texto elegante sem bg */
+[data-theme="elegance"] .cat-card {
+    border: 1px solid var(--border);
+    border-radius: 0;
+    background: transparent;
+}
+
+[data-theme="elegance"] .cat-card:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+}
+
+/* Elegance — CTA: discreto */
+[data-theme="elegance"] .cta-banner {
+    background: var(--text);
+    border-radius: 0;
+}
+
+[data-theme="elegance"] .cta-banner h3,
+[data-theme="elegance"] .cta-banner p { color: #fff; }
+
+[data-theme="elegance"] .btn-cta-white {
+    border-radius: 0;
+    text-transform: uppercase;
+    letter-spacing: .15em;
+    font-size: .78rem;
+}
+
+/* Elegance — Footer: minimal */
+[data-theme="elegance"] .site-footer {
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Elegance — Filter sidebar */
+[data-theme="elegance"] .filter-sidebar {
+    border-radius: 0;
+    border: 1px solid var(--border);
+}
+
+/* Elegance — Detail: tipografia */
+[data-theme="elegance"] .vehicle-detail-title {
+    font-family: var(--font-heading);
+    font-style: italic;
+}
+
+
+/* ═══════════════════════════════════════════════════
+   THEME: SHOWCASE — Full-screen hero, foto grande, imersivo
+   ═══════════════════════════════════════════════════ */
+
+[data-theme="showcase"] {
+    --bg:              #111111;
+    --bg-alt:          #1A1A1A;
+    --bg-card:         #1E1E1E;
+    --bg-input:        #2A2A2A;
+    --accent:          #FF6B2C;
+    --accent-hover:    #E05A1F;
+    --accent-subtle:   rgba(255,107,44,0.10);
+    --accent-glow:     rgba(255,107,44,0.30);
+    --text:            #F2F2F2;
+    --text-2:          #D4D4D4;
+    --text-3:          #888888;
+    --border:          rgba(255,255,255,0.08);
+    --border-2:        rgba(255,255,255,0.15);
+    --price:           #FF6B2C;
+    --card-radius:     16px;
+    --btn-radius:      50px;
+    --badge-radius:    50px;
+    --input-radius:    50px;
+    --card-shadow:     0 4px 20px rgba(0,0,0,0.4);
+    --card-shadow-h:   0 16px 48px rgba(255,107,44,0.15);
+    --navbar-bg:       rgba(17,17,17,0.85);
+    --navbar-border:   none;
+    --navbar-link:     #D4D4D4;
+    --navbar-link-h:   #FF6B2C;
+    --navbar-text:     #F2F2F2;
+    --hero-bg:         linear-gradient(180deg, #111111 0%, #0A0A0A 100%);
+    --hero-text:       #FFFFFF;
+    --hero-text-acc:   #FF6B2C;
+    --sidebar-bg:      #1A1A1A;
+    --footer-bg:       #0A0A0A;
+    --footer-text:     rgba(255,255,255,0.50);
+    --footer-head:     #F2F2F2;
+    --footer-link-h:   #FF6B2C;
+    --footer-border:   rgba(255,255,255,0.06);
+    --eyebrow-color:   #FF6B2C;
+    --eyebrow-ls:      0.15em;
+    --font-heading:    'Space Grotesk', sans-serif;
+    --font-body:       'Inter', sans-serif;
+    --navbar-h:        70px;
+    --whatsapp:        #25D366;
+    --whatsapp-h:      #1EBE5C;
+}
+
+/* Showcase — Navbar: transparente, glass */
+[data-theme="showcase"] .navbar-site {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+/* Showcase — Hero: full-screen com carrossel grande */
+[data-theme="showcase"] .hero-section {
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    padding: 0;
+}
+
+[data-theme="showcase"] .hero-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 70% 50%, rgba(255,107,44,0.08) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+/* Showcase — Hero: carrossel à direita ocupa mais espaço */
+[data-theme="showcase"] .hero-section .col-lg-6:first-child {
+    flex: 0 0 45%;
+    max-width: 45%;
+}
+
+[data-theme="showcase"] .hero-section .col-lg-6:last-child {
+    flex: 0 0 55%;
+    max-width: 55%;
+    display: flex !important;
+}
+
+[data-theme="showcase"] .hero-section #heroCarousel {
+    max-width: 100% !important;
+}
+
+[data-theme="showcase"] .hero-section #heroCarousel > a > div:first-child {
+    border-radius: var(--card-radius);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+
+[data-theme="showcase"] .hero-eyebrow {
+    font-size: .7rem;
+    background: var(--accent);
+    color: #fff;
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 50px;
+    letter-spacing: .15em;
+    margin-bottom: 20px;
+}
+
+[data-theme="showcase"] .hero-title {
+    font-size: clamp(2rem, 4.5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+}
+
+[data-theme="showcase"] .hero-subtitle {
+    font-size: 1rem;
+    opacity: .7;
+    margin-bottom: 28px;
+}
+
+/* Showcase — Search: pill-shape inputs */
+[data-theme="showcase"] .hero-search {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 20px;
+    backdrop-filter: blur(10px);
+}
+
+[data-theme="showcase"] .hero-search .form-control {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #fff;
+    border-radius: 50px;
+    padding: 10px 16px;
+}
+
+[data-theme="showcase"] .hero-search .form-control::placeholder { color: rgba(255,255,255,0.4); }
+[data-theme="showcase"] .hero-search .form-control option { color: #333; background: #fff; }
+
+[data-theme="showcase"] .hero-search .form-control:focus {
+    border-color: var(--accent);
+    background: rgba(255,255,255,0.12);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+[data-theme="showcase"] .btn-search {
+    border-radius: 50px;
+    font-weight: 700;
+    padding: 12px 24px;
+    font-size: .9rem;
+}
+
+/* Showcase — Stats: com ícone accent */
+[data-theme="showcase"] .hero-stats {
+    margin-top: 32px;
+}
+
+[data-theme="showcase"] .hero-stat {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: 12px 16px;
+    border-radius: 12px;
+}
+
+[data-theme="showcase"] .hero-stat-value {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--accent);
+}
+
+/* Showcase — Cards: grid 4 colunas no desktop, foco na foto */
+[data-theme="showcase"] .vehicle-card {
+    border: none;
+    border-radius: var(--card-radius);
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+    transition: transform .3s, box-shadow .3s;
+}
+
+[data-theme="showcase"] .vehicle-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: var(--card-shadow-h);
+}
+
+[data-theme="showcase"] .vehicle-card-img {
+    aspect-ratio: 16/9;
+}
+
+[data-theme="showcase"] .vehicle-card-body {
+    padding: 14px 16px 16px;
+}
+
+[data-theme="showcase"] .vehicle-card-name {
+    font-weight: 700;
+    font-size: .92rem;
+}
+
+[data-theme="showcase"] .vehicle-card-price {
+    font-size: 1.2rem;
+    font-weight: 800;
+}
+
+[data-theme="showcase"] .btn-ver-detalhes {
+    border-radius: 50px;
+    font-size: .78rem;
+    padding: 8px 20px;
+}
+
+[data-theme="showcase"] .btn-whatsapp-card {
+    border-radius: 50%;
+}
+
+/* Showcase — Sections: fundo dark com glow */
+[data-theme="showcase"] .section-eyebrow {
+    background: var(--accent);
+    color: #fff;
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 50px;
+    font-size: .65rem;
+}
+
+[data-theme="showcase"] .section-title {
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+/* Showcase — Diferenciais: cards com glow */
+[data-theme="showcase"] .diff-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+}
+
+[data-theme="showcase"] .diff-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 30px var(--accent-glow);
+}
+
+[data-theme="showcase"] .diff-card .diff-icon {
+    background: var(--accent-subtle);
+    color: var(--accent);
+}
+
+/* Showcase — Categorias: pill-shape */
+[data-theme="showcase"] .cat-card {
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.03);
+}
+
+[data-theme="showcase"] .cat-card:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    box-shadow: 0 0 20px var(--accent-glow);
+}
+
+/* Showcase — CTA: gradient accent */
+[data-theme="showcase"] .cta-banner {
+    background: linear-gradient(135deg, var(--accent), #FF8F5C);
+    border-radius: 20px;
+    margin: 0 16px;
+}
+
+[data-theme="showcase"] .btn-cta-white {
+    border-radius: 50px;
+    font-weight: 700;
+}
+
+/* Showcase — Filter sidebar */
+[data-theme="showcase"] .filter-sidebar {
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+[data-theme="showcase"] .filter-sidebar .form-control {
+    border-radius: 50px;
+}
+
+/* Showcase — Detail page */
+[data-theme="showcase"] .vehicle-detail-title {
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+/* Showcase — Footer: rounded top */
+[data-theme="showcase"] .site-footer {
+    border-radius: 24px 24px 0 0;
+    margin-top: 40px;
+}
+
+/* Showcase — Responsive */
+@media (max-width: 991px) {
+    [data-theme="showcase"] .hero-section {
+        min-height: auto;
+        padding: 60px 0 40px;
+    }
+    [data-theme="showcase"] .hero-section .col-lg-6:first-child {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 767px) {
+    [data-theme="elegance"] .hero-section {
+        padding: 50px 0 40px;
+    }
+    [data-theme="elegance"] .hero-stats {
+        gap: 24px;
+    }
+    [data-theme="elegance"] .hero-search .hero-search-fields {
+        grid-template-columns: 1fr;
+    }
+}
