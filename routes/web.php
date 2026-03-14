@@ -51,6 +51,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         Route::post('/reorder', [Admin\VehiclePhotoController::class, 'reorder'])->name('reorder');
     });
 
+    // Documentos dos veículos
+    Route::prefix('vehicles/{vehicle}/documents')->name('vehicles.documents.')->group(function () {
+        Route::post('/', [Admin\VehicleDocumentController::class, 'store'])->name('store');
+        Route::delete('/{document}', [Admin\VehicleDocumentController::class, 'destroy'])->name('destroy');
+        Route::get('/{document}/download', [Admin\VehicleDocumentController::class, 'download'])->name('download');
+    });
+
     // Vendas
     Route::get('sales', [Admin\SaleController::class, 'index'])->name('sales.index');
     Route::get('sales/create', [Admin\SaleController::class, 'create'])->name('sales.create');

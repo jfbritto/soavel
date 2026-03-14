@@ -72,7 +72,7 @@ class VehicleController extends Controller
 
     public function show(Vehicle $vehicle)
     {
-        $vehicle->load(['photos', 'features', 'sales.customer', 'leads', 'partners', 'vendaOrigem.vehicle.principalPhoto', 'vendaOrigem.customer']);
+        $vehicle->load(['photos', 'features', 'sales.customer', 'leads', 'partners', 'documents', 'vendaOrigem.vehicle.principalPhoto', 'vendaOrigem.customer']);
         $expenses    = $vehicle->expenses()->latest('data')->get();
         $allPartners = \App\Models\Partner::orderBy('nome')->get(['id', 'nome']);
         return view('admin.vehicles.show', compact('vehicle', 'expenses', 'allPartners'));

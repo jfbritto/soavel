@@ -4,11 +4,24 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class Vehicle extends Model
 {
     use HasFactory;
+
+    protected static function booted()
+    {
+        static::deleting(function (Vehicle $vehicle) {
+            // Remove arquivos físicos das fotos
+            foreach ($vehicle->photos as $photo) {
+                Storage::disk('public')->delete($photo->path);
+            }
+            // Remove arquivos físicos dos documentos (dispara o deleting de cada um)
+            $vehicle->documents->each->delete();
+        });
+    }
 
     protected $fillable = [
         'marca', 'modelo', 'versao', 'ano_fabricacao', 'ano_modelo',
@@ -66,6 +79,11 @@ class Vehicle extends Model
     public function expenses()
     {
         return $this->hasMany(Expense::class);
+    }
+
+    public function documents()
+    {
+        return $this->hasMany(VehicleDocument::class)->latest();
     }
 
     public function partners()
