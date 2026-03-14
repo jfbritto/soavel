@@ -65,7 +65,12 @@
 {{-- ── Informações principais ───────────────────────────────────────── --}}
 <div class="card shadow-sm mb-3">
     <div class="card-header bg-white border-bottom-0 pb-0">
-        <h3 class="card-title text-muted text-uppercase" style="font-size:.72rem;letter-spacing:.08em;font-weight:700">Identificação</h3>
+        <div class="d-flex justify-content-between align-items-center">
+            <h3 class="card-title text-muted text-uppercase mb-0" style="font-size:.72rem;letter-spacing:.08em;font-weight:700">Identificação</h3>
+            <button type="button" id="btnReviewAI" class="btn btn-sm btn-outline-info" onclick="reviewVehicleAI()">
+                <i class="fas fa-robot mr-1"></i>Revisar com IA
+            </button>
+        </div>
     </div>
     <div class="card-body pt-2">
         <div class="row">
@@ -303,7 +308,12 @@
 {{-- ── Opcionais ────────────────────────────────────────────────────── --}}
 <div class="card shadow-sm mb-3">
     <div class="card-header bg-white border-bottom-0 pb-0">
-        <h3 class="card-title text-muted text-uppercase" style="font-size:.72rem;letter-spacing:.08em;font-weight:700">Opcionais / Equipamentos</h3>
+        <div class="d-flex justify-content-between align-items-center">
+            <h3 class="card-title text-muted text-uppercase mb-0" style="font-size:.72rem;letter-spacing:.08em;font-weight:700">Opcionais / Equipamentos</h3>
+            <button type="button" id="btnSuggestFeatures" class="btn btn-sm btn-outline-primary" onclick="suggestFeaturesAI()">
+                <i class="fas fa-magic mr-1"></i>Preencher com IA
+            </button>
+        </div>
     </div>
     <div class="card-body pt-2">
         @php $featIdx = 0; @endphp
@@ -338,3 +348,275 @@
         @endforeach
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+function suggestFeaturesAI() {
+    var marca  = document.querySelector('[name="marca"]');
+    var modelo = document.querySelector('[name="modelo"]');
+    var ano    = document.querySelector('[name="ano_modelo"]');
+
+    if (!marca || !modelo || !ano || !marca.value || !modelo.value || !ano.value) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Campos obrigatórios',
+            text: 'Preencha marca, modelo e ano do veículo antes de usar a IA.',
+        });
+        return;
+    }
+
+    var btn = document.getElementById('btnSuggestFeatures');
+    var originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Consultando IA...';
+
+    Swal.fire({
+        title: 'Consultando IA...',
+        html: '<p class="mb-1">Analisando opcionais do <b>' + marca.value + ' ' + modelo.value + ' ' + ano.value + '</b></p><small class="text-muted">Isso pode levar alguns segundos</small>',
+        allowOutsideClick: false,
+        didOpen: function() { Swal.showLoading(); }
+    });
+
+    fetch('{{ route("admin.vehicles.suggestFeatures") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            marca: marca.value,
+            modelo: modelo.value,
+            ano: ano.value
+        })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.error) {
+            Swal.fire({ icon: 'error', title: 'Erro', text: data.error });
+            return;
+        }
+
+        // Desmarca todos primeiro
+        document.querySelectorAll('input[name="features[]"]').forEach(function(cb) {
+            cb.checked = false;
+        });
+
+        // Marca os sugeridos
+        var found = 0;
+        var list = '';
+        data.features.forEach(function(feat) {
+            document.querySelectorAll('input[name="features[]"]').forEach(function(cb) {
+                if (cb.value === feat) {
+                    cb.checked = true;
+                    found++;
+                    list += '<li style="font-size:.85rem">' + feat + '</li>';
+                }
+            });
+        });
+
+        Swal.fire({
+            icon: 'success',
+            title: found + ' opcionais sugeridos',
+            html: '<p class="mb-2">Revise os itens antes de salvar:</p>'
+                + '<div style="max-height:250px;overflow-y:auto;text-align:left">'
+                + '<ul class="pl-3 mb-0">' + list + '</ul></div>',
+            confirmButtonText: 'Entendi',
+            confirmButtonColor: '#3085d6',
+        });
+    })
+    .catch(function(err) {
+        Swal.fire({ icon: 'error', title: 'Erro', text: 'Falha ao consultar IA: ' + err.message });
+    })
+    .finally(function() {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    });
+}
+
+function reviewVehicleAI() {
+    var marca = document.querySelector('[name="marca"]');
+    var modelo = document.querySelector('[name="modelo"]');
+
+    if (!marca || !modelo || !marca.value || !modelo.value) {
+        Swal.fire({ icon: 'warning', title: 'Campos obrigatórios', text: 'Preencha pelo menos marca e modelo.' });
+        return;
+    }
+
+    var btn = document.getElementById('btnReviewAI');
+    var originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Revisando...';
+
+    Swal.fire({
+        title: 'Revisando cadastro...',
+        html: '<p class="mb-1">Analisando <b>' + marca.value + ' ' + modelo.value + '</b></p><small class="text-muted">A IA está verificando os dados</small>',
+        allowOutsideClick: false,
+        didOpen: function() { Swal.showLoading(); }
+    });
+
+    var precoEl = document.getElementById('precoHidden');
+    var precoCompraEl = document.getElementById('precoCompraHidden');
+    var kmEl = document.getElementById('kmHidden');
+
+    fetch('{{ route("admin.vehicles.review") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            marca: marca.value,
+            modelo: modelo.value,
+            versao: (document.querySelector('[name="versao"]') || {}).value || '',
+            ano_fabricacao: (document.querySelector('[name="ano_fabricacao"]') || {}).value || '',
+            ano_modelo: (document.querySelector('[name="ano_modelo"]') || {}).value || '',
+            km: kmEl ? kmEl.value : '',
+            cor: (document.querySelector('[name="cor"]') || {}).value || '',
+            combustivel: (document.querySelector('[name="combustivel"]') || {}).value || '',
+            transmissao: (document.querySelector('[name="transmissao"]') || {}).value || '',
+            motorizacao: (document.querySelector('[name="motorizacao"]') || {}).value || '',
+            portas: (document.querySelector('[name="portas"]') || {}).value || '',
+            categoria: (document.querySelector('[name="categoria"]') || {}).value || '',
+            preco: precoEl ? precoEl.value : '',
+            preco_compra: precoCompraEl ? precoCompraEl.value : '',
+            descricao: (document.querySelector('[name="descricao"]') || {}).value || ''
+        })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.error) {
+            Swal.fire({ icon: 'error', title: 'Erro', text: data.error });
+            return;
+        }
+
+        var r = data.review;
+        var html = '';
+
+        // Correções sugeridas
+        var corrections = [];
+        if (r.marca_corrigida) corrections.push({ field: 'marca', label: 'Marca', from: marca.value, to: r.marca_corrigida });
+        if (r.modelo_corrigido) corrections.push({ field: 'modelo', label: 'Modelo', from: modelo.value, to: r.modelo_corrigido });
+        if (r.versao_sugerida) corrections.push({ field: 'versao', label: 'Versão', from: (document.querySelector('[name="versao"]') || {}).value || '(vazia)', to: r.versao_sugerida });
+
+        if (corrections.length) {
+            html += '<div class="text-left mb-3"><h6 class="font-weight-bold" style="color:#3085d6"><i class="fas fa-pen mr-1"></i>Correções sugeridas</h6>';
+            corrections.forEach(function(c) {
+                html += '<div class="d-flex align-items-center mb-2 p-2 rounded" style="background:#f0f7ff;gap:8px">'
+                    + '<span class="badge badge-secondary">' + c.label + '</span>'
+                    + '<span style="text-decoration:line-through;color:#999">' + c.from + '</span>'
+                    + '<i class="fas fa-arrow-right text-muted" style="font-size:.7rem"></i>'
+                    + '<strong style="color:#2563eb">' + c.to + '</strong>'
+                    + '<button type="button" class="btn btn-xs btn-outline-success ml-auto apply-correction" data-field="' + c.field + '" data-value="' + c.to.replace(/"/g, '&quot;') + '"><i class="fas fa-check"></i> Aplicar</button>'
+                    + '</div>';
+            });
+            html += '</div>';
+        }
+
+        // Descrição sugerida
+        if (r.descricao_sugerida) {
+            html += '<div class="text-left mb-3"><h6 class="font-weight-bold" style="color:#059669"><i class="fas fa-file-alt mr-1"></i>Descrição sugerida</h6>'
+                + '<div class="p-2 rounded mb-1" style="background:#f0fdf4;font-size:.88rem">' + r.descricao_sugerida + '</div>'
+                + '<button type="button" class="btn btn-xs btn-outline-success apply-description"><i class="fas fa-check"></i> Usar esta descrição</button>'
+                + '</div>';
+        }
+
+        // Alertas
+        if (r.alertas && r.alertas.length) {
+            html += '<div class="text-left mb-3"><h6 class="font-weight-bold" style="color:#dc2626"><i class="fas fa-exclamation-triangle mr-1"></i>Alertas</h6>';
+            r.alertas.forEach(function(a) {
+                html += '<div class="p-2 rounded mb-1" style="background:#fef2f2;font-size:.85rem"><i class="fas fa-times-circle text-danger mr-1"></i>' + a + '</div>';
+            });
+            html += '</div>';
+        }
+
+        // Dicas
+        if (r.dicas && r.dicas.length) {
+            html += '<div class="text-left mb-3"><h6 class="font-weight-bold" style="color:#d97706"><i class="fas fa-lightbulb mr-1"></i>Dicas</h6>';
+            r.dicas.forEach(function(d) {
+                html += '<div class="p-2 rounded mb-1" style="background:#fffbeb;font-size:.85rem"><i class="fas fa-info-circle text-warning mr-1"></i>' + d + '</div>';
+            });
+            html += '</div>';
+        }
+
+        var hasSuggestions = corrections.length > 0 || r.descricao_sugerida;
+
+        if (!html) {
+            html = '<p class="text-success"><i class="fas fa-check-circle mr-1"></i>Cadastro está ótimo! Nenhuma sugestão.</p>';
+        }
+
+        Swal.fire({
+            title: 'Revisão do Cadastro',
+            html: '<div style="max-height:400px;overflow-y:auto">' + html + '</div>',
+            width: 600,
+            showDenyButton: hasSuggestions,
+            denyButtonText: '<i class="fas fa-magic"></i> Aplicar tudo',
+            denyButtonColor: '#2563eb',
+            confirmButtonText: 'Fechar',
+            confirmButtonColor: '#6c757d',
+            didOpen: function() {
+                // Botões de aplicar correção
+                document.querySelectorAll('.apply-correction').forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        var field = this.dataset.field;
+                        var value = this.dataset.value;
+                        var input = document.querySelector('[name="' + field + '"]');
+                        if (input) {
+                            input.value = value;
+                            this.innerHTML = '<i class="fas fa-check"></i> Aplicado';
+                            this.classList.remove('btn-outline-success');
+                            this.classList.add('btn-success');
+                            this.disabled = true;
+                        }
+                    });
+                });
+                // Botão de aplicar descrição
+                var descBtn = document.querySelector('.apply-description');
+                if (descBtn) {
+                    descBtn.addEventListener('click', function() {
+                        var ta = document.querySelector('[name="descricao"]');
+                        if (ta) {
+                            ta.value = r.descricao_sugerida;
+                            this.innerHTML = '<i class="fas fa-check"></i> Aplicada';
+                            this.classList.remove('btn-outline-success');
+                            this.classList.add('btn-success');
+                            this.disabled = true;
+                        }
+                    });
+                }
+            },
+            preDeny: function() {
+                // Aplicar todas as correções
+                corrections.forEach(function(c) {
+                    var input = document.querySelector('[name="' + c.field + '"]');
+                    if (input) input.value = c.to;
+                });
+                // Aplicar descrição
+                if (r.descricao_sugerida) {
+                    var ta = document.querySelector('[name="descricao"]');
+                    if (ta) ta.value = r.descricao_sugerida;
+                }
+            }
+        }).then(function(result) {
+            if (result.isDenied) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Sugestões aplicadas!',
+                    text: 'Todos os campos foram atualizados. Revise e salve o veículo.',
+                    confirmButtonColor: '#2563eb',
+                    timer: 2500,
+                    timerProgressBar: true,
+                });
+            }
+        });
+    })
+    .catch(function(err) {
+        Swal.fire({ icon: 'error', title: 'Erro', text: 'Falha ao consultar IA: ' + err.message });
+    })
+    .finally(function() {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    });
+}
+</script>

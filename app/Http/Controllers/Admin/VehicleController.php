@@ -133,4 +133,183 @@ class VehicleController extends Controller
             'destaque' => $vehicle->destaque,
         ]);
     }
+
+    public function suggestFeatures(Request $request)
+    {
+        $request->validate([
+            'marca'  => 'required|string',
+            'modelo' => 'required|string',
+            'ano'    => 'required|string',
+        ]);
+
+        $apiKey = config('services.gemini.key');
+        if (!$apiKey) {
+            return response()->json(['error' => 'Chave da API Gemini não configurada.'], 422);
+        }
+
+        $allFeatures = VehicleFeatureSeeder::allFeatures();
+        $featureList = implode(', ', $allFeatures);
+
+        $prompt = "Você é um especialista em veículos do mercado brasileiro. "
+            . "Para o veículo {$request->marca} {$request->modelo} ano {$request->ano}, "
+            . "quais destes opcionais geralmente vêm de fábrica na versão mais comum?\n\n"
+            . "Lista de opcionais possíveis: {$featureList}\n\n"
+            . "Responda APENAS com um JSON array contendo os nomes exatos dos opcionais que o veículo possui. "
+            . "Exemplo: [\"Ar-condicionado\", \"ABS\"]\n"
+            . "Não inclua explicações, apenas o JSON array.";
+
+        try {
+            $response = \Illuminate\Support\Facades\Http::timeout(30)->withHeaders([
+                'Content-Type' => 'application/json',
+            ])->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={$apiKey}", [
+                'contents' => [
+                    ['parts' => [['text' => $prompt]]]
+                ],
+                'generationConfig' => [
+                    'temperature' => 0.2,
+                    'maxOutputTokens' => 8192,
+                    'thinkingConfig' => [
+                        'thinkingBudget' => 0,
+                    ],
+                ],
+            ]);
+
+            if (!$response->successful()) {
+                return response()->json(['error' => 'Erro na API Gemini: ' . $response->status()], 500);
+            }
+
+            // Concatena todos os parts (Gemini 2.5 pode ter thinking + resposta)
+            $parts = $response->json('candidates.0.content.parts', []);
+            $text = '';
+            foreach ($parts as $part) {
+                if (!($part['thought'] ?? false)) {
+                    $text .= ($part['text'] ?? '');
+                }
+            }
+
+            // Remove tudo que não seja o JSON array
+            $start = strpos($text, '[');
+            $end   = strrpos($text, ']');
+
+            if ($start === false || $end === false || $end <= $start) {
+                \Log::error('Gemini response parsing failed', ['text' => substr($text, 0, 500)]);
+                return response()->json(['error' => 'Não foi possível interpretar a resposta da IA.'], 422);
+            }
+
+            $jsonStr   = substr($text, $start, $end - $start + 1);
+            $suggested = json_decode($jsonStr, true);
+
+            if (!is_array($suggested)) {
+                \Log::error('Gemini JSON decode failed', ['json' => substr($jsonStr, 0, 500)]);
+                return response()->json(['error' => 'Resposta inválida da IA.'], 422);
+            }
+
+            // Filtra apenas features que existem na lista
+            $valid = array_values(array_intersect($suggested, $allFeatures));
+
+            return response()->json(['features' => $valid]);
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Erro ao consultar IA: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function reviewVehicle(Request $request)
+    {
+        $apiKey = config('services.gemini.key');
+        if (!$apiKey) {
+            return response()->json(['error' => 'Chave da API Gemini não configurada.'], 422);
+        }
+
+        $data = $request->validate([
+            'marca'           => 'required|string',
+            'modelo'          => 'required|string',
+            'versao'          => 'nullable|string',
+            'ano_fabricacao'  => 'required|string',
+            'ano_modelo'      => 'required|string',
+            'km'              => 'nullable|string',
+            'cor'             => 'nullable|string',
+            'combustivel'     => 'nullable|string',
+            'transmissao'     => 'nullable|string',
+            'motorizacao'     => 'nullable|string',
+            'portas'          => 'nullable|string',
+            'categoria'       => 'nullable|string',
+            'preco'           => 'nullable|string',
+            'preco_compra'    => 'nullable|string',
+            'descricao'       => 'nullable|string',
+        ]);
+
+        $prompt = "Você é um consultor especialista em veículos seminovos do mercado brasileiro. "
+            . "Revise o cadastro abaixo e retorne sugestões de melhoria em JSON.\n\n"
+            . "Dados do veículo:\n"
+            . "- Marca: {$data['marca']}\n"
+            . "- Modelo: {$data['modelo']}\n"
+            . "- Versão: " . ($data['versao'] ?? 'não informada') . "\n"
+            . "- Ano Fab/Mod: {$data['ano_fabricacao']}/{$data['ano_modelo']}\n"
+            . "- KM: " . ($data['km'] ?? 'não informado') . "\n"
+            . "- Cor: " . ($data['cor'] ?? 'não informada') . "\n"
+            . "- Combustível: " . ($data['combustivel'] ?? 'não informado') . "\n"
+            . "- Transmissão: " . ($data['transmissao'] ?? 'não informada') . "\n"
+            . "- Motorização: " . ($data['motorizacao'] ?? 'não informada') . "\n"
+            . "- Portas: " . ($data['portas'] ?? 'não informado') . "\n"
+            . "- Categoria: " . ($data['categoria'] ?? 'não informada') . "\n"
+            . "- Preço de venda: " . ($data['preco'] ?? 'não informado') . "\n"
+            . "- Preço de compra: " . ($data['preco_compra'] ?? 'não informado') . "\n"
+            . "- Descrição: " . ($data['descricao'] ?: 'vazia') . "\n\n"
+            . "Responda APENAS com um JSON no formato:\n"
+            . "{\n"
+            . "  \"marca_corrigida\": \"grafia correta da marca ou null se já está certa\",\n"
+            . "  \"modelo_corrigido\": \"grafia correta do modelo ou null\",\n"
+            . "  \"versao_sugerida\": \"versão provável se não informada, ou null\",\n"
+            . "  \"descricao_sugerida\": \"descrição atrativa para o site com 2-3 frases se estiver vazia, ou null\",\n"
+            . "  \"alertas\": [\"lista de inconsistências ou problemas encontrados\"],\n"
+            . "  \"dicas\": [\"lista de sugestões para melhorar o anúncio\"]\n"
+            . "}\n"
+            . "Sem explicações adicionais, apenas o JSON.";
+
+        try {
+            $response = \Illuminate\Support\Facades\Http::timeout(30)->withHeaders([
+                'Content-Type' => 'application/json',
+            ])->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={$apiKey}", [
+                'contents' => [
+                    ['parts' => [['text' => $prompt]]]
+                ],
+                'generationConfig' => [
+                    'temperature' => 0.3,
+                    'maxOutputTokens' => 8192,
+                    'thinkingConfig' => ['thinkingBudget' => 0],
+                ],
+            ]);
+
+            if (!$response->successful()) {
+                return response()->json(['error' => 'Erro na API Gemini: ' . $response->status()], 500);
+            }
+
+            $parts = $response->json('candidates.0.content.parts', []);
+            $text = '';
+            foreach ($parts as $part) {
+                if (!($part['thought'] ?? false)) {
+                    $text .= ($part['text'] ?? '');
+                }
+            }
+
+            $start = strpos($text, '{');
+            $end   = strrpos($text, '}');
+
+            if ($start === false || $end === false) {
+                return response()->json(['error' => 'Não foi possível interpretar a resposta da IA.'], 422);
+            }
+
+            $review = json_decode(substr($text, $start, $end - $start + 1), true);
+
+            if (!is_array($review)) {
+                return response()->json(['error' => 'Resposta inválida da IA.'], 422);
+            }
+
+            return response()->json(['review' => $review]);
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Erro ao consultar IA: ' . $e->getMessage()], 500);
+        }
+    }
 }

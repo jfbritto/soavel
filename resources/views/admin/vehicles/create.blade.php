@@ -18,7 +18,7 @@
 
         @include('admin.vehicles._form', ['vehicle' => null, 'featuresByCategory' => $featuresByCategory, 'currentFeatures' => []])
 
-        <div class="d-flex justify-content-end mb-4" style="gap:8px">
+        <div class="d-flex justify-content-end mt-3 pb-4" style="gap:8px">
             <a href="{{ route('admin.vehicles.index') }}" class="btn btn-default">Cancelar</a>
             <button type="submit" class="btn btn-primary">
                 <i class="fas fa-save mr-1"></i>Salvar Veículo

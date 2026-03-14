@@ -40,6 +40,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     // Veículos
     Route::resource('vehicles', Admin\VehicleController::class);
     Route::patch('vehicles/{vehicle}/destaque', [Admin\VehicleController::class, 'toggleDestaque'])->name('vehicles.toggleDestaque');
+    Route::post('vehicles/suggest-features', [Admin\VehicleController::class, 'suggestFeatures'])->name('vehicles.suggestFeatures');
+    Route::post('vehicles/review', [Admin\VehicleController::class, 'reviewVehicle'])->name('vehicles.review');
 
     // Fotos dos veículos
     Route::prefix('vehicles/{vehicle}/photos')->name('vehicles.photos.')->group(function () {
