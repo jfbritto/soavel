@@ -306,17 +306,35 @@
         <h3 class="card-title text-muted text-uppercase" style="font-size:.72rem;letter-spacing:.08em;font-weight:700">Opcionais / Equipamentos</h3>
     </div>
     <div class="card-body pt-2">
+        @php $featIdx = 0; @endphp
+        @foreach($featuresByCategory as $category => $items)
+        <h6 class="font-weight-bold text-muted mt-3 mb-2 pb-1 border-bottom" style="font-size:.8rem;letter-spacing:.04em">
+            @if($category === 'Conforto / Interior')
+                <i class="fas fa-couch mr-1"></i>
+            @elseif($category === 'Segurança')
+                <i class="fas fa-shield-alt mr-1"></i>
+            @elseif($category === 'Tecnologia / Entretenimento')
+                <i class="fas fa-laptop mr-1"></i>
+            @elseif($category === 'Motor / Mecânica')
+                <i class="fas fa-cogs mr-1"></i>
+            @elseif($category === 'Estética / Exterior')
+                <i class="fas fa-car mr-1"></i>
+            @endif
+            {{ $category }}
+        </h6>
         <div class="row">
-            @foreach($features as $feature)
+            @foreach($items as $feature)
             <div class="col-md-3 col-sm-4 col-6">
                 <div class="custom-control custom-checkbox mb-2">
-                    <input type="checkbox" class="custom-control-input" id="feat_{{ $loop->index }}"
+                    <input type="checkbox" class="custom-control-input" id="feat_{{ $featIdx }}"
                         name="features[]" value="{{ $feature }}"
                         {{ in_array($feature, $currentFeatures ?? []) ? 'checked' : '' }}>
-                    <label class="custom-control-label" for="feat_{{ $loop->index }}" style="font-size:.88rem">{{ $feature }}</label>
+                    <label class="custom-control-label" for="feat_{{ $featIdx }}" style="font-size:.88rem">{{ $feature }}</label>
                 </div>
             </div>
+            @php $featIdx++; @endphp
             @endforeach
         </div>
+        @endforeach
     </div>
 </div>

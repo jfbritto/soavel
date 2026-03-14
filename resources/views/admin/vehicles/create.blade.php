@@ -16,7 +16,7 @@
     <form action="{{ route('admin.vehicles.store') }}" method="POST">
         @csrf
 
-        @include('admin.vehicles._form', ['vehicle' => null, 'features' => $features, 'currentFeatures' => []])
+        @include('admin.vehicles._form', ['vehicle' => null, 'featuresByCategory' => $featuresByCategory, 'currentFeatures' => []])
 
         <div class="d-flex justify-content-end mb-4" style="gap:8px">
             <a href="{{ route('admin.vehicles.index') }}" class="btn btn-default">Cancelar</a>

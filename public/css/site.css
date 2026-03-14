@@ -1963,6 +1963,11 @@ a:hover {
     }
 
     .vehicle-detail-pb { padding-bottom: 76px; }
+
+    /* Sobe o botão flutuante do WhatsApp na página de detalhe para não sobrepor a barra CTA */
+    .has-mobile-cta .whatsapp-float {
+        display: none !important;
+    }
 }
 
 @media (max-width: 575px) {

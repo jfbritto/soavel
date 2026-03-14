@@ -16,7 +16,7 @@
     <form action="{{ route('admin.vehicles.update', $vehicle) }}" method="POST">
         @csrf @method('PUT')
 
-        @include('admin.vehicles._form', ['vehicle' => $vehicle, 'features' => $features, 'currentFeatures' => $currentFeatures])
+        @include('admin.vehicles._form', ['vehicle' => $vehicle, 'featuresByCategory' => $featuresByCategory, 'currentFeatures' => $currentFeatures])
 
         <div class="d-flex justify-content-end mb-4" style="gap:8px">
             <a href="{{ route('admin.vehicles.show', $vehicle) }}" class="btn btn-default">Cancelar</a>

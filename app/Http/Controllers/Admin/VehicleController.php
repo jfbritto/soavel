@@ -47,8 +47,8 @@ class VehicleController extends Controller
 
     public function create()
     {
-        $features = VehicleFeatureSeeder::$features;
-        return view('admin.vehicles.create', compact('features'));
+        $featuresByCategory = VehicleFeatureSeeder::$featuresByCategory;
+        return view('admin.vehicles.create', compact('featuresByCategory'));
     }
 
     public function store(StoreVehicleRequest $request)
@@ -81,10 +81,10 @@ class VehicleController extends Controller
     public function edit(Vehicle $vehicle)
     {
         $vehicle->load('features');
-        $features          = VehicleFeatureSeeder::$features;
-        $currentFeatures   = $vehicle->features->pluck('feature')->toArray();
+        $featuresByCategory = VehicleFeatureSeeder::$featuresByCategory;
+        $currentFeatures    = $vehicle->features->pluck('feature')->toArray();
 
-        return view('admin.vehicles.edit', compact('vehicle', 'features', 'currentFeatures'));
+        return view('admin.vehicles.edit', compact('vehicle', 'featuresByCategory', 'currentFeatures'));
     }
 
     public function update(UpdateVehicleRequest $request, Vehicle $vehicle)

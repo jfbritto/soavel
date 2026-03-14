@@ -84,6 +84,27 @@
                 @endif
             </div>
 
+            <!-- Compartilhar -->
+            <div class="d-flex align-items-center mb-4" style="gap:10px">
+                <span class="text-muted font-weight-600" style="font-size:.85rem"><i class="fas fa-share-alt mr-1"></i> Compartilhar:</span>
+                <a href="https://wa.me/?text={{ urlencode($vehicle->titulo . ' ' . $vehicle->ano_modelo . ' por ' . $vehicle->preco_formatado . ' - Veja no site: ' . request()->url()) }}"
+                   target="_blank" rel="noopener" class="btn btn-sm btn-outline-success" title="Compartilhar no WhatsApp">
+                    <i class="fab fa-whatsapp"></i> WhatsApp
+                </a>
+                <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(request()->url()) }}"
+                   target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary" title="Compartilhar no Facebook">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="https://twitter.com/intent/tweet?text={{ urlencode($vehicle->titulo . ' ' . $vehicle->ano_modelo . ' por ' . $vehicle->preco_formatado) }}&url={{ urlencode(request()->url()) }}"
+                   target="_blank" rel="noopener" class="btn btn-sm btn-outline-info" title="Compartilhar no X/Twitter">
+                    <i class="fab fa-twitter"></i>
+                </a>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="copyVehicleLink()" title="Copiar link">
+                    <i class="fas fa-link"></i>
+                </button>
+                <span id="copy-feedback" class="text-success font-weight-600" style="font-size:.8rem;display:none">Copiado!</span>
+            </div>
+
             <!-- Especificações -->
             <div class="card shadow-sm mb-4">
                 <div class="card-body">
@@ -237,4 +258,19 @@
     </a>
 </div>
 @endif
+
+<script>
+// Esconde o botão flutuante do WhatsApp quando a barra CTA mobile está presente
+if (document.querySelector('.mobile-cta-bar')) {
+    document.body.classList.add('has-mobile-cta');
+}
+
+function copyVehicleLink() {
+    navigator.clipboard.writeText(window.location.href).then(function() {
+        var fb = document.getElementById('copy-feedback');
+        fb.style.display = 'inline';
+        setTimeout(function() { fb.style.display = 'none'; }, 2000);
+    });
+}
+</script>
 @endsection
