@@ -57,62 +57,23 @@
     @stack('js')
     @yield('js')
 
-    <style>
-        .soavel-toast {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            padding: 16px 20px;
-            border-radius: 10px;
-            box-shadow: 0 6px 24px rgba(0,0,0,0.18);
-            margin-bottom: 10px;
-            font-size: 15px;
-            font-weight: 500;
-            opacity: 0;
-            transform: translateX(40px);
-            transition: opacity 0.3s ease, transform 0.3s ease;
-            color: #fff;
-        }
-        .soavel-toast.show { opacity: 1; transform: translateX(0); }
-        .soavel-toast.hide { opacity: 0; transform: translateX(40px); }
-        .soavel-toast-success { background: #28a745; }
-        .soavel-toast-error   { background: #dc3545; }
-        .soavel-toast-warning { background: #e6a817; color: #333; }
-        .soavel-toast-info    { background: #17a2b8; }
-        .soavel-toast-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
-        .soavel-toast-close {
-            margin-left: auto;
-            background: none;
-            border: none;
-            color: inherit;
-            opacity: 0.7;
-            font-size: 18px;
-            cursor: pointer;
-            padding: 0 0 0 8px;
-            line-height: 1;
-        }
-        .soavel-toast-close:hover { opacity: 1; }
-    </style>
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
     function showToast(message, type) {
-        const icons = { success: 'fa-check-circle', error: 'fa-times-circle', warning: 'fa-exclamation-triangle', info: 'fa-info-circle' };
-        const container = document.getElementById('toastContainer');
-        const toast = document.createElement('div');
-        toast.className = `soavel-toast soavel-toast-${type}`;
-        toast.innerHTML = `
-            <span class="soavel-toast-icon"><i class="fas ${icons[type] || icons.info}"></i></span>
-            <span>${message}</span>
-            <button class="soavel-toast-close" onclick="removeToast(this.parentElement)">&times;</button>
-        `;
-        container.appendChild(toast);
-        requestAnimationFrame(() => { requestAnimationFrame(() => { toast.classList.add('show'); }); });
-        setTimeout(() => removeToast(toast), 5000);
-    }
-    function removeToast(toast) {
-        toast.classList.remove('show');
-        toast.classList.add('hide');
-        setTimeout(() => toast.remove(), 350);
+        const iconMap = { success: 'success', error: 'error', warning: 'warning', info: 'info' };
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: iconMap[type] || 'info',
+            title: message,
+            showConfirmButton: false,
+            timer: 3500,
+            timerProgressBar: true,
+            didOpen: function(toast) {
+                toast.addEventListener('mouseenter', Swal.stopTimer);
+                toast.addEventListener('mouseleave', Swal.resumeTimer);
+            }
+        });
     }
     @if(session('success'))  showToast(@json(session('success')), 'success'); @endif
     @if(session('error'))    showToast(@json(session('error')),   'error');   @endif
