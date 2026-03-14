@@ -11,8 +11,8 @@
             @endif
         </div>
         <div class="vehicle-card-body">
-            <div class="vehicle-card-name">{{ $vehicle->marca }} {{ $vehicle->modelo }}</div>
-            <div class="vehicle-card-version">{{ $vehicle->versao }} · {{ $vehicle->ano_fabricacao }}/{{ $vehicle->ano_modelo }}</div>
+            <div class="vehicle-card-name">{{ $vehicle->titulo }}</div>
+            <div class="vehicle-card-version">· {{ $vehicle->ano_fabricacao }}/{{ $vehicle->ano_modelo }}</div>
             <div class="vehicle-specs">
                 <span class="vehicle-spec-pill"><i class="fas fa-tachometer-alt"></i> {{ $vehicle->km_formatado }}</span>
                 <span class="vehicle-spec-pill"><i class="fas fa-gas-pump"></i> {{ ucfirst($vehicle->combustivel) }}</span>
