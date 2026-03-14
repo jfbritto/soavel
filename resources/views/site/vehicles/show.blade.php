@@ -2,8 +2,8 @@
 
 @section('meta_title', $vehicle->titulo . ' ' . $vehicle->ano_modelo . ' | Soavel Veículos')
 @section('meta_description', 'Compre ' . $vehicle->titulo . ' ' . $vehicle->ano_modelo . ' por ' . $vehicle->preco_formatado . '. ' . $vehicle->km_formatado . ', ' . ucfirst($vehicle->combustivel) . '. Soavel Veículos, Santa Maria de Jetibá - ES.')
-@if($vehicle->principalPhoto)
-@section('og_image', $vehicle->principalPhoto->url)
+@if($vehicle->photos->isNotEmpty())
+@section('og_image', ($vehicle->photos->firstWhere('principal', true) ?? $vehicle->photos->first())->url)
 @endif
 
 @section('schema')
@@ -11,25 +11,64 @@
 {
     "@context": "https://schema.org",
     "@type": "Car",
-    "name": "{{ $vehicle->titulo }}",
+    "name": "{{ $vehicle->titulo }} {{ $vehicle->ano_modelo }}",
+    "description": "{{ Str::limit($vehicle->descricao ?: ($vehicle->titulo . ' ' . $vehicle->ano_fabricacao . '/' . $vehicle->ano_modelo . ', ' . $vehicle->km_formatado . ', ' . ucfirst($vehicle->combustivel)), 200) }}",
     "brand": { "@type": "Brand", "name": "{{ $vehicle->marca }}" },
     "model": "{{ $vehicle->modelo }}",
     "vehicleModelDate": "{{ $vehicle->ano_modelo }}",
+    "modelDate": "{{ $vehicle->ano_modelo }}",
+    "vehicleTransmission": "{{ $vehicle->transmissao }}",
+    "driveWheelConfiguration": "FWD",
+    "numberOfDoors": "{{ $vehicle->portas }}",
+    "bodyType": "{{ $vehicle->categoria }}",
     "mileageFromOdometer": { "@type": "QuantitativeValue", "value": {{ $vehicle->km }}, "unitCode": "KMT" },
     "color": "{{ $vehicle->cor }}",
     "fuelType": "{{ $vehicle->combustivel }}",
+    "vehicleEngine": {
+        "@type": "EngineSpecification",
+        "name": "{{ $vehicle->motorizacao }}"
+    },
+    @if($vehicle->photos->isNotEmpty())
+    "image": [
+        @foreach($vehicle->photos->take(5) as $i => $photo)
+        "{{ $photo->url }}"{{ $i < min($vehicle->photos->count(), 5) - 1 ? ',' : '' }}
+        @endforeach
+    ],
+    @endif
+    "url": "{{ route('site.vehicles.show', $vehicle->slug) }}",
     "offers": {
         "@type": "Offer",
         "priceCurrency": "BRL",
         "price": "{{ $vehicle->preco }}",
-        "availability": "{{ $vehicle->status === 'disponivel' ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock' }}"
+        "priceValidUntil": "{{ now()->addMonths(3)->format('Y-m-d') }}",
+        "itemCondition": "https://schema.org/UsedCondition",
+        "availability": "{{ $vehicle->status === 'disponivel' ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock' }}",
+        "url": "{{ route('site.vehicles.show', $vehicle->slug) }}"
     },
     "seller": {
         "@type": "AutoDealer",
-        "name": "Soavel Veículos",
-        "telephone": "+5527998490472",
-        "address": { "@type": "PostalAddress", "addressLocality": "Santa Maria de Jetibá", "addressRegion": "ES", "addressCountry": "BR" }
+        "name": "{{ \App\Models\Setting::get('nome_sistema', 'Soavel Veículos') }}",
+        "telephone": "+{{ \App\Models\Setting::get('whatsapp_number', '5527998490472') }}",
+        "url": "{{ url('/') }}",
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "{{ \App\Models\Setting::get('endereco_completo', '') }}",
+            "addressLocality": "Santa Maria de Jetibá",
+            "addressRegion": "ES",
+            "addressCountry": "BR"
+        }
     }
+}
+</script>
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Início", "item": "{{ route('site.home') }}" },
+        { "@type": "ListItem", "position": 2, "name": "Estoque", "item": "{{ route('site.vehicles.index') }}" },
+        { "@type": "ListItem", "position": 3, "name": "{{ $vehicle->titulo }}" }
+    ]
 }
 </script>
 @endsection
@@ -62,16 +101,16 @@
                 @if($vehicle->photos->isNotEmpty())
                     <!-- Foto principal -->
                     <a href="{{ $vehicle->photos->first()->url }}" class="glightbox" data-gallery="vehicle-{{ $vehicle->id }}">
-                        <img src="{{ $vehicle->photos->first()->url }}" alt="{{ $vehicle->titulo }}"
-                             class="vehicle-gallery-main rounded shadow">
+                        <img src="{{ $vehicle->photos->first()->url }}" alt="{{ $vehicle->titulo }} {{ $vehicle->ano_modelo }} - Foto principal"
+                             class="vehicle-gallery-main rounded shadow" width="800" height="500">
                     </a>
                     <!-- Thumbnails -->
                     @if($vehicle->photos->count() > 1)
                     <div class="row mt-2 mx-0">
-                        @foreach($vehicle->photos->skip(1) as $photo)
+                        @foreach($vehicle->photos->skip(1) as $pi => $photo)
                         <div class="col-4 col-sm-3 p-1">
                             <a href="{{ $photo->url }}" class="glightbox" data-gallery="vehicle-{{ $vehicle->id }}">
-                                <img src="{{ $photo->url }}" alt="{{ $vehicle->titulo }}" class="vehicle-thumb-img rounded">
+                                <img src="{{ $photo->url }}" alt="{{ $vehicle->titulo }} - Foto {{ $pi + 2 }}" class="vehicle-thumb-img rounded" loading="lazy" width="200" height="150">
                             </a>
                         </div>
                         @endforeach
@@ -104,7 +143,7 @@
             <!-- Especificações -->
             <div class="card shadow-sm mb-4">
                 <div class="card-body">
-                    <h2 class="font-weight-800" style="color:var(--azul)">{{ $vehicle->titulo }}</h2>
+                    <h1 class="font-weight-800 h2" style="color:var(--azul)">{{ $vehicle->titulo }} {{ $vehicle->ano_modelo }}</h1>
                     <div class="d-flex flex-wrap mb-3" style="gap:8px">
                         <span class="badge badge-primary px-3 py-2">{{ ucfirst($vehicle->categoria) }}</span>
                         <span class="badge badge-{{ $vehicle->status_color }} px-3 py-2">{{ $vehicle->status_label }}</span>

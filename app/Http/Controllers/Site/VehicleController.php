@@ -12,7 +12,7 @@ class VehicleController extends Controller
     {
         $destaques = Vehicle::disponivel()
             ->destaque()
-            ->with('principalPhoto')
+            ->with('photos')
             ->latest()
             ->take(6)
             ->get();
@@ -40,9 +40,14 @@ class VehicleController extends Controller
 
         [$sortCol, $sortDir] = $sortMap[$request->get('ordenar', 'recente')] ?? ['created_at', 'desc'];
 
-        $query = Vehicle::disponivel()->with('principalPhoto');
+        $query = Vehicle::disponivel()->with('photos');
 
         $query
+            ->when($request->search, fn($q, $s) => $q->where(function ($q) use ($s) {
+                $q->where('marca', 'like', "%{$s}%")
+                  ->orWhere('modelo', 'like', "%{$s}%")
+                  ->orWhere('versao', 'like', "%{$s}%");
+            }))
             ->when($request->marca, fn($q, $v) => $q->where('marca', $v))
             ->when($request->modelo, fn($q, $v) => $q->where('modelo', 'like', "%{$v}%"))
             ->when($request->ano_min, fn($q, $v) => $q->where('ano_modelo', '>=', $v))
@@ -73,7 +78,7 @@ class VehicleController extends Controller
         $similares = Vehicle::disponivel()
             ->where('categoria', $vehicle->categoria)
             ->where('id', '!=', $vehicle->id)
-            ->with('principalPhoto')
+            ->with('photos')
             ->take(3)
             ->get();
 

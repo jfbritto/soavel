@@ -9,17 +9,57 @@
   "@context": "https://schema.org",
   "@type": "AutoDealer",
   "name": "{{ \App\Models\Setting::get('nome_sistema', 'Soavel Veículos') }}",
-  "image": "{{ asset('img/logo/soavel-fundo.png') }}",
+  "description": "{{ \App\Models\Setting::get('descricao_empresa', 'Sua loja de confiança para encontrar o carro seminovo ideal.') }}",
+  "image": "{{ \App\Models\Setting::get('logo_path') ? asset('storage/' . \App\Models\Setting::get('logo_path')) : asset('img/logo/soavel-fundo.png') }}",
   "@id": "{{ url('/') }}",
   "url": "{{ url('/') }}",
   "telephone": "+{{ \App\Models\Setting::get('whatsapp_number', '5527998490472') }}",
   "address": {
     "@type": "PostalAddress",
+    "streetAddress": "{{ \App\Models\Setting::get('endereco_completo', '') }}",
     "addressLocality": "Santa Maria de Jetibá",
     "addressRegion": "ES",
     "addressCountry": "BR"
   },
-  "openingHours": "Mo-Sa 08:00-18:00"
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": "-20.0013",
+    "longitude": "-40.7441"
+  },
+  "openingHoursSpecification": [
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"],
+      "opens": "08:00",
+      "closes": "18:00"
+    },
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": "Saturday",
+      "opens": "08:00",
+      "closes": "12:00"
+    }
+  ],
+  "priceRange": "$$",
+  "currenciesAccepted": "BRL",
+  "paymentAccepted": "Dinheiro, Cartão, Financiamento",
+  "sameAs": {!! json_encode(array_values(array_filter([
+    \App\Models\Setting::get('instagram_url'),
+    \App\Models\Setting::get('facebook_url')
+  ]))) !!}
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "{{ \App\Models\Setting::get('nome_sistema', 'Soavel Veículos') }}",
+  "url": "{{ url('/') }}",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "{{ route('site.vehicles.index') }}?search={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
 }
 </script>
 @endsection
@@ -121,14 +161,14 @@
 
             {{-- Right: Hero carousel --}}
             <div class="col-lg-6 d-none d-lg-flex justify-content-center align-items-center">
-                @php $heroVehicles = $destaques->filter(fn($v) => $v->principalPhoto); @endphp
+                @php $heroVehicles = $destaques->filter(fn($v) => $v->photos->isNotEmpty()); @endphp
                 @if($heroVehicles->isNotEmpty())
                 <div id="heroCarousel" style="width:100%;max-width:480px;position:relative">
                     @foreach($heroVehicles as $i => $hv)
                     <a href="{{ route('site.vehicles.show', $hv->slug) }}"
                        class="hero-slide" style="display:{{ $i === 0 ? 'block' : 'none' }};text-decoration:none;opacity:{{ $i === 0 ? '1' : '0' }};transition:opacity .6s ease">
                         <div style="width:100%;aspect-ratio:4/3;border-radius:var(--card-radius);overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.12)">
-                            <img src="{{ $hv->principalPhoto->url }}" alt="{{ $hv->titulo }}"
+                            <img src="{{ $hv->photos->firstWhere('principal', true)?->url ?? $hv->photos->first()->url }}" alt="{{ $hv->titulo }}"
                                  style="width:100%;height:100%;object-fit:cover;display:block">
                         </div>
                         <div style="text-align:center;margin-top:10px">

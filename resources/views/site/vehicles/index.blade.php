@@ -1,7 +1,44 @@
 @extends('layouts.site')
 
-@section('meta_title', 'Estoque de Seminovos | Soavel Veículos')
-@section('meta_description', 'Confira nosso estoque de carros seminovos em Santa Maria de Jetibá - ES. Filtros por marca, modelo, preço e mais.')
+@php
+    $seoMarca = request('marca');
+    $seoCategoria = request('categoria');
+    $seoTitle = $seoMarca
+        ? $seoMarca . ' Seminovos | Soavel Veículos'
+        : ($seoCategoria
+            ? ucfirst($seoCategoria) . ' Seminovos | Soavel Veículos'
+            : 'Estoque de Seminovos | Soavel Veículos');
+    $seoDesc = $seoMarca
+        ? 'Encontre ' . $seoMarca . ' seminovos com ótimos preços em Santa Maria de Jetibá - ES. Financiamento facilitado.'
+        : 'Confira nosso estoque de carros seminovos em Santa Maria de Jetibá - ES. Filtros por marca, modelo, preço e mais.';
+@endphp
+@section('meta_title', $seoTitle)
+@section('meta_description', $seoDesc)
+
+@section('seo_pagination')
+@if($vehicles->currentPage() > 1)
+    <link rel="prev" href="{{ $vehicles->previousPageUrl() }}">
+@endif
+@if($vehicles->hasMorePages())
+    <link rel="next" href="{{ $vehicles->nextPageUrl() }}">
+@endif
+@if($vehicles->currentPage() > 1)
+    @section('canonical', $vehicles->url(1))
+@endif
+@endsection
+
+@section('schema')
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Início", "item": "{{ route('site.home') }}" },
+        { "@type": "ListItem", "position": 2, "name": "Estoque" }
+    ]
+}
+</script>
+@endsection
 
 @section('content')
 
@@ -109,6 +146,16 @@
 
         {{-- ── MAIN CONTENT ── --}}
         <div class="col-lg-9">
+
+            <h1 class="h4 font-weight-bold mb-3" style="color:var(--text-1)">
+                @if(request('marca'))
+                    {{ request('marca') }} Seminovos
+                @elseif(request('categoria'))
+                    {{ ucfirst(request('categoria')) }} Seminovos
+                @else
+                    Carros Seminovos em Santa Maria de Jetibá
+                @endif
+            </h1>
 
             {{-- Sort bar --}}
             <div class="sort-bar">

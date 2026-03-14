@@ -27,6 +27,10 @@
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{{ $faviconSrc }}">
+    <meta name="theme-color" content="{{ $corPrimaria ?: '#1e3a5f' }}">
+    <meta name="author" content="{{ $nomeSistema }}">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta name="format-detection" content="telephone=no">
 
     <meta name="description" content="@yield('meta_description', $descricaoEmpresa)">
 
@@ -36,6 +40,22 @@
     <meta property="og:image"       content="@yield('og_image', $logoSrc)">
     <meta property="og:url"         content="{{ url()->current() }}">
     <meta property="og:type"        content="website">
+    <meta property="og:locale"      content="pt_BR">
+    <meta property="og:site_name"   content="{{ $nomeSistema }}">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card"        content="summary_large_image">
+    <meta name="twitter:title"       content="@yield('meta_title', $nomeSistema)">
+    <meta name="twitter:description" content="@yield('meta_description', $descricaoEmpresa)">
+    <meta name="twitter:image"       content="@yield('og_image', $logoSrc)">
+
+    <!-- Pagination SEO -->
+    @yield('seo_pagination')
+
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
 
     <!-- Bootstrap 4 -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -188,10 +208,24 @@
         </div>
     </div>
 
+    {{-- Links de navegação do footer (SEO) --}}
+    <div class="container pb-3">
+        <div class="row">
+            <div class="col-12">
+                <nav class="d-flex flex-wrap" style="gap:6px 16px;font-size:.8rem">
+                    <a href="{{ route('site.home') }}" style="color:var(--footer-link)">Início</a>
+                    <a href="{{ route('site.vehicles.index') }}" style="color:var(--footer-link)">Estoque</a>
+                    <a href="{{ route('site.home') }}#sobre" style="color:var(--footer-link)">Sobre</a>
+                    <a href="{{ route('site.home') }}#contato" style="color:var(--footer-link)">Contato</a>
+                </nav>
+            </div>
+        </div>
+    </div>
+
     <hr class="footer-divider m-0">
     <div class="footer-bottom">
         <div class="container d-flex flex-wrap justify-content-between align-items-center" style="gap:6px">
-            <p class="mb-0">© {{ date('Y') }} {{ $nomeSistema }}. Todos os direitos reservados.</p>
+            <p class="mb-0">&copy; {{ date('Y') }} {{ $nomeSistema }}. Todos os direitos reservados.</p>
             <p class="mb-0" style="font-size:.78rem;opacity:.7">
                 Desenvolvido por <a href="https://wa.me/5528999743099" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">HELPFLUX SOLUÇÕES EM TECNOLOGIA LTDA</a>
             </p>
@@ -222,6 +256,51 @@ window.addEventListener('scroll', function () {
 if (typeof GLightbox !== 'undefined') {
     var lightbox = GLightbox({ selector: '.glightbox' });
 }
+
+// ── Card Slider (photo carousel on vehicle cards) ────────────
+document.addEventListener('click', function(e) {
+    var btn = e.target.closest('.card-slider-btn');
+    if (!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    var slider = btn.closest('.card-slider');
+    var slides = slider.querySelectorAll('.card-slide');
+    var dots   = slider.querySelectorAll('.card-slider-dot');
+    var total  = slides.length;
+    var cur    = parseInt(slider.dataset.current) || 0;
+
+    if (btn.classList.contains('next')) {
+        cur = (cur + 1) % total;
+    } else {
+        cur = (cur - 1 + total) % total;
+    }
+
+    slides.forEach(function(s, i) { s.classList.toggle('active', i === cur); });
+    dots.forEach(function(d, i)   { d.classList.toggle('active', i === cur); });
+    slider.dataset.current = cur;
+});
+
+// Swipe support for mobile
+(function() {
+    var startX = 0;
+    var slider = null;
+
+    document.addEventListener('touchstart', function(e) {
+        slider = e.target.closest('.card-slider');
+        if (slider) startX = e.touches[0].clientX;
+    }, { passive: true });
+
+    document.addEventListener('touchend', function(e) {
+        if (!slider) return;
+        var diff = startX - e.changedTouches[0].clientX;
+        if (Math.abs(diff) > 40) {
+            var btn = slider.querySelector(diff > 0 ? '.card-slider-btn.next' : '.card-slider-btn.prev');
+            if (btn) btn.click();
+        }
+        slider = null;
+    }, { passive: true });
+})();
 </script>
 
 @yield('extra_js')

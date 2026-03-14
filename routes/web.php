@@ -28,6 +28,7 @@ Route::prefix('estoque')->name('site.vehicles.')->group(function () {
 });
 
 Route::post('/contato', [Site\ContactController::class, 'store'])->name('site.contact.store');
+Route::get('/sitemap.xml', [Site\SitemapController::class, 'index'])->name('sitemap');
 Route::post('/interesse/{vehicle}', [Site\ContactController::class, 'interesse'])->name('site.interesse.store');
 
 // ── ADMIN ─────────────────────────────────────────────────────────────────────
