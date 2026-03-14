@@ -247,12 +247,15 @@
                     <p class="text-muted text-uppercase mb-1" style="font-size:.72rem;letter-spacing:.08em;font-weight:700">Preço de Venda</p>
                     <p class="text-success font-weight-bold mb-0" style="font-size:1.6rem">{{ $vehicle->preco_formatado }}</p>
                     @if($vehicle->preco_compra)
+                    @php
+                        $despesasTotal = $vehicle->expenses->sum('valor');
+                        $margemTopo    = $vehicle->preco - ($vehicle->preco_compra + $despesasTotal);
+                    @endphp
                     <p class="text-muted mb-0" style="font-size:.85rem">
                         Compra: R$ {{ number_format($vehicle->preco_compra, 0, ',', '.') }}
                         <span class="ml-2 text-secondary">·</span>
-                        @php $margem = $vehicle->preco - $vehicle->preco_compra; @endphp
-                        <span class="{{ $margem >= 0 ? 'text-success' : 'text-danger' }}">
-                            Margem: R$ {{ number_format($margem, 0, ',', '.') }}
+                        <span class="{{ $margemTopo >= 0 ? 'text-success' : 'text-danger' }}">
+                            Margem: R$ {{ number_format($margemTopo, 0, ',', '.') }}
                         </span>
                     </p>
                     @endif
