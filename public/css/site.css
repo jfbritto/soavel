@@ -517,6 +517,18 @@ a:hover {
     margin-bottom: 32px;
 }
 
+.hero-search-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+}
+
+@media (max-width: 575px) {
+    .hero-search-fields {
+        grid-template-columns: 1fr;
+    }
+}
+
 .hero-search .form-control,
 .hero-search select {
     border-radius: var(--input-radius);
@@ -1906,27 +1918,7 @@ a:hover {
         padding: 20px 16px;
     }
 
-    /* Hero search: 2 cols (marca+categoria) + preço full width */
-    .hero-search form .row.no-gutters {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        column-gap: 12px;
-        row-gap: 24px;
-    }
-
-    .hero-search form .row.no-gutters > div {
-        width: auto !important;
-        max-width: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        flex: none !important;
-    }
-
-    .hero-search form .row.no-gutters > div:last-child {
-        grid-column: 1 / -1;
-    }
-
-    .hero-search form .mt-2 { margin-top: 16px !important; }
+    .hero-search form .mt-2 { margin-top: 10px !important; }
 
     /* Touch-friendly inputs */
     .hero-search .form-control,
