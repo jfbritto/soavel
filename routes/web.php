@@ -53,6 +53,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::get('settings', [Admin\SettingController::class, 'index'])->name('settings.index');
     Route::put('settings', [Admin\SettingController::class, 'update'])->name('settings.update');
 
+    // Minha Assinatura
+    Route::get('billing', [Admin\BillingController::class, 'index'])->name('billing.index');
+
     // ── Rotas protegidas pelo onboarding ──────────────────────────────────
     Route::middleware('onboarding')->group(function () {
 

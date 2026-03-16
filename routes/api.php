@@ -25,4 +25,5 @@ Route::prefix('master')->middleware('master.token')->group(function () {
     Route::get('/suspend', [\App\Http\Controllers\Api\MasterController::class, 'suspend']);
     Route::get('/reactivate', [\App\Http\Controllers\Api\MasterController::class, 'reactivate']);
     Route::get('/config', [\App\Http\Controllers\Api\MasterController::class, 'config']);
+    Route::get('/billing', [\App\Http\Controllers\Api\MasterController::class, 'updateBilling']);
 });

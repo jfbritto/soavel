@@ -74,6 +74,22 @@ class MasterController extends Controller
         ]);
     }
 
+    public function updateBilling(Request $request)
+    {
+        $fields = ['billing_status', 'billing_amount', 'billing_due_date', 'billing_invoice_url', 'billing_type', 'billing_subscription_status'];
+
+        foreach ($fields as $field) {
+            if ($request->has($field)) {
+                $this->setSetting($field, $request->input($field));
+            }
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'message' => 'Dados de cobrança atualizados.',
+        ]);
+    }
+
     private function isSuspended()
     {
         return DB::table('settings')->where('key', 'suspended')->value('value') === 'true';

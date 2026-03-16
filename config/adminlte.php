@@ -360,6 +360,11 @@ return [
         // SISTEMA
         ['header' => 'SISTEMA'],
         [
+            'text' => 'Minha Assinatura',
+            'url'  => 'admin/billing',
+            'icon' => 'fas fa-fw fa-file-invoice',
+        ],
+        [
             'text' => 'Configurações',
             'url'  => 'admin/settings',
             'icon' => 'fas fa-fw fa-cog',
