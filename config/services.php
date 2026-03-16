@@ -34,4 +34,9 @@ return [
         'key' => env('GEMINI_API_KEY'),
     ],
 
+    'master' => [
+        'token' => env('MASTER_API_TOKEN'),
+        'url' => env('MASTER_URL', 'http://localhost:8002'),
+    ],
+
 ];
