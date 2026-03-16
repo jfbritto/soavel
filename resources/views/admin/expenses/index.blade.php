@@ -116,9 +116,7 @@
             </table>
         </div>
         @if($expenses->hasPages())
-        <div class="card-footer d-flex justify-content-center py-3" style="background:#f8f9fa;border-top:1px solid #dee2e6">
-            {{ $expenses->withQueryString()->links() }}
-        </div>
+        <div class="card-footer border-top-0" style="background:#fafafa">{{ $expenses->withQueryString()->links() }}</div>
         @endif
     </div>
 </div>
