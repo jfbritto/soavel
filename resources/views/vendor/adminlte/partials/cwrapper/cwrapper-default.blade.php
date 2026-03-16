@@ -31,44 +31,36 @@
                 $billingOverdue = $billingStatus === 'overdue' || $billingDaysLate > 0;
             }
         ?>
-        @if($billingOverdue)
-            <div class="content" style="padding-bottom:0">
-                <div class="{{ config('adminlte.classes_content') ?: $def_container_class }}">
-                    <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert" style="border-left:4px solid #c0392b; border-radius:6px; margin-bottom:0">
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-exclamation-triangle mr-3" style="font-size:1.4rem"></i>
-                            <div>
-                                <strong>Fatura em atraso!</strong>
-                                Sua mensalidade com vencimento em {{ \Carbon\Carbon::parse($billingDueDate)->format('d/m/Y') }} está pendente.
-                                <a href="{{ route('admin.billing.index') }}" class="alert-link ml-1">Ver detalhes e pagar</a>
-                            </div>
-                        </div>
-                        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
-                    </div>
-                </div>
-            </div>
-        @elseif($billingDueDate && $billingStatus === 'pending' && $billingDaysLate >= -5)
-            <div class="content" style="padding-bottom:0">
-                <div class="{{ config('adminlte.classes_content') ?: $def_container_class }}">
-                    <div class="alert alert-warning alert-dismissible fade show shadow-sm" role="alert" style="border-left:4px solid #f39c12; border-radius:6px; margin-bottom:0">
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-clock mr-3" style="font-size:1.3rem"></i>
-                            <div>
-                                <strong>Fatura próxima do vencimento!</strong>
-                                Sua mensalidade vence em {{ \Carbon\Carbon::parse($billingDueDate)->format('d/m/Y') }}.
-                                <a href="{{ route('admin.billing.index') }}" class="alert-link ml-1">Ver detalhes</a>
-                            </div>
-                        </div>
-                        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
-                    </div>
-                </div>
-            </div>
-        @endif
     <?php endif; ?>
 
     {{-- Main Content --}}
     <div class="content">
         <div class="{{ config('adminlte.classes_content') ?: $def_container_class }}">
+            @if($billingOverdue)
+                <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert" style="border-left:4px solid #c0392b; border-radius:6px">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-triangle mr-3" style="font-size:1.4rem"></i>
+                        <div>
+                            <strong>Fatura em atraso!</strong>
+                            Sua mensalidade com vencimento em {{ \Carbon\Carbon::parse($billingDueDate)->format('d/m/Y') }} está pendente.
+                            <a href="{{ route('admin.billing.index') }}" class="alert-link ml-1">Ver detalhes e pagar</a>
+                        </div>
+                    </div>
+                    <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+                </div>
+            @elseif($billingDueDate && $billingStatus === 'pending' && $billingDaysLate >= -5)
+                <div class="alert alert-warning alert-dismissible fade show shadow-sm" role="alert" style="border-left:4px solid #f39c12; border-radius:6px">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-clock mr-3" style="font-size:1.3rem"></i>
+                        <div>
+                            <strong>Fatura próxima do vencimento!</strong>
+                            Sua mensalidade vence em {{ \Carbon\Carbon::parse($billingDueDate)->format('d/m/Y') }}.
+                            <a href="{{ route('admin.billing.index') }}" class="alert-link ml-1">Ver detalhes</a>
+                        </div>
+                    </div>
+                    <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+                </div>
+            @endif
             @yield('content')
         </div>
     </div>
