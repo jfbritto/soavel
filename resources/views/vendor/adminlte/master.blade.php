@@ -51,7 +51,7 @@
     @yield('adminlte_css')
 
     <style>
-        .content-wrapper { min-height: calc(100vh - 57px) !important; }
+        .content-wrapper { min-height: calc(100vh - 57px) !important; background: #f4f6f9 !important; }
     </style>
 
     {{-- Favicon dinâmico (Settings DB) --}}
