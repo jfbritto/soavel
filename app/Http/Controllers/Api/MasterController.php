@@ -90,6 +90,22 @@ class MasterController extends Controller
         ]);
     }
 
+    public function updateBillingHistory(Request $request)
+    {
+        $data = $request->only(['asaas_payment_id', 'amount', 'status', 'due_date', 'paid_at', 'billing_type', 'invoice_url']);
+
+        if (empty($data['asaas_payment_id'])) {
+            return response()->json(['error' => 'asaas_payment_id é obrigatório'], 400);
+        }
+
+        \App\Models\BillingHistory::updateOrCreate(
+            ['asaas_payment_id' => $data['asaas_payment_id']],
+            $data
+        );
+
+        return response()->json(['status' => 'ok', 'message' => 'Histórico de cobrança atualizado.']);
+    }
+
     private function isSuspended()
     {
         return DB::table('settings')->where('key', 'suspended')->value('value') === 'true';

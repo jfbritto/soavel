@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\BillingHistory;
 use App\Models\Setting;
 
 class BillingController extends Controller
@@ -18,6 +19,8 @@ class BillingController extends Controller
             'subscription_status' => Setting::get('billing_subscription_status', 'inactive'),
         ];
 
-        return view('admin.billing.index', compact('billing'));
+        $history = BillingHistory::orderBy('due_date', 'desc')->get();
+
+        return view('admin.billing.index', compact('billing', 'history'));
     }
 }

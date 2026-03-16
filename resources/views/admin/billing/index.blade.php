@@ -219,5 +219,102 @@
         </div>
     </div>
 
+    {{-- Histórico de Faturas --}}
+    @if($history->count())
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white border-bottom-0">
+                    <h5 class="card-title mb-0 font-weight-bold">
+                        <i class="fas fa-history mr-1 text-secondary"></i>Histórico de Faturas
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Vencimento</th>
+                                    <th>Valor</th>
+                                    <th>Situação</th>
+                                    <th>Forma de Pagamento</th>
+                                    <th>Pago em</th>
+                                    <th class="text-center">Fatura</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($history as $item)
+                                <tr>
+                                    <td>{{ $item->due_date->format('d/m/Y') }}</td>
+                                    <td class="font-weight-bold">R$ {{ number_format($item->amount, 2, ',', '.') }}</td>
+                                    <td>
+                                        @switch($item->status)
+                                            @case('pending')
+                                                <span class="badge badge-warning">Pendente</span>
+                                                @break
+                                            @case('overdue')
+                                                <span class="badge badge-danger">Vencida</span>
+                                                @break
+                                            @case('confirmed')
+                                            @case('received')
+                                                <span class="badge badge-success">Paga</span>
+                                                @break
+                                            @case('refunded')
+                                                <span class="badge badge-info">Estornada</span>
+                                                @break
+                                            @default
+                                                <span class="badge badge-secondary">{{ $item->status }}</span>
+                                        @endswitch
+                                    </td>
+                                    <td>
+                                        @if($item->billing_type && $item->billing_type !== 'UNDEFINED')
+                                            @switch($item->billing_type)
+                                                @case('BOLETO')
+                                                    <i class="fas fa-barcode mr-1"></i>Boleto
+                                                    @break
+                                                @case('PIX')
+                                                    <i class="fas fa-qrcode mr-1"></i>Pix
+                                                    @break
+                                                @case('CREDIT_CARD')
+                                                    <i class="fas fa-credit-card mr-1"></i>Cartão
+                                                    @break
+                                                @default
+                                                    {{ $item->billing_type }}
+                                            @endswitch
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if($item->paid_at)
+                                            {{ $item->paid_at->format('d/m/Y') }}
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
+                                    </td>
+                                    <td class="text-center">
+                                        @if($item->invoice_url && in_array($item->status, ['pending', 'overdue']))
+                                            <a href="{{ $item->invoice_url }}" target="_blank" class="btn btn-sm btn-success">
+                                                <i class="fas fa-external-link-alt mr-1"></i>Pagar
+                                            </a>
+                                        @elseif($item->invoice_url)
+                                            <a href="{{ $item->invoice_url }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                                <i class="fas fa-eye mr-1"></i>Ver
+                                            </a>
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
 </div>
 @endsection
