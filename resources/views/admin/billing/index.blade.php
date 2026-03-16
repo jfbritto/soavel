@@ -9,19 +9,19 @@
 @section('content')
 <div class="container-fluid">
 
-    {{-- Card Status da Assinatura --}}
     <div class="row">
-        <div class="col-md-6">
+        {{-- Card Plano --}}
+        <div class="col-md-4">
             <div class="card shadow-sm">
-                <div class="card-header bg-white">
+                <div class="card-header bg-white border-bottom-0">
                     <h5 class="card-title mb-0 font-weight-bold">
                         <i class="fas fa-crown mr-1 text-warning"></i>Plano HelpFlux Veículos
                     </h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body pt-0">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <span class="text-muted">Status</span>
-                        @if($billing['subscription_status'] === 'active')
+                        @if($billing['due_date'] || $billing['subscription_status'] === 'active')
                             <span class="badge badge-success px-3 py-2" style="font-size:.85rem">
                                 <i class="fas fa-check-circle mr-1"></i>Ativa
                             </span>
@@ -35,40 +35,55 @@
                     @if($billing['amount'])
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <span class="text-muted">Valor mensal</span>
-                        <span class="font-weight-bold" style="font-size:1.2rem;color:#27ae60">
+                        <span class="font-weight-bold" style="font-size:1.3rem;color:#27ae60">
                             R$ {{ number_format((float)$billing['amount'], 2, ',', '.') }}
                         </span>
                     </div>
                     @endif
 
                     <hr>
-                    <p class="text-muted small mb-0">
-                        <i class="fas fa-info-circle mr-1"></i>
-                        Sua assinatura inclui acesso completo ao sistema de gestão, site da loja, e suporte técnico.
-                    </p>
+
+                    <div class="mb-2">
+                        <i class="fas fa-check text-success mr-2"></i><small>Sistema de gestão completo</small>
+                    </div>
+                    <div class="mb-2">
+                        <i class="fas fa-check text-success mr-2"></i><small>Site da loja personalizado</small>
+                    </div>
+                    <div class="mb-2">
+                        <i class="fas fa-check text-success mr-2"></i><small>Cadastro ilimitado de veículos</small>
+                    </div>
+                    <div class="mb-2">
+                        <i class="fas fa-check text-success mr-2"></i><small>Gestão de leads e clientes</small>
+                    </div>
+                    <div class="mb-2">
+                        <i class="fas fa-check text-success mr-2"></i><small>Relatórios financeiros</small>
+                    </div>
+                    <div class="mb-0">
+                        <i class="fas fa-check text-success mr-2"></i><small>Suporte técnico</small>
+                    </div>
                 </div>
             </div>
         </div>
 
         {{-- Card Próxima Fatura --}}
-        <div class="col-md-6">
+        <div class="col-md-5">
             <div class="card shadow-sm">
-                <div class="card-header bg-white">
+                <div class="card-header bg-white border-bottom-0">
                     <h5 class="card-title mb-0 font-weight-bold">
                         <i class="fas fa-calendar-alt mr-1 text-primary"></i>Próxima Fatura
                     </h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body pt-0">
                     @if($billing['due_date'])
                         @php
                             $dueDate = \Carbon\Carbon::parse($billing['due_date']);
                             $today = now()->startOfDay();
-                            $daysUntil = $today->diffInDays($dueDate, false);
+                            $daysUntil = (int) $today->diffInDays($dueDate, false);
                             $isPast = $daysUntil < 0;
                         @endphp
 
                         <div class="text-center mb-3">
-                            <div style="font-size:2rem;font-weight:700;color:{{ $isPast ? '#e74c3c' : '#2c3e50' }}">
+                            <div style="font-size:2.2rem;font-weight:700;color:{{ $isPast ? '#e74c3c' : '#2c3e50' }}">
                                 {{ $dueDate->format('d/m/Y') }}
                             </div>
                             <div class="mt-1">
@@ -92,54 +107,74 @@
                             </div>
                         </div>
 
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="text-muted">Valor</span>
-                            <span class="font-weight-bold">R$ {{ number_format((float)$billing['amount'], 2, ',', '.') }}</span>
-                        </div>
+                        <table class="table table-sm table-borderless mb-3">
+                            <tr>
+                                <td class="text-muted pl-0">Valor</td>
+                                <td class="text-right font-weight-bold pr-0">R$ {{ number_format((float)$billing['amount'], 2, ',', '.') }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted pl-0">Situação</td>
+                                <td class="text-right pr-0">
+                                    @switch($billing['status'])
+                                        @case('pending')
+                                            <span class="badge badge-warning">Aguardando pagamento</span>
+                                            @break
+                                        @case('overdue')
+                                            <span class="badge badge-danger">Vencida</span>
+                                            @break
+                                        @case('confirmed')
+                                        @case('received')
+                                            <span class="badge badge-success">Paga</span>
+                                            @break
+                                        @default
+                                            <span class="badge badge-secondary">Pendente</span>
+                                    @endswitch
+                                </td>
+                            </tr>
+                            @if($billing['billing_type'] && $billing['billing_type'] !== 'UNDEFINED')
+                            <tr>
+                                <td class="text-muted pl-0">Forma de pagamento</td>
+                                <td class="text-right pr-0">
+                                    @switch($billing['billing_type'])
+                                        @case('BOLETO')
+                                            <i class="fas fa-barcode mr-1"></i>Boleto
+                                            @break
+                                        @case('PIX')
+                                            <i class="fas fa-qrcode mr-1"></i>Pix
+                                            @break
+                                        @case('CREDIT_CARD')
+                                            <i class="fas fa-credit-card mr-1"></i>Cartão
+                                            @break
+                                        @default
+                                            {{ $billing['billing_type'] }}
+                                    @endswitch
+                                </td>
+                            </tr>
+                            @endif
+                        </table>
 
-                        @if($billing['billing_type'])
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="text-muted">Forma de pagamento</span>
-                            <span>
-                                @switch($billing['billing_type'])
-                                    @case('BOLETO')
-                                        <i class="fas fa-barcode mr-1"></i>Boleto
-                                        @break
-                                    @case('PIX')
-                                        <i class="fas fa-qrcode mr-1"></i>Pix
-                                        @break
-                                    @case('CREDIT_CARD')
-                                        <i class="fas fa-credit-card mr-1"></i>Cartão de Crédito
-                                        @break
-                                    @default
-                                        <i class="fas fa-money-bill mr-1"></i>{{ $billing['billing_type'] }}
-                                @endswitch
-                            </span>
-                        </div>
-                        @endif
-
-                        @if($billing['status'] === 'pending' || $billing['status'] === 'overdue')
-                        <hr>
-                        <div class="text-center">
+                        {{-- Botão pagar ou status pago --}}
+                        @if(in_array($billing['status'], ['pending', 'overdue', 'inactive']))
                             @if($billing['invoice_url'])
                                 <a href="{{ $billing['invoice_url'] }}" target="_blank"
-                                    class="btn btn-success btn-lg btn-block">
+                                    class="btn btn-success btn-lg btn-block shadow-sm">
                                     <i class="fas fa-external-link-alt mr-2"></i>Pagar Fatura
                                 </a>
-                            @else
-                                <p class="text-muted small mb-0">
-                                    <i class="fas fa-info-circle mr-1"></i>
-                                    O link de pagamento será disponibilizado em breve.
+                                <p class="text-center text-muted small mt-2 mb-0">
+                                    Você pode pagar via <strong>Boleto</strong>, <strong>Pix</strong> ou <strong>Cartão de Crédito</strong>
                                 </p>
+                            @else
+                                <div class="alert alert-info mb-0 text-center">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    O link de pagamento será disponibilizado em breve pelo sistema de cobrança.
+                                </div>
                             @endif
-                        </div>
-                        @elseif($billing['status'] === 'confirmed' || $billing['status'] === 'received')
-                        <hr>
-                        <div class="text-center">
-                            <span class="text-success font-weight-bold">
-                                <i class="fas fa-check-circle mr-1"></i>Fatura paga
-                            </span>
-                        </div>
+                        @elseif(in_array($billing['status'], ['confirmed', 'received']))
+                            <div class="text-center py-2">
+                                <i class="fas fa-check-circle text-success" style="font-size:2rem"></i>
+                                <p class="font-weight-bold text-success mt-2 mb-0">Fatura paga!</p>
+                                <p class="text-muted small mb-0">A próxima cobrança será gerada automaticamente.</p>
+                            </div>
                         @endif
 
                     @else
@@ -151,18 +186,34 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    {{-- Informações de contato --}}
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <div class="d-flex align-items-center">
-                <i class="fas fa-headset text-primary mr-3" style="font-size:1.5rem"></i>
-                <div>
-                    <strong>Precisa de ajuda?</strong>
-                    <p class="mb-0 text-muted small">
-                        Entre em contato com o suporte HelpFlux pelo WhatsApp ou e-mail para dúvidas sobre sua assinatura.
-                    </p>
+        {{-- Card Suporte --}}
+        <div class="col-md-3">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white border-bottom-0">
+                    <h5 class="card-title mb-0 font-weight-bold">
+                        <i class="fas fa-headset mr-1 text-primary"></i>Suporte
+                    </h5>
+                </div>
+                <div class="card-body pt-0">
+                    <p class="text-muted small">Dúvidas sobre cobrança ou precisa de ajuda técnica?</p>
+
+                    <a href="https://wa.me/5528999743099?text=Olá! Preciso de ajuda com minha assinatura HelpFlux Veículos."
+                        target="_blank" class="btn btn-success btn-block mb-2">
+                        <i class="fab fa-whatsapp mr-1"></i>WhatsApp
+                    </a>
+
+                    <a href="mailto:jf.britto@hotmail.com?subject=Suporte HelpFlux Veículos"
+                        class="btn btn-outline-secondary btn-block">
+                        <i class="fas fa-envelope mr-1"></i>E-mail
+                    </a>
+
+                    <hr>
+
+                    <div class="text-muted small">
+                        <div class="mb-1"><i class="fas fa-clock mr-1"></i>Seg a Sex, 9h às 18h</div>
+                        <div><i class="fas fa-phone mr-1"></i>(28) 99974-3099</div>
+                    </div>
                 </div>
             </div>
         </div>
