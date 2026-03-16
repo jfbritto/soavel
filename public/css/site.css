@@ -1655,6 +1655,35 @@ a:hover {
     transform: translateY(-2px);
 }
 
+/* WhatsApp button (vehicle detail sidebar) */
+.btn-whatsapp {
+    background: var(--whatsapp);
+    color: #fff;
+    border: none;
+    font-weight: 700;
+    transition: background 0.2s, transform 0.15s;
+}
+.btn-whatsapp:hover {
+    background: var(--whatsapp-h);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+/* Dark themes — Bootstrap btn-outline-secondary fix */
+[data-theme="dark-sport"] .btn-outline-secondary,
+[data-theme="premium"] .btn-outline-secondary,
+[data-theme="showcase"] .btn-outline-secondary {
+    color: var(--text-2);
+    border-color: var(--border-2);
+}
+[data-theme="dark-sport"] .btn-outline-secondary:hover,
+[data-theme="premium"] .btn-outline-secondary:hover,
+[data-theme="showcase"] .btn-outline-secondary:hover {
+    background: rgba(255,255,255,0.1);
+    color: var(--text);
+    border-color: var(--text-3);
+}
+
 /* Premium price card */
 [data-theme="premium"] .price-card-value {
     background: linear-gradient(90deg, var(--accent), #E5C974);
