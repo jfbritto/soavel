@@ -18,9 +18,10 @@
         </div>
     @endif
 
-    {{-- Alerta de fatura atrasada --}}
+    {{-- Alertas do sistema --}}
     <?php if(auth()->check()): ?>
         <?php
+            $siteIsSuspended = \App\Models\Setting::get('suspended') === 'true';
             $billingStatus = \App\Models\Setting::get('billing_status');
             $billingDueDate = \App\Models\Setting::get('billing_due_date');
             $billingOverdue = false;
@@ -36,6 +37,18 @@
     {{-- Main Content --}}
     <div class="content">
         <div class="{{ config('adminlte.classes_content') ?: $def_container_class }}">
+            @if(isset($siteIsSuspended) && $siteIsSuspended)
+                <div class="alert alert-dark shadow-sm" role="alert" style="border-left:4px solid #2c3e50; border-radius:6px; background:#2c3e50; color:#fff">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-ban mr-3" style="font-size:1.5rem"></i>
+                        <div>
+                            <strong>Site suspenso!</strong>
+                            Seu site está temporariamente fora do ar para os visitantes devido a pendências financeiras.
+                            <a href="{{ route('admin.billing.index') }}" class="ml-1" style="color:#f1c40f; text-decoration:underline">Regularizar agora</a>
+                        </div>
+                    </div>
+                </div>
+            @endif
             @if($billingOverdue)
                 <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert" style="border-left:4px solid #c0392b; border-radius:6px">
                     <div class="d-flex align-items-center">
