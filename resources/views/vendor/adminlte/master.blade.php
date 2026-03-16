@@ -51,7 +51,10 @@
     @yield('adminlte_css')
 
     <style>
-        .content-wrapper { min-height: calc(100vh - 57px) !important; background: #f4f6f9 !important; }
+        .content-wrapper { min-height: calc(100vh - 57px) !important; }
+        .content > .container-fluid > .card:last-child,
+        .content > .container-fluid > .row:last-child { margin-bottom: 0 !important; }
+        .content { padding-bottom: 0 !important; }
     </style>
 
     {{-- Favicon dinâmico (Settings DB) --}}
