@@ -21,7 +21,7 @@
                 <div class="card-body pt-0">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <span class="text-muted">Status</span>
-                        @if($billing['due_date'] || $billing['subscription_status'] === 'active')
+                        @if($billing['subscription_status'] === 'active')
                             <span class="badge badge-success px-3 py-2" style="font-size:.85rem">
                                 <i class="fas fa-check-circle mr-1"></i>Ativa
                             </span>
@@ -74,7 +74,12 @@
                     </h5>
                 </div>
                 <div class="card-body pt-0">
-                    @if($billing['due_date'])
+                    @if($billing['subscription_status'] !== 'active' && !in_array($billing['status'], ['pending', 'overdue']))
+                        <div class="text-center py-4">
+                            <i class="fas fa-receipt text-muted" style="font-size:3rem"></i>
+                            <p class="text-muted mt-3 mb-0">Assinatura inativa. Nenhuma fatura pendente.</p>
+                        </div>
+                    @elseif($billing['due_date'])
                         @php
                             $dueDate = \Carbon\Carbon::parse($billing['due_date']);
                             $today = now()->startOfDay();

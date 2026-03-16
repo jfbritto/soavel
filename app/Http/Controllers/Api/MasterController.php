@@ -80,7 +80,9 @@ class MasterController extends Controller
 
         foreach ($fields as $field) {
             if ($request->has($field)) {
-                $this->setSetting($field, $request->input($field));
+                $value = $request->input($field);
+                // String vazia vinda de GET query string = null
+                $this->setSetting($field, $value === '' ? null : $value);
             }
         }
 
