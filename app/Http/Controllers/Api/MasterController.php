@@ -102,7 +102,7 @@ class MasterController extends Controller
 
     private function setSetting($key, $value)
     {
-        DB::table('settings')->updateOrInsert(['key' => $key], ['value' => $value]);
+        \App\Models\Setting::set($key, $value);
     }
 
     private function directorySize($path)
