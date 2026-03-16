@@ -7,7 +7,7 @@
 @endif
 
 {{-- Default Content Wrapper --}}
-<div class="content-wrapper {{ config('adminlte.classes_content_wrapper', '') }}" style="min-height: calc(100vh - 57px - 56px);">
+<div class="content-wrapper {{ config('adminlte.classes_content_wrapper', '') }}">
 
     {{-- Content Header --}}
     @hasSection('content_header')

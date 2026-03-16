@@ -50,6 +50,10 @@
     {{-- Custom Stylesheets (post AdminLTE) --}}
     @yield('adminlte_css')
 
+    <style>
+        .content-wrapper { min-height: calc(100vh - 57px) !important; }
+    </style>
+
     {{-- Favicon dinâmico (Settings DB) --}}
     @php
         $faviconPath = \App\Models\Setting::get('favicon_path');
