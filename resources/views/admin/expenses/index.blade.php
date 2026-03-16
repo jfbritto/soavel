@@ -101,11 +101,24 @@
                     @empty
                     <tr><td colspan="6" class="text-center text-muted py-4">Nenhuma despesa encontrada.</td></tr>
                     @endforelse
+                    @if($expenses->count())
+                    <tr style="background:#f8f9fa;border-top:2px solid #dee2e6">
+                        <td class="pl-3" colspan="4" style="font-size:.8rem;font-weight:600;color:#6c757d;text-transform:uppercase;letter-spacing:.04em">
+                            Total ({{ $expenses->total() }} {{ $expenses->total() === 1 ? 'despesa' : 'despesas' }})
+                        </td>
+                        <td class="text-right font-weight-bold" style="font-size:.95rem;color:#c0392b">
+                            R$ {{ number_format($totalMes, 2, ',', '.') }}
+                        </td>
+                        <td></td>
+                    </tr>
+                    @endif
                 </tbody>
             </table>
         </div>
         @if($expenses->hasPages())
-        <div class="card-footer border-top-0" style="background:#fafafa">{{ $expenses->links() }}</div>
+        <div class="card-footer d-flex justify-content-center py-3" style="background:#f8f9fa;border-top:1px solid #dee2e6">
+            {{ $expenses->withQueryString()->links() }}
+        </div>
         @endif
     </div>
 </div>
