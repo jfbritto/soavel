@@ -110,9 +110,10 @@
                 </tbody>
             </table>
         </div>
-        @if($sales->hasPages())
-        <div class="card-footer border-top-0" style="background:#fafafa">{{ $sales->links() }}</div>
-        @endif
+        <div class="card-footer d-flex justify-content-between align-items-center py-3" style="background:#f8f9fa;border-top:1px solid #eee">
+            <small class="text-muted">{{ $sales->total() }} {{ $sales->total() === 1 ? 'registro' : 'registros' }}</small>
+            @if($sales->hasPages()) {{ $sales->withQueryString()->links() }} @endif
+        </div>
     </div>
 
 </div>

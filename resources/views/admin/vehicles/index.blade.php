@@ -133,11 +133,10 @@
                 </tbody>
             </table>
         </div>
-        @if($vehicles->hasPages())
-        <div class="card-footer border-top-0" style="background:#fafafa">
-            {{ $vehicles->links() }}
+        <div class="card-footer d-flex justify-content-between align-items-center py-3" style="background:#f8f9fa;border-top:1px solid #eee">
+            <small class="text-muted">{{ $vehicles->total() }} {{ $vehicles->total() === 1 ? 'registro' : 'registros' }}</small>
+            @if($vehicles->hasPages()) {{ $vehicles->withQueryString()->links() }} @endif
         </div>
-        @endif
     </div>
 
 </div>

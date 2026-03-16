@@ -115,9 +115,10 @@
                 </tbody>
             </table>
         </div>
-        @if($expenses->hasPages())
-        <div class="card-footer border-top-0" style="background:#fafafa">{{ $expenses->withQueryString()->links() }}</div>
-        @endif
+        <div class="card-footer d-flex justify-content-between align-items-center py-3" style="background:#f8f9fa;border-top:1px solid #eee">
+            <small class="text-muted">{{ $expenses->total() }} {{ $expenses->total() === 1 ? 'registro' : 'registros' }}</small>
+            @if($expenses->hasPages()) {{ $expenses->withQueryString()->links() }} @endif
+        </div>
     </div>
 </div>
 
