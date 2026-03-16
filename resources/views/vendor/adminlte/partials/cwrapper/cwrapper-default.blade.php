@@ -32,9 +32,9 @@
             }
         ?>
         @if($billingOverdue)
-            <div class="content-header mb-0 pb-0">
-                <div class="{{ config('adminlte.classes_content_header') ?: $def_container_class }}">
-                    <div class="alert alert-danger alert-dismissible fade show shadow-sm mb-0" role="alert" style="border-left:4px solid #c0392b; border-radius:6px">
+            <div class="content" style="padding-bottom:0">
+                <div class="{{ config('adminlte.classes_content') ?: $def_container_class }}">
+                    <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert" style="border-left:4px solid #c0392b; border-radius:6px; margin-bottom:0">
                         <div class="d-flex align-items-center">
                             <i class="fas fa-exclamation-triangle mr-3" style="font-size:1.4rem"></i>
                             <div>
@@ -48,9 +48,9 @@
                 </div>
             </div>
         @elseif($billingDueDate && $billingStatus === 'pending' && $billingDaysLate >= -5)
-            <div class="content-header mb-0 pb-0">
-                <div class="{{ config('adminlte.classes_content_header') ?: $def_container_class }}">
-                    <div class="alert alert-warning alert-dismissible fade show shadow-sm mb-0" role="alert" style="border-left:4px solid #f39c12; border-radius:6px">
+            <div class="content" style="padding-bottom:0">
+                <div class="{{ config('adminlte.classes_content') ?: $def_container_class }}">
+                    <div class="alert alert-warning alert-dismissible fade show shadow-sm" role="alert" style="border-left:4px solid #f39c12; border-radius:6px; margin-bottom:0">
                         <div class="d-flex align-items-center">
                             <i class="fas fa-clock mr-3" style="font-size:1.3rem"></i>
                             <div>
