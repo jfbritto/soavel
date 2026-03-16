@@ -301,6 +301,42 @@ a:hover {
 .bg-site     { background-color: var(--bg) !important; }
 .bg-site-alt { background-color: var(--bg-alt) !important; }
 
+/* Dark themes — Bootstrap .card override */
+[data-theme="dark-sport"] .card,
+[data-theme="premium"] .card,
+[data-theme="showcase"] .card {
+    background-color: var(--bg-card);
+    border-color: var(--border);
+    color: var(--text-2);
+}
+
+[data-theme="dark-sport"] .card h1,
+[data-theme="dark-sport"] .card h2,
+[data-theme="dark-sport"] .card h3,
+[data-theme="dark-sport"] .card h4,
+[data-theme="dark-sport"] .card h5,
+[data-theme="dark-sport"] .card h6,
+[data-theme="premium"] .card h1,
+[data-theme="premium"] .card h2,
+[data-theme="premium"] .card h3,
+[data-theme="premium"] .card h4,
+[data-theme="premium"] .card h5,
+[data-theme="premium"] .card h6,
+[data-theme="showcase"] .card h1,
+[data-theme="showcase"] .card h2,
+[data-theme="showcase"] .card h3,
+[data-theme="showcase"] .card h4,
+[data-theme="showcase"] .card h5,
+[data-theme="showcase"] .card h6 {
+    color: var(--text);
+}
+
+[data-theme="dark-sport"] .card .text-muted,
+[data-theme="premium"] .card .text-muted,
+[data-theme="showcase"] .card .text-muted {
+    color: var(--text-3) !important;
+}
+
 /* Dark themes — Bootstrap form-control fix */
 [data-theme="dark-sport"] .form-control,
 [data-theme="premium"] .form-control {
