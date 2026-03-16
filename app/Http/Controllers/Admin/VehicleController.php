@@ -39,7 +39,7 @@ class VehicleController extends Controller
             });
         }
 
-        $vehicles = $query->latest()->paginate(15)->withQueryString();
+        $vehicles = $query->latest()->paginate(20)->withQueryString();
         $marcas   = Vehicle::distinct()->orderBy('marca')->pluck('marca');
 
         return view('admin.vehicles.index', compact('vehicles', 'marcas'));

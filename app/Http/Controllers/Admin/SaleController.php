@@ -27,7 +27,7 @@ class SaleController extends Controller
             $query->whereYear('data_venda', $request->ano);
         }
 
-        $sales = $query->paginate(15)->withQueryString();
+        $sales = $query->paginate(20)->withQueryString();
 
         $totalMes = Sale::whereMonth('data_venda', now()->month)
             ->whereYear('data_venda', now()->year)
