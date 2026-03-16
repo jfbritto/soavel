@@ -61,7 +61,7 @@ class MasterController extends Controller
 
     public function config(Request $request)
     {
-        $configs = $request->all();
+        $configs = $request->except(['_token']);
 
         foreach ($configs as $key => $value) {
             $this->setSetting($key, $value);

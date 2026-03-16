@@ -74,7 +74,7 @@ class MasterApiTest extends TestCase
 
     public function test_suspend_sets_flag()
     {
-        $response = $this->postJson('/api/master/suspend', [], [
+        $response = $this->getJson('/api/master/suspend?' . http_build_query([]), [
             'X-Master-Token' => $this->token,
         ]);
 
@@ -88,7 +88,7 @@ class MasterApiTest extends TestCase
     {
         Setting::set('suspended', 'true');
 
-        $response = $this->postJson('/api/master/reactivate', [], [
+        $response = $this->getJson('/api/master/reactivate', [
             'X-Master-Token' => $this->token,
         ]);
 
@@ -100,10 +100,10 @@ class MasterApiTest extends TestCase
 
     public function test_config_updates_settings()
     {
-        $response = $this->postJson('/api/master/config', [
+        $response = $this->getJson('/api/master/config?' . http_build_query([
             'nome_sistema' => 'Novo Nome',
             'cor_primaria' => '#FF0000',
-        ], [
+        ]), [
             'X-Master-Token' => $this->token,
         ]);
 
