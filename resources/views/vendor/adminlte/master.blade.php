@@ -52,9 +52,9 @@
 
     <style>
         .content-wrapper { min-height: calc(100vh - 57px) !important; }
-        .content > .container-fluid > .card:last-child,
-        .content > .container-fluid > .row:last-child { margin-bottom: 0 !important; }
-        .content { padding-bottom: 0 !important; }
+        .content .card:last-child { margin-bottom: 0 !important; }
+        .content { padding-bottom: .5rem !important; }
+        .main-footer { margin-top: 0; }
     </style>
 
     {{-- Favicon dinâmico (Settings DB) --}}
