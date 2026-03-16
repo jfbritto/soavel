@@ -19,8 +19,8 @@
     @endif
 
     {{-- Alerta de fatura atrasada --}}
-    @auth
-        @php
+    <?php if(auth()->check()): ?>
+        <?php
             $billingStatus = \App\Models\Setting::get('billing_status');
             $billingDueDate = \App\Models\Setting::get('billing_due_date');
             $billingOverdue = false;
@@ -30,7 +30,7 @@
                 $billingDaysLate = (int) $due->diffInDays(now()->startOfDay(), false);
                 $billingOverdue = $billingStatus === 'overdue' || $billingDaysLate > 0;
             }
-        @endphp
+        ?>
         @if($billingOverdue)
             <div class="mx-3 mt-2">
                 <div class="alert alert-danger alert-dismissible fade show mb-0 shadow-sm" role="alert" style="border-left:4px solid #c0392b">
@@ -60,7 +60,7 @@
                 </div>
             </div>
         @endif
-    @endauth
+    <?php endif; ?>
 
     {{-- Main Content --}}
     <div class="content">
