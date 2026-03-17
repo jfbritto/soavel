@@ -197,7 +197,7 @@
                                 </button>
                             </div>
                         </div>
-                        <small class="text-muted">JPG, PNG, WebP · máx. 5 MB · proporção 4:3 (800×600)</small>
+                        <small class="text-muted">JPG, PNG, WebP · máx. 5 MB · escolha a proporção no recorte (4:3, 4:5 ou 1:1)</small>
                     </form>
 
                     @if($vehicle->photos->isNotEmpty())
@@ -630,6 +630,18 @@
                     <span id="cropCounter" class="text-muted ml-1" style="font-weight:400;font-size:.85rem"></span>
                 </h5>
             </div>
+            <div class="px-3 pt-2 pb-1 d-flex align-items-center" style="gap:8px;background:#f8f9fa;border-bottom:1px solid #dee2e6">
+                <small class="text-muted font-weight-600 mr-2">Proporção:</small>
+                <button type="button" class="btn btn-sm btn-primary crop-ratio-btn active" data-ratio="4/3" data-w="800" data-h="600">
+                    <i class="fas fa-image mr-1"></i>4:3 Paisagem
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary crop-ratio-btn" data-ratio="4/5" data-w="640" data-h="800">
+                    <i class="fab fa-instagram mr-1"></i>4:5 Retrato
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary crop-ratio-btn" data-ratio="1/1" data-w="800" data-h="800">
+                    <i class="far fa-square mr-1"></i>1:1 Quadrado
+                </button>
+            </div>
             <div id="cropWrap">
                 <img id="cropImage" src="" alt="Foto para recorte">
             </div>
@@ -683,8 +695,12 @@
         openCrop();
     });
 
+    var currentRatio = 4 / 3;
+    var currentW = 800;
+    var currentH = 600;
+
     var CROP_OPTS = {
-        aspectRatio: 4 / 3,
+        aspectRatio: currentRatio,
         viewMode: 1,
         autoCropArea: 0.95,
         movable: true,
@@ -695,8 +711,30 @@
 
     function initCropper() {
         if (cropper) { cropper.destroy(); cropper = null; }
+        CROP_OPTS.aspectRatio = currentRatio;
         cropper = new Cropper(cropImage, CROP_OPTS);
     }
+
+    // Ratio selector buttons
+    document.querySelectorAll('.crop-ratio-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('.crop-ratio-btn').forEach(function (b) {
+                b.classList.remove('btn-primary', 'active');
+                b.classList.add('btn-outline-secondary');
+            });
+            this.classList.remove('btn-outline-secondary');
+            this.classList.add('btn-primary', 'active');
+
+            var parts = this.dataset.ratio.split('/');
+            currentRatio = parseInt(parts[0]) / parseInt(parts[1]);
+            currentW = parseInt(this.dataset.w);
+            currentH = parseInt(this.dataset.h);
+
+            if (cropper) {
+                cropper.setAspectRatio(currentRatio);
+            }
+        });
+    });
 
     // First open: init after animation completes
     $('#cropModal').on('shown.bs.modal', initCropper);
@@ -737,7 +775,7 @@
     btnConfirm.addEventListener('click', function () {
         if (!cropper) return;
         btnConfirm.disabled = true;
-        cropper.getCroppedCanvas({ width: 800, height: 600 }).toBlob(function (blob) {
+        cropper.getCroppedCanvas({ width: currentW, height: currentH }).toBlob(function (blob) {
             croppedBlobs.push(blob);
             cropIndex++;
             btnConfirm.disabled = false;

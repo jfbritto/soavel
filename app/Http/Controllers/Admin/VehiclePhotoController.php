@@ -26,12 +26,14 @@ class VehiclePhotoController extends Controller
             $filename    = Str::uuid() . '.jpg';
             $storagePath = "vehicles/{$vehicle->id}/{$filename}";
 
-            // Crop to standard 4:3 (800×600) — prevents distorted cards on the site
+            // Photos arrive pre-cropped from Cropper.js — just optimize quality
             try {
-                $img = \Intervention\Image\Facades\Image::make($file)
-                    ->fit(800, 600, function ($constraint) {
-                        $constraint->upsize();
-                    });
+                $img = \Intervention\Image\Facades\Image::make($file);
+                // Limit max dimension to 800px on longest side, keep aspect ratio
+                $img->resize(800, 800, function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+                });
                 Storage::disk('public')->put($storagePath, $img->encode('jpg', 85));
             } catch (\Throwable $e) {
                 $file->storeAs("vehicles/{$vehicle->id}", $filename, 'public');
