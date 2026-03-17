@@ -486,7 +486,7 @@ function generateStoryImage() {
         // Accent line separadora
         ctx.fillStyle = accentColor;
         ctx.fillRect(pad, y, contentW, 4);
-        y += 55;
+        y += 75;
 
         // Título do veículo
         ctx.textAlign = 'center';
