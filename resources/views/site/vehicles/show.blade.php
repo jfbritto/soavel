@@ -366,18 +366,49 @@ function generateStoryImage() {
     var accentColor  = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#FF4500';
     var siteUrl      = @json(request()->getHost());
 
-    // Foto principal — pega direto do DOM (imagem já carregada na página)
-    var mainImgEl = document.querySelector('.vehicle-gallery-main');
+    // Fotos do DOM — principal + thumbnails
     var logoImgEl = document.querySelector('.navbar-brand img');
 
-    var logoUrl = @json(
-        \App\Models\Setting::get('logo_path')
-            ? asset('storage/' . \App\Models\Setting::get('logo_path'))
-            : ''
-    );
+    // Coleta até 3 fotos: principal + 2 primeiras thumbnails
+    var allPhotoEls = [];
+    var mainImg = document.querySelector('.vehicle-gallery-main');
+    if (mainImg) allPhotoEls.push(mainImg);
+    document.querySelectorAll('.vehicle-thumb-img').forEach(function(el, i) {
+        if (allPhotoEls.length < 3) allPhotoEls.push(el);
+    });
 
-    function drawStory(photoImg, logoImg) {
-        // Background gradient escuro
+    // Helper: desenhar imagem cover em rounded rect
+    function drawCoverRounded(img, x, y, w, h, r) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.lineTo(x + w - r, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+        ctx.lineTo(x + w, y + h - r);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+        ctx.lineTo(x + r, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+        ctx.lineTo(x, y + r);
+        ctx.quadraticCurveTo(x, y, x + r, y);
+        ctx.closePath();
+        ctx.clip();
+
+        var imgR = img.naturalWidth / img.naturalHeight;
+        var areaR = w / h;
+        var sx, sy, sw, sh;
+        if (imgR > areaR) {
+            sh = img.naturalHeight; sw = sh * areaR;
+            sx = (img.naturalWidth - sw) / 2; sy = 0;
+        } else {
+            sw = img.naturalWidth; sh = sw / areaR;
+            sx = 0; sy = (img.naturalHeight - sh) / 2;
+        }
+        ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
+        ctx.restore();
+    }
+
+    function drawStory(photos, logoImg) {
+        // Background
         var bgGrad = ctx.createLinearGradient(0, 0, 0, H);
         bgGrad.addColorStop(0, '#0D0D0D');
         bgGrad.addColorStop(0.4, '#1A1A1A');
@@ -390,92 +421,71 @@ function generateStoryImage() {
         ctx.fillRect(0, 0, W, 8);
 
         var y = 60;
+        var pad = 40;
+        var gap = 12;
 
         // Logo ou nome da loja
         if (logoImg) {
-            var logoH = 80;
+            var logoH = 70;
             var logoW = logoImg.width * (logoH / logoImg.height);
             if (logoW > 400) { logoW = 400; logoH = logoImg.height * (400 / logoImg.width); }
             ctx.drawImage(logoImg, (W - logoW) / 2, y, logoW, logoH);
-            y += logoH + 40;
+            y += logoH + 35;
         } else {
-            ctx.font = 'bold 44px "Inter", "Helvetica Neue", sans-serif';
+            ctx.font = 'bold 42px "Inter", "Helvetica Neue", sans-serif';
             ctx.fillStyle = '#FFFFFF';
             ctx.textAlign = 'center';
-            ctx.fillText(storeName, W / 2, y + 44);
-            y += 90;
+            ctx.fillText(storeName, W / 2, y + 42);
+            y += 80;
         }
 
-        // Foto do veículo com bordas arredondadas
-        if (photoImg) {
-            var photoAreaW = W - 80;
-            var photoAreaH = 750;
-            var px = 40, py = y;
+        // Fotos
+        var contentW = W - pad * 2;
+        if (photos.length >= 3) {
+            // 1 grande + 2 menores lado a lado
+            var mainH = 540;
+            drawCoverRounded(photos[0], pad, y, contentW, mainH, 16);
+            y += mainH + gap;
 
-            // Clip rounded rect
-            var radius = 24;
-            ctx.save();
-            ctx.beginPath();
-            ctx.moveTo(px + radius, py);
-            ctx.lineTo(px + photoAreaW - radius, py);
-            ctx.quadraticCurveTo(px + photoAreaW, py, px + photoAreaW, py + radius);
-            ctx.lineTo(px + photoAreaW, py + photoAreaH - radius);
-            ctx.quadraticCurveTo(px + photoAreaW, py + photoAreaH, px + photoAreaW - radius, py + photoAreaH);
-            ctx.lineTo(px + radius, py + photoAreaH);
-            ctx.quadraticCurveTo(px, py + photoAreaH, px, py + photoAreaH - radius);
-            ctx.lineTo(px, py + radius);
-            ctx.quadraticCurveTo(px, py, px + radius, py);
-            ctx.closePath();
-            ctx.clip();
+            var thumbW = (contentW - gap) / 2;
+            var thumbH = 320;
+            drawCoverRounded(photos[1], pad, y, thumbW, thumbH, 12);
+            drawCoverRounded(photos[2], pad + thumbW + gap, y, thumbW, thumbH, 12);
+            y += thumbH + 45;
+        } else if (photos.length === 2) {
+            // 1 grande + 1 menor
+            var mainH = 560;
+            drawCoverRounded(photos[0], pad, y, contentW, mainH, 16);
+            y += mainH + gap;
 
-            // Draw photo cover
-            var imgRatio = photoImg.width / photoImg.height;
-            var areaRatio = photoAreaW / photoAreaH;
-            var sx, sy, sw, sh;
-            if (imgRatio > areaRatio) {
-                sh = photoImg.height;
-                sw = sh * areaRatio;
-                sx = (photoImg.width - sw) / 2;
-                sy = 0;
-            } else {
-                sw = photoImg.width;
-                sh = sw / areaRatio;
-                sx = 0;
-                sy = (photoImg.height - sh) / 2;
-            }
-            ctx.drawImage(photoImg, sx, sy, sw, sh, px, py, photoAreaW, photoAreaH);
-
-            // Gradient overlay bottom of photo
-            var photoGrad = ctx.createLinearGradient(0, py + photoAreaH - 250, 0, py + photoAreaH);
-            photoGrad.addColorStop(0, 'rgba(0,0,0,0)');
-            photoGrad.addColorStop(1, 'rgba(0,0,0,0.8)');
-            ctx.fillStyle = photoGrad;
-            ctx.fillRect(px, py + photoAreaH - 250, photoAreaW, 250);
-
-            ctx.restore();
-
-            // Accent border bottom
-            ctx.fillStyle = accentColor;
-            ctx.fillRect(px, py + photoAreaH - 5, photoAreaW, 5);
-
-            y += photoAreaH + 60;
+            var thumbH = 300;
+            drawCoverRounded(photos[1], pad, y, contentW, thumbH, 12);
+            y += thumbH + 45;
+        } else if (photos.length === 1) {
+            // Só 1 foto grande
+            var mainH = 700;
+            drawCoverRounded(photos[0], pad, y, contentW, mainH, 16);
+            y += mainH + 45;
         } else {
             y += 40;
         }
 
+        // Accent line separadora
+        ctx.fillStyle = accentColor;
+        ctx.fillRect(pad, y - 20, contentW, 4);
+
         // Título do veículo
         ctx.textAlign = 'center';
         ctx.fillStyle = '#FFFFFF';
-        ctx.font = 'bold 64px "Inter", "Helvetica Neue", sans-serif';
+        ctx.font = 'bold 60px "Inter", "Helvetica Neue", sans-serif';
 
-        // Word wrap título
         var words = vehicleTitle.split(' ');
         var lines = [];
         var line = '';
-        var maxW = W - 120;
+        var maxTitleW = W - 120;
         for (var i = 0; i < words.length; i++) {
             var test = line + (line ? ' ' : '') + words[i];
-            if (ctx.measureText(test).width > maxW && line) {
+            if (ctx.measureText(test).width > maxTitleW && line) {
                 lines.push(line);
                 line = words[i];
             } else {
@@ -485,66 +495,30 @@ function generateStoryImage() {
         lines.push(line);
 
         for (var j = 0; j < lines.length; j++) {
-            ctx.fillText(lines[j], W / 2, y + j * 76);
+            ctx.fillText(lines[j], W / 2, y + j * 72);
         }
-        y += lines.length * 76 + 30;
+        y += lines.length * 72 + 20;
 
-        // Preço com destaque
-        ctx.font = 'bold 88px "Inter", "Helvetica Neue", sans-serif';
+        // Preço
+        ctx.font = 'bold 84px "Inter", "Helvetica Neue", sans-serif';
         ctx.fillStyle = accentColor;
-        ctx.fillText(vehiclePrice, W / 2, y + 70);
-        y += 130;
+        ctx.fillText(vehiclePrice, W / 2, y + 65);
+        y += 115;
 
-        // Linha decorativa
-        ctx.fillStyle = accentColor;
-        ctx.globalAlpha = 0.3;
-        ctx.fillRect(W / 2 - 200, y, 400, 3);
-        ctx.globalAlpha = 1;
-        y += 50;
-
-        // Specs em grid 2x2 — sem emojis, com labels descritivos
-        var specs = [
-            { label: 'ANO', value: vehicleYear },
-            { label: 'KM', value: vehicleKm },
-            { label: 'COMB.', value: vehicleFuel },
-            { label: 'CÂMBIO', value: vehicleTrans },
-        ];
-        if (vehicleMotor) {
-            specs.push({ label: 'MOTOR', value: vehicleMotor });
-        }
-
-        var specCols = 2;
-        var specW = (W - 120) / specCols;
-        var specRowH = 90;
-        for (var s = 0; s < specs.length; s++) {
-            var col = s % specCols;
-            var row = Math.floor(s / specCols);
-            var sx2 = 60 + col * specW + specW / 2;
-            var sy2 = y + row * specRowH;
-
-            // Label
-            ctx.font = '600 28px "Inter", "Helvetica Neue", sans-serif';
-            ctx.fillStyle = 'rgba(255,255,255,0.4)';
-            ctx.textAlign = 'center';
-            ctx.fillText(specs[s].label, sx2, sy2);
-
-            // Value
-            ctx.font = 'bold 42px "Inter", "Helvetica Neue", sans-serif';
-            ctx.fillStyle = '#FFFFFF';
-            ctx.fillText(specs[s].value, sx2, sy2 + 46);
-        }
-        y += Math.ceil(specs.length / specCols) * specRowH;
+        // Specs em linha
+        ctx.font = '600 34px "Inter", "Helvetica Neue", sans-serif';
+        ctx.fillStyle = 'rgba(255,255,255,0.6)';
+        var specLine = vehicleYear + '  ·  ' + vehicleKm + '  ·  ' + vehicleFuel + '  ·  ' + vehicleTrans;
+        if (vehicleMotor) specLine += '  ·  ' + vehicleMotor;
+        ctx.fillText(specLine, W / 2, y + 10);
 
         // Rodapé fixo no bottom
-        // Linha sutil
         ctx.fillStyle = 'rgba(255,255,255,0.15)';
-        ctx.fillRect(80, H - 120, W - 160, 1);
-
-        // URL do site
-        ctx.font = '500 32px "Inter", "Helvetica Neue", sans-serif';
+        ctx.fillRect(80, H - 110, W - 160, 1);
+        ctx.font = '500 30px "Inter", "Helvetica Neue", sans-serif';
         ctx.fillStyle = 'rgba(255,255,255,0.5)';
         ctx.textAlign = 'center';
-        ctx.fillText(siteUrl, W / 2, H - 60);
+        ctx.fillText(siteUrl, W / 2, H - 55);
 
         // Accent line bottom
         ctx.fillStyle = accentColor;
@@ -552,7 +526,6 @@ function generateStoryImage() {
 
         // Download or share
         canvas.toBlob(function (blob) {
-            // Try Web Share API (mobile)
             if (navigator.share && navigator.canShare) {
                 var file = new File([blob], 'story-' + vehicleTitle.replace(/\s+/g, '-').toLowerCase() + '.jpg', { type: 'image/jpeg' });
                 if (navigator.canShare({ files: [file] })) {
@@ -562,7 +535,6 @@ function generateStoryImage() {
                     return;
                 }
             }
-            // Fallback: download
             var url = URL.createObjectURL(blob);
             var a = document.createElement('a');
             a.href = url;
@@ -574,20 +546,13 @@ function generateStoryImage() {
         }, 'image/jpeg', 0.92);
     }
 
-    // Usa imagens já carregadas no DOM — evita problemas de cache/CORS
-    var photoImg = (mainImgEl && mainImgEl.complete && mainImgEl.naturalWidth > 0) ? mainImgEl : null;
+    // Usa imagens já carregadas no DOM
+    var readyPhotos = allPhotoEls.filter(function(el) {
+        return el.complete && el.naturalWidth > 0;
+    });
     var logoImgObj = (logoImgEl && logoImgEl.complete && logoImgEl.naturalWidth > 0) ? logoImgEl : null;
 
-    // Se a foto do DOM não está disponível, tenta carregar
-    if (!photoImg && mainImgEl && mainImgEl.src) {
-        var img = new Image();
-        img.onload = function () { drawStory(img, logoImgObj); };
-        img.onerror = function () { drawStory(null, logoImgObj); };
-        img.src = mainImgEl.src;
-        return;
-    }
-
-    drawStory(photoImg, logoImgObj);
+    drawStory(readyPhotos, logoImgObj);
 }
 </script>
 @endsection
