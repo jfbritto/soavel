@@ -366,8 +366,9 @@ function generateStoryImage() {
     var accentColor  = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#FF4500';
     var siteUrl      = @json(request()->getHost());
 
-    // Foto principal
-    var photoUrl = @json(($vehicle->photos->firstWhere('principal', true) ?? $vehicle->photos->first())?->url ?? '');
+    // Foto principal — pega direto do DOM (imagem já carregada na página)
+    var mainImgEl = document.querySelector('.vehicle-gallery-main');
+    var logoImgEl = document.querySelector('.navbar-brand img');
 
     var logoUrl = @json(
         \App\Models\Setting::get('logo_path')
@@ -573,36 +574,20 @@ function generateStoryImage() {
         }, 'image/jpeg', 0.92);
     }
 
-    // Load images
-    var photoImg = null;
-    var logoImgObj = null;
-    var loaded = 0;
-    var toLoad = (photoUrl ? 1 : 0) + (logoUrl ? 1 : 0);
+    // Usa imagens já carregadas no DOM — evita problemas de cache/CORS
+    var photoImg = (mainImgEl && mainImgEl.complete && mainImgEl.naturalWidth > 0) ? mainImgEl : null;
+    var logoImgObj = (logoImgEl && logoImgEl.complete && logoImgEl.naturalWidth > 0) ? logoImgEl : null;
 
-    if (toLoad === 0) {
-        drawStory(null, null);
+    // Se a foto do DOM não está disponível, tenta carregar
+    if (!photoImg && mainImgEl && mainImgEl.src) {
+        var img = new Image();
+        img.onload = function () { drawStory(img, logoImgObj); };
+        img.onerror = function () { drawStory(null, logoImgObj); };
+        img.src = mainImgEl.src;
         return;
     }
 
-    function onLoad() {
-        loaded++;
-        if (loaded >= toLoad) drawStory(photoImg, logoImgObj);
-    }
-
-    if (photoUrl) {
-        photoImg = new Image();
-        photoImg.crossOrigin = 'anonymous';
-        photoImg.onload = onLoad;
-        photoImg.onerror = function () { photoImg = null; onLoad(); };
-        photoImg.src = photoUrl;
-    }
-    if (logoUrl) {
-        logoImgObj = new Image();
-        logoImgObj.crossOrigin = 'anonymous';
-        logoImgObj.onload = onLoad;
-        logoImgObj.onerror = function () { logoImgObj = null; onLoad(); };
-        logoImgObj.src = logoUrl;
-    }
+    drawStory(photoImg, logoImgObj);
 }
 </script>
 @endsection
