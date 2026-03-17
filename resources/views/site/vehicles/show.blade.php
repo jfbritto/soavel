@@ -127,14 +127,14 @@
                 <span class="text-muted font-weight-600" style="font-size:.85rem"><i class="fas fa-share-alt mr-1"></i> Compartilhar:</span>
                 <a href="https://wa.me/?text={{ urlencode($vehicle->titulo . ' ' . $vehicle->ano_modelo . ' por ' . $vehicle->preco_formatado . ' - Veja no site: ' . request()->url()) }}"
                    target="_blank" rel="noopener" class="btn btn-sm btn-outline-success" title="Compartilhar no WhatsApp">
-                    <i class="fab fa-whatsapp"></i> WhatsApp
+                    <i class="fab fa-whatsapp"></i>
                 </a>
                 <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(request()->url()) }}"
                    target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary" title="Compartilhar no Facebook">
                     <i class="fab fa-facebook-f"></i>
                 </a>
                 <button type="button" class="btn btn-sm btn-outline-secondary" style="border-color:#E1306C;color:#E1306C" onclick="generateStoryImage()" title="Gerar imagem para Instagram Stories">
-                    <i class="fab fa-instagram"></i> Story
+                    <i class="fab fa-instagram"></i>
                 </button>
                 <button type="button" class="btn btn-sm btn-outline-secondary" onclick="copyVehicleLink()" title="Copiar link">
                     <i class="fas fa-link"></i>
