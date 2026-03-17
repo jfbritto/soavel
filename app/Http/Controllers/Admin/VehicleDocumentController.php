@@ -57,6 +57,16 @@ class VehicleDocumentController extends Controller
         return back()->with('success', 'Documento removido com sucesso.');
     }
 
+    public function preview(Vehicle $vehicle, VehicleDocument $document)
+    {
+        abort_if($document->vehicle_id !== $vehicle->id, 404);
+        abort_unless(Storage::disk('local')->exists($document->path), 404);
+
+        return response(Storage::disk('local')->get($document->path))
+            ->header('Content-Type', $document->mime_type)
+            ->header('Content-Disposition', 'inline; filename="' . $document->original_name . '"');
+    }
+
     public function download(Vehicle $vehicle, VehicleDocument $document)
     {
         abort_if($document->vehicle_id !== $vehicle->id, 404);

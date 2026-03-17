@@ -77,6 +77,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         Route::prefix('vehicles/{vehicle}/documents')->name('vehicles.documents.')->group(function () {
             Route::post('/', [Admin\VehicleDocumentController::class, 'store'])->name('store');
             Route::delete('/{document}', [Admin\VehicleDocumentController::class, 'destroy'])->name('destroy');
+            Route::get('/{document}/preview', [Admin\VehicleDocumentController::class, 'preview'])->name('preview');
             Route::get('/{document}/download', [Admin\VehicleDocumentController::class, 'download'])->name('download');
         });
 
@@ -95,6 +96,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         // Documentos do cliente
         Route::post('customers/{customer}/documents', [Admin\CustomerDocumentController::class, 'store'])->name('customers.documents.store');
         Route::delete('customers/{customer}/documents/{document}', [Admin\CustomerDocumentController::class, 'destroy'])->name('customers.documents.destroy');
+        Route::get('customers/{customer}/documents/{document}/preview', [Admin\CustomerDocumentController::class, 'preview'])->name('customers.documents.preview');
         Route::get('customers/{customer}/documents/{document}/download', [Admin\CustomerDocumentController::class, 'download'])->name('customers.documents.download');
 
         // Leads

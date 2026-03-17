@@ -278,6 +278,9 @@
                                     <td class="text-muted">{{ $doc->size_formatado }}</td>
                                     <td class="text-muted">{{ $doc->created_at->format('d/m/Y') }}</td>
                                     <td class="text-right">
+                                        <a href="{{ route('admin.vehicles.documents.preview', [$vehicle, $doc]) }}" target="_blank" class="btn btn-xs btn-outline-primary mr-1" title="Visualizar">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
                                         <a href="{{ route('admin.vehicles.documents.download', [$vehicle, $doc]) }}" class="btn btn-xs btn-outline-secondary mr-1" title="Baixar">
                                             <i class="fas fa-download"></i>
                                         </a>

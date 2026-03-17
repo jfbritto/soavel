@@ -57,6 +57,16 @@ class CustomerDocumentController extends Controller
         return back()->with('success', 'Documento removido com sucesso.');
     }
 
+    public function preview(Customer $customer, CustomerDocument $document)
+    {
+        abort_if($document->customer_id !== $customer->id, 404);
+        abort_unless(Storage::disk('local')->exists($document->path), 404);
+
+        return response(Storage::disk('local')->get($document->path))
+            ->header('Content-Type', $document->mime_type)
+            ->header('Content-Disposition', 'inline; filename="' . $document->original_name . '"');
+    }
+
     public function download(Customer $customer, CustomerDocument $document)
     {
         abort_if($document->customer_id !== $customer->id, 404);
