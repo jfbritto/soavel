@@ -379,39 +379,40 @@ function generateStoryImage() {
         // Background gradient escuro
         var bgGrad = ctx.createLinearGradient(0, 0, 0, H);
         bgGrad.addColorStop(0, '#0D0D0D');
-        bgGrad.addColorStop(0.5, '#1A1A1A');
+        bgGrad.addColorStop(0.4, '#1A1A1A');
         bgGrad.addColorStop(1, '#0D0D0D');
         ctx.fillStyle = bgGrad;
         ctx.fillRect(0, 0, W, H);
 
         // Accent line top
         ctx.fillStyle = accentColor;
-        ctx.fillRect(0, 0, W, 6);
+        ctx.fillRect(0, 0, W, 8);
 
-        var y = 80;
+        var y = 60;
 
         // Logo ou nome da loja
         if (logoImg) {
-            var logoH = 60;
+            var logoH = 80;
             var logoW = logoImg.width * (logoH / logoImg.height);
+            if (logoW > 400) { logoW = 400; logoH = logoImg.height * (400 / logoImg.width); }
             ctx.drawImage(logoImg, (W - logoW) / 2, y, logoW, logoH);
-            y += logoH + 30;
+            y += logoH + 40;
         } else {
-            ctx.font = 'bold 36px "Inter", "Helvetica Neue", sans-serif';
+            ctx.font = 'bold 44px "Inter", "Helvetica Neue", sans-serif';
             ctx.fillStyle = '#FFFFFF';
             ctx.textAlign = 'center';
-            ctx.fillText(storeName, W / 2, y + 36);
-            y += 70;
+            ctx.fillText(storeName, W / 2, y + 44);
+            y += 90;
         }
 
         // Foto do veículo com bordas arredondadas
         if (photoImg) {
             var photoAreaW = W - 80;
-            var photoAreaH = 680;
+            var photoAreaH = 750;
             var px = 40, py = y;
 
             // Clip rounded rect
-            var radius = 20;
+            var radius = 24;
             ctx.save();
             ctx.beginPath();
             ctx.moveTo(px + radius, py);
@@ -444,19 +445,19 @@ function generateStoryImage() {
             ctx.drawImage(photoImg, sx, sy, sw, sh, px, py, photoAreaW, photoAreaH);
 
             // Gradient overlay bottom of photo
-            var photoGrad = ctx.createLinearGradient(0, py + photoAreaH - 200, 0, py + photoAreaH);
+            var photoGrad = ctx.createLinearGradient(0, py + photoAreaH - 250, 0, py + photoAreaH);
             photoGrad.addColorStop(0, 'rgba(0,0,0,0)');
-            photoGrad.addColorStop(1, 'rgba(0,0,0,0.7)');
+            photoGrad.addColorStop(1, 'rgba(0,0,0,0.8)');
             ctx.fillStyle = photoGrad;
-            ctx.fillRect(px, py + photoAreaH - 200, photoAreaW, 200);
+            ctx.fillRect(px, py + photoAreaH - 250, photoAreaW, 250);
 
             ctx.restore();
 
             // Accent border bottom
             ctx.fillStyle = accentColor;
-            ctx.fillRect(px, py + photoAreaH - 4, photoAreaW, 4);
+            ctx.fillRect(px, py + photoAreaH - 5, photoAreaW, 5);
 
-            y += photoAreaH + 50;
+            y += photoAreaH + 60;
         } else {
             y += 40;
         }
@@ -464,7 +465,7 @@ function generateStoryImage() {
         // Título do veículo
         ctx.textAlign = 'center';
         ctx.fillStyle = '#FFFFFF';
-        ctx.font = 'bold 52px "Inter", "Helvetica Neue", sans-serif';
+        ctx.font = 'bold 64px "Inter", "Helvetica Neue", sans-serif';
 
         // Word wrap título
         var words = vehicleTitle.split(' ');
@@ -483,57 +484,70 @@ function generateStoryImage() {
         lines.push(line);
 
         for (var j = 0; j < lines.length; j++) {
-            ctx.fillText(lines[j], W / 2, y + j * 62);
+            ctx.fillText(lines[j], W / 2, y + j * 76);
         }
-        y += lines.length * 62 + 20;
+        y += lines.length * 76 + 30;
 
         // Preço com destaque
-        ctx.font = 'bold 72px "Inter", "Helvetica Neue", sans-serif';
+        ctx.font = 'bold 88px "Inter", "Helvetica Neue", sans-serif';
         ctx.fillStyle = accentColor;
-        ctx.fillText(vehiclePrice, W / 2, y + 60);
-        y += 110;
+        ctx.fillText(vehiclePrice, W / 2, y + 70);
+        y += 130;
 
         // Linha decorativa
-        ctx.fillStyle = 'rgba(255,255,255,0.15)';
-        ctx.fillRect(W / 2 - 150, y, 300, 2);
-        y += 40;
+        ctx.fillStyle = accentColor;
+        ctx.globalAlpha = 0.3;
+        ctx.fillRect(W / 2 - 200, y, 400, 3);
+        ctx.globalAlpha = 1;
+        y += 50;
 
-        // Specs em grid 2x2
-        ctx.font = '600 32px "Inter", "Helvetica Neue", sans-serif';
+        // Specs em grid 2x2 — sem emojis, com labels descritivos
         var specs = [
-            { icon: '📅', label: vehicleYear },
-            { icon: '🛣️', label: vehicleKm },
-            { icon: '⛽', label: vehicleFuel },
-            { icon: '⚙️', label: vehicleTrans },
+            { label: 'ANO', value: vehicleYear },
+            { label: 'KM', value: vehicleKm },
+            { label: 'COMB.', value: vehicleFuel },
+            { label: 'CÂMBIO', value: vehicleTrans },
         ];
         if (vehicleMotor) {
-            specs.push({ icon: '🔧', label: vehicleMotor });
+            specs.push({ label: 'MOTOR', value: vehicleMotor });
         }
 
         var specCols = 2;
         var specW = (W - 120) / specCols;
+        var specRowH = 90;
         for (var s = 0; s < specs.length; s++) {
             var col = s % specCols;
             var row = Math.floor(s / specCols);
             var sx2 = 60 + col * specW + specW / 2;
-            var sy2 = y + row * 65;
-            ctx.fillStyle = 'rgba(255,255,255,0.6)';
-            ctx.textAlign = 'center';
-            ctx.fillText(specs[s].icon + '  ' + specs[s].label, sx2, sy2);
-        }
-        y += Math.ceil(specs.length / specCols) * 65 + 50;
+            var sy2 = y + row * specRowH;
 
-        // Rodapé
-        ctx.fillStyle = 'rgba(255,255,255,0.3)';
-        ctx.fillRect(0, H - 100, W, 1);
-        ctx.font = '500 28px "Inter", "Helvetica Neue", sans-serif';
+            // Label
+            ctx.font = '600 28px "Inter", "Helvetica Neue", sans-serif';
+            ctx.fillStyle = 'rgba(255,255,255,0.4)';
+            ctx.textAlign = 'center';
+            ctx.fillText(specs[s].label, sx2, sy2);
+
+            // Value
+            ctx.font = 'bold 42px "Inter", "Helvetica Neue", sans-serif';
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillText(specs[s].value, sx2, sy2 + 46);
+        }
+        y += Math.ceil(specs.length / specCols) * specRowH;
+
+        // Rodapé fixo no bottom
+        // Linha sutil
+        ctx.fillStyle = 'rgba(255,255,255,0.15)';
+        ctx.fillRect(80, H - 120, W - 160, 1);
+
+        // URL do site
+        ctx.font = '500 32px "Inter", "Helvetica Neue", sans-serif';
         ctx.fillStyle = 'rgba(255,255,255,0.5)';
         ctx.textAlign = 'center';
-        ctx.fillText(siteUrl, W / 2, H - 45);
+        ctx.fillText(siteUrl, W / 2, H - 60);
 
         // Accent line bottom
         ctx.fillStyle = accentColor;
-        ctx.fillRect(0, H - 6, W, 6);
+        ctx.fillRect(0, H - 8, W, 8);
 
         // Download or share
         canvas.toBlob(function (blob) {
