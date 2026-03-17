@@ -145,7 +145,7 @@
             <!-- Especificações -->
             <div class="card shadow-sm mb-4">
                 <div class="card-body">
-                    <h1 class="font-weight-800 h2" style="color:var(--azul)">{{ $vehicle->titulo }} {{ $vehicle->ano_modelo }}</h1>
+                    <h1 class="font-weight-800 h2" id="vehicleTitle" style="color:var(--azul)">{{ $vehicle->titulo }} {{ $vehicle->ano_modelo }}</h1>
                     <div class="d-flex flex-wrap mb-3" style="gap:8px">
                         <span class="badge badge-primary px-3 py-2">{{ ucfirst($vehicle->categoria) }}</span>
                         <span class="badge badge-{{ $vehicle->status_color }} px-3 py-2">{{ $vehicle->status_label }}</span>
@@ -230,7 +230,7 @@
                 <div class="card shadow-sm mb-3 border-0" style="border-radius:12px;overflow:hidden">
                     <div style="background:#1e3a5f;color:#ffffff;padding:24px 20px;text-align:center">
                         <div style="font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;opacity:.8;margin-bottom:4px">Preço</div>
-                        <div style="font-size:clamp(1.5rem,6vw,2.2rem);font-weight:800;color:#ffffff;line-height:1.1">{{ $vehicle->preco_formatado }}</div>
+                        <div id="vehiclePrice" style="font-size:clamp(1.5rem,6vw,2.2rem);font-weight:800;color:#ffffff;line-height:1.1">{{ $vehicle->preco_formatado }}</div>
                         @if($vehicle->status !== 'disponivel')
                         <span class="badge badge-{{ $vehicle->status_color }} mt-2" style="font-size:.85rem">{{ $vehicle->status_label }}</span>
                         @endif
@@ -354,17 +354,30 @@ function generateStoryImage() {
     canvas.height = H;
     var ctx = canvas.getContext('2d');
 
-    // Dados do veículo via Blade
-    var vehicleTitle = @json($vehicle->titulo . ' ' . $vehicle->ano_modelo);
-    var vehiclePrice = @json($vehicle->preco_formatado);
-    var vehicleKm    = @json($vehicle->km_formatado);
-    var vehicleFuel  = @json(ucfirst($vehicle->combustivel));
-    var vehicleTrans = @json(ucfirst($vehicle->transmissao));
-    var vehicleYear  = @json($vehicle->ano_fabricacao . '/' . $vehicle->ano_modelo);
-    var vehicleMotor = @json($vehicle->motorizacao ?: '');
-    var storeName    = @json(\App\Models\Setting::get('nome_sistema', config('app.name')));
-    var accentColor  = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#FF4500';
-    var siteUrl      = @json(request()->getHost());
+    // Dados do veículo via DOM — garante que é o veículo da página atual
+    var vehicleTitle = (document.getElementById('vehicleTitle') || {}).textContent || 'Veículo';
+    var vehiclePrice = (document.getElementById('vehiclePrice') || {}).textContent || '';
+
+    // Specs: lê do DOM via labels "Ano Fab/Mod", "Quilometragem", etc.
+    function getSpecByLabel(label) {
+        var smalls = document.querySelectorAll('.card-body small.text-muted');
+        for (var i = 0; i < smalls.length; i++) {
+            if (smalls[i].textContent.trim() === label) {
+                var prev = smalls[i].previousElementSibling;
+                if (prev) return prev.textContent.trim();
+            }
+        }
+        return '';
+    }
+    var vehicleYear  = getSpecByLabel('Ano Fab/Mod');
+    var vehicleKm    = getSpecByLabel('Quilometragem');
+    var vehicleFuel  = getSpecByLabel('Combustível');
+    var vehicleTrans = getSpecByLabel('Transmissão');
+    var vehicleMotor = getSpecByLabel('Motor');
+
+    var storeName   = (document.querySelector('.navbar-brand-text') || document.querySelector('.navbar-brand img') || {}).textContent || document.title.split('|').pop().trim();
+    var accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#FF4500';
+    var siteUrl     = window.location.hostname;
 
     // Fotos do DOM — principal + thumbnails
     var logoImgEl = document.querySelector('.navbar-brand img');
