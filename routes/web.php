@@ -92,6 +92,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         Route::post('customers/quick-store', [Admin\CustomerController::class, 'quickStore'])->name('customers.quick-store');
         Route::resource('customers', Admin\CustomerController::class);
 
+        // Documentos do cliente
+        Route::post('customers/{customer}/documents', [Admin\CustomerDocumentController::class, 'store'])->name('customers.documents.store');
+        Route::delete('customers/{customer}/documents/{document}', [Admin\CustomerDocumentController::class, 'destroy'])->name('customers.documents.destroy');
+        Route::get('customers/{customer}/documents/{document}/download', [Admin\CustomerDocumentController::class, 'download'])->name('customers.documents.download');
+
         // Leads
         Route::get('leads', [Admin\LeadController::class, 'index'])->name('leads.index');
         Route::get('leads/create', [Admin\LeadController::class, 'create'])->name('leads.create');

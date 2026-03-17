@@ -20,6 +20,11 @@ class Customer extends Model
         return $this->hasMany(Sale::class);
     }
 
+    public function documents()
+    {
+        return $this->hasMany(CustomerDocument::class)->latest();
+    }
+
     public function getEnderecoCompletoAttribute(): string
     {
         $parts = array_filter([
