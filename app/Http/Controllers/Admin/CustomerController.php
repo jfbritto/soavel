@@ -82,7 +82,7 @@ class CustomerController extends Controller
 
     public function show(Customer $customer)
     {
-        $customer->load(['sales.vehicle.principalPhoto']);
+        $customer->load(['sales.vehicle.principalPhoto', 'documents']);
         return view('admin.customers.show', compact('customer'));
     }
 

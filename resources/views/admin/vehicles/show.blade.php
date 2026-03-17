@@ -22,12 +22,19 @@
                 <span class="badge badge-warning px-2 py-1" style="font-size:.8rem"><i class="fas fa-star mr-1"></i>Destaque</span>
             @endif
         </div>
-        <div>
+        <div class="d-flex align-items-center" style="gap:6px">
+            <form action="{{ route('admin.vehicles.destroy', $vehicle) }}" method="POST"
+                  data-confirm="Tem certeza que deseja EXCLUIR este veículo? Esta ação não pode ser desfeita.">
+                @csrf @method('DELETE')
+                <button type="submit" class="btn btn-sm btn-outline-danger" title="Excluir veículo">
+                    <i class="fas fa-trash-alt mr-1"></i>Excluir
+                </button>
+            </form>
             <a href="{{ route('admin.vehicles.edit', $vehicle) }}" class="btn btn-sm btn-outline-secondary"
                title="Editar dados do veículo">
                 <i class="fas fa-edit mr-1"></i>Editar
             </a>
-            <a href="{{ route('admin.vehicles.index') }}" class="btn btn-sm btn-outline-secondary ml-1"
+            <a href="{{ route('admin.vehicles.index') }}" class="btn btn-sm btn-outline-secondary"
                title="Voltar para a lista de veículos">
                 <i class="fas fa-arrow-left mr-1"></i>Voltar
             </a>
