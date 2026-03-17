@@ -635,8 +635,11 @@
                 <button type="button" class="btn btn-sm btn-primary crop-ratio-btn active" data-ratio="4/3" data-w="800" data-h="600">
                     <i class="fas fa-image mr-1"></i>4:3 Paisagem
                 </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary crop-ratio-btn" data-ratio="3/4" data-w="600" data-h="800">
+                    <i class="fas fa-mobile-alt mr-1"></i>3:4 Retrato
+                </button>
                 <button type="button" class="btn btn-sm btn-outline-secondary crop-ratio-btn" data-ratio="4/5" data-w="640" data-h="800">
-                    <i class="fab fa-instagram mr-1"></i>4:5 Retrato
+                    <i class="fab fa-instagram mr-1"></i>4:5 Instagram
                 </button>
                 <button type="button" class="btn btn-sm btn-outline-secondary crop-ratio-btn" data-ratio="1/1" data-w="800" data-h="800">
                     <i class="far fa-square mr-1"></i>1:1 Quadrado
