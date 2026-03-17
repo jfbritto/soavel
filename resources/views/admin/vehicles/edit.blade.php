@@ -18,11 +18,20 @@
 
         @include('admin.vehicles._form', ['vehicle' => $vehicle, 'featuresByCategory' => $featuresByCategory, 'currentFeatures' => $currentFeatures])
 
-        <div class="d-flex justify-content-end mt-3 pb-4" style="gap:8px">
-            <a href="{{ route('admin.vehicles.show', $vehicle) }}" class="btn btn-default">Cancelar</a>
-            <button type="submit" class="btn btn-primary">
-                <i class="fas fa-save mr-1"></i>Atualizar Veículo
-            </button>
+        <div class="d-flex justify-content-between mt-3 pb-4">
+            <form action="{{ route('admin.vehicles.destroy', $vehicle) }}" method="POST"
+                  data-confirm="Tem certeza que deseja EXCLUIR este veículo? Esta ação não pode ser desfeita.">
+                @csrf @method('DELETE')
+                <button type="submit" class="btn btn-outline-danger">
+                    <i class="fas fa-trash-alt mr-1"></i>Excluir Veículo
+                </button>
+            </form>
+            <div class="d-flex" style="gap:8px">
+                <a href="{{ route('admin.vehicles.show', $vehicle) }}" class="btn btn-default">Cancelar</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save mr-1"></i>Atualizar Veículo
+                </button>
+            </div>
         </div>
     </form>
 </div>
