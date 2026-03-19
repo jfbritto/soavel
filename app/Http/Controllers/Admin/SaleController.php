@@ -118,6 +118,19 @@ class SaleController extends Controller
         return view('admin.sales.show', compact('sale'));
     }
 
+    public function destroy(Sale $sale)
+    {
+        $vehicle = $sale->vehicle;
+        $sale->delete();
+
+        if ($vehicle) {
+            $vehicle->update(['status' => 'disponivel']);
+        }
+
+        return redirect()->route('admin.sales.index')
+            ->with('success', 'Venda excluída com sucesso.');
+    }
+
     public function updateStatus(Request $request, Sale $sale)
     {
         $request->validate(['status' => 'required|in:pendente,concluida,cancelada']);

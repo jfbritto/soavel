@@ -8,9 +8,18 @@
             <h1 class="mb-0">Venda #{{ $sale->id }}</h1>
             <span class="badge badge-{{ $sale->status_color }} px-2 py-1" style="font-size:.8rem">{{ $sale->status_label }}</span>
         </div>
-        <a href="{{ route('admin.sales.index') }}" class="btn btn-sm btn-outline-secondary">
-            <i class="fas fa-arrow-left mr-1"></i>Voltar
-        </a>
+        <div class="d-flex align-items-center" style="gap:6px">
+            <form action="{{ route('admin.sales.destroy', $sale) }}" method="POST"
+                  data-confirm="Tem certeza que deseja EXCLUIR esta venda? O veículo voltará para disponível.">
+                @csrf @method('DELETE')
+                <button type="submit" class="btn btn-sm btn-outline-danger" title="Excluir venda">
+                    <i class="fas fa-trash-alt mr-1"></i>Excluir
+                </button>
+            </form>
+            <a href="{{ route('admin.sales.index') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left mr-1"></i>Voltar
+            </a>
+        </div>
     </div>
 @endsection
 

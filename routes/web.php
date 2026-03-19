@@ -87,6 +87,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         Route::post('sales', [Admin\SaleController::class, 'store'])->name('sales.store');
         Route::get('sales/{sale}', [Admin\SaleController::class, 'show'])->name('sales.show');
         Route::patch('sales/{sale}/status', [Admin\SaleController::class, 'updateStatus'])->name('sales.status');
+        Route::delete('sales/{sale}', [Admin\SaleController::class, 'destroy'])->name('sales.destroy');
 
         // Clientes (rotas específicas ANTES do resource para evitar conflito com {customer})
         Route::get('customers/cpf-check', [Admin\CustomerController::class, 'cpfCheck'])->name('customers.cpf-check');
