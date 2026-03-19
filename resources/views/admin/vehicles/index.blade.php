@@ -73,7 +73,7 @@
                         onclick="window.location='{{ route('admin.vehicles.show', $vehicle) }}'">
                         <td class="pl-3 align-middle" style="padding-top:10px;padding-bottom:10px">
                             @if($vehicle->principalPhoto)
-                                <img src="{{ $vehicle->principalPhoto->url }}" width="64" height="48"
+                                <img src="{{ $vehicle->principalPhoto->thumb_url }}" width="64" height="48"
                                      style="object-fit:cover;border-radius:5px;display:block;border:1px solid #e9ecef">
                             @else
                                 <div style="width:64px;height:48px;background:#f0f0f0;border-radius:5px;display:flex;align-items:center;justify-content:center;border:1px solid #e9ecef">

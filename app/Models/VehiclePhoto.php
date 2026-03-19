@@ -13,7 +13,7 @@ class VehiclePhoto extends Model
         'ordem'     => 'integer',
     ];
 
-    protected $appends = ['url'];
+    protected $appends = ['url', 'thumb_url'];
 
     public function vehicle()
     {
@@ -23,5 +23,16 @@ class VehiclePhoto extends Model
     public function getUrlAttribute(): string
     {
         return asset('storage/' . $this->path);
+    }
+
+    public function getThumbUrlAttribute(): string
+    {
+        $thumbPath = str_replace(basename($this->path), 'thumbs/' . basename($this->path), $this->path);
+
+        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($thumbPath)) {
+            return asset('storage/' . $thumbPath);
+        }
+
+        return $this->url;
     }
 }

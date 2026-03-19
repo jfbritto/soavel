@@ -5,7 +5,7 @@
                 @php $photos = $vehicle->photos; @endphp
                 <div class="card-slider" data-current="0">
                     @foreach($photos as $i => $photo)
-                        <img src="{{ $photo->url }}"
+                        <img src="{{ $photo->thumb_url }}"
                              alt="{{ $vehicle->titulo }} - Foto {{ $i + 1 }}"
                              class="card-slide{{ $i === 0 ? ' active' : '' }}"
                              {{ $i > 0 ? 'loading=lazy' : '' }}>

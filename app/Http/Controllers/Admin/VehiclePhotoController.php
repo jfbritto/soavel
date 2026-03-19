@@ -26,15 +26,25 @@ class VehiclePhotoController extends Controller
             $filename    = Str::uuid() . '.jpg';
             $storagePath = "vehicles/{$vehicle->id}/{$filename}";
 
-            // Photos arrive pre-cropped from Cropper.js — just optimize quality
             try {
                 $img = \Intervention\Image\Facades\Image::make($file);
-                $img->resize(1400, 1400, function ($constraint) {
+
+                // Full quality photo (1920px longest side, 92% quality)
+                $img->resize(1920, 1920, function ($constraint) {
                     $constraint->aspectRatio();
                     $constraint->upsize();
                 });
-                Storage::disk('public')->put($storagePath, $img->encode('jpg', 90));
-            } catch (\Throwable $e) {
+                Storage::disk('public')->put($storagePath, $img->encode('jpg', 92));
+
+                // Thumbnail for cards/listings (480px longest side, 80% quality)
+                $thumbPath = "vehicles/{$vehicle->id}/thumbs/{$filename}";
+                $thumb = \Intervention\Image\Facades\Image::make($file);
+                $thumb->resize(480, 480, function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+                });
+                Storage::disk('public')->put($thumbPath, $thumb->encode('jpg', 80));
+            } catch (\Throwable) {
                 $file->storeAs("vehicles/{$vehicle->id}", $filename, 'public');
             }
 
@@ -64,6 +74,8 @@ class VehiclePhotoController extends Controller
     public function destroy(Vehicle $vehicle, VehiclePhoto $photo)
     {
         Storage::disk('public')->delete($photo->path);
+        $thumbPath = str_replace(basename($photo->path), 'thumbs/' . basename($photo->path), $photo->path);
+        Storage::disk('public')->delete($thumbPath);
         $wasPrincipal = $photo->principal;
         $photo->delete();
 
