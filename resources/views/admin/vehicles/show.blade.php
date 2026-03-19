@@ -642,16 +642,16 @@
             </div>
             <div class="px-3 pt-2 pb-1 d-flex align-items-center" style="gap:8px;background:#f8f9fa;border-bottom:1px solid #dee2e6">
                 <small class="text-muted font-weight-600 mr-2">Proporção:</small>
-                <button type="button" class="btn btn-sm btn-primary crop-ratio-btn active" data-ratio="4/3" data-w="800" data-h="600">
+                <button type="button" class="btn btn-sm btn-primary crop-ratio-btn active" data-ratio="4/3" data-w="1400" data-h="1050">
                     <i class="fas fa-image mr-1"></i>4:3 Paisagem
                 </button>
-                <button type="button" class="btn btn-sm btn-outline-secondary crop-ratio-btn" data-ratio="3/4" data-w="600" data-h="800">
+                <button type="button" class="btn btn-sm btn-outline-secondary crop-ratio-btn" data-ratio="3/4" data-w="1050" data-h="1400">
                     <i class="fas fa-mobile-alt mr-1"></i>3:4 Retrato
                 </button>
-                <button type="button" class="btn btn-sm btn-outline-secondary crop-ratio-btn" data-ratio="4/5" data-w="640" data-h="800">
+                <button type="button" class="btn btn-sm btn-outline-secondary crop-ratio-btn" data-ratio="4/5" data-w="1120" data-h="1400">
                     <i class="fab fa-instagram mr-1"></i>4:5 Instagram
                 </button>
-                <button type="button" class="btn btn-sm btn-outline-secondary crop-ratio-btn" data-ratio="1/1" data-w="800" data-h="800">
+                <button type="button" class="btn btn-sm btn-outline-secondary crop-ratio-btn" data-ratio="1/1" data-w="1400" data-h="1400">
                     <i class="far fa-square mr-1"></i>1:1 Quadrado
                 </button>
             </div>
@@ -709,8 +709,8 @@
     });
 
     var currentRatio = 4 / 3;
-    var currentW = 800;
-    var currentH = 600;
+    var currentW = 1400;
+    var currentH = 1050;
 
     var CROP_OPTS = {
         aspectRatio: currentRatio,

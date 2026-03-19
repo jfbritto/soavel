@@ -29,12 +29,11 @@ class VehiclePhotoController extends Controller
             // Photos arrive pre-cropped from Cropper.js — just optimize quality
             try {
                 $img = \Intervention\Image\Facades\Image::make($file);
-                // Limit max dimension to 800px on longest side, keep aspect ratio
-                $img->resize(800, 800, function ($constraint) {
+                $img->resize(1400, 1400, function ($constraint) {
                     $constraint->aspectRatio();
                     $constraint->upsize();
                 });
-                Storage::disk('public')->put($storagePath, $img->encode('jpg', 85));
+                Storage::disk('public')->put($storagePath, $img->encode('jpg', 90));
             } catch (\Throwable $e) {
                 $file->storeAs("vehicles/{$vehicle->id}", $filename, 'public');
             }
