@@ -304,12 +304,13 @@
     </div>
 
     <!-- Veículos similares -->
+    @php $mainVehicle = $vehicle; @endphp
     @if($similares->isNotEmpty())
     <div class="mt-5">
         <h4 class="font-weight-800 mb-4" style="color:var(--azul)">Veículos Similares</h4>
         <div class="row">
-            @foreach($similares as $vehicle)
-                @include('site.partials._vehicle_card', ['vehicle' => $vehicle])
+            @foreach($similares as $similarVehicle)
+                @include('site.partials._vehicle_card', ['vehicle' => $similarVehicle])
             @endforeach
         </div>
     </div>
@@ -318,10 +319,10 @@
 </div>
 
 {{-- Sticky CTA bar — mobile only --}}
-@if($vehicle->status === 'disponivel')
+@if($mainVehicle->status === 'disponivel')
 <div class="mobile-cta-bar d-lg-none">
-    <div class="mobile-cta-bar__price">{{ $vehicle->preco_formatado }}</div>
-    <a href="https://wa.me/{{ \App\Models\Setting::get('whatsapp_number', '') }}?text={{ urlencode('Olá! Tenho interesse no ' . $vehicle->titulo . ' ' . $vehicle->ano_modelo . ' por ' . $vehicle->preco_formatado . '. Vi no site. Podemos conversar?') }}"
+    <div class="mobile-cta-bar__price" id="mobileCTAPrice">{{ $mainVehicle->preco_formatado }}</div>
+    <a href="https://wa.me/{{ \App\Models\Setting::get('whatsapp_number', '') }}?text={{ urlencode('Olá! Tenho interesse no ' . $mainVehicle->titulo . ' ' . $mainVehicle->ano_modelo . ' por ' . $mainVehicle->preco_formatado . '. Vi no site. Podemos conversar?') }}"
        target="_blank" rel="noopener" class="mobile-cta-bar__btn">
         <i class="fab fa-whatsapp"></i> Tenho interesse!
     </a>
