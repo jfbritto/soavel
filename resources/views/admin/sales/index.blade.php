@@ -65,7 +65,7 @@
                     <tr>
                         <td class="align-middle pl-3" style="width:50px">
                             @if($v->principalPhoto)
-                                <img src="{{ asset('storage/' . $v->principalPhoto->thumbnail_path) }}" alt="" style="width:40px;height:30px;object-fit:cover;border-radius:4px">
+                                <img src="{{ $v->principalPhoto->thumb_url }}" alt="" style="width:40px;height:30px;object-fit:cover;border-radius:4px">
                             @else
                                 <div style="width:40px;height:30px;background:#eee;border-radius:4px"></div>
                             @endif
