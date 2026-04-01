@@ -711,7 +711,7 @@ function fipeInicializar() {
     marcaInput.placeholder = 'Carregando marcas...';
     marcaInput.disabled = true;
 
-    fetch('https://parallelum.com.br/fipe/api/v1/carros/marcas')
+    fetch('{{ route("admin.fipe.marcas") }}')
         .then(function(r) { return r.json(); })
         .then(function(marcas) {
             var dl = document.getElementById('fipe_marcas_list');
@@ -745,7 +745,7 @@ function fipeCarregarModelos(codigoMarca, selecionarModelo) {
     modeloInput.placeholder = 'Carregando modelos...';
     document.getElementById('fipe_modelos_list').innerHTML = '';
 
-    fetch('https://parallelum.com.br/fipe/api/v1/carros/marcas/' + codigoMarca + '/modelos')
+    fetch('/admin/fipe/modelos/' + codigoMarca)
         .then(function(r) { return r.json(); })
         .then(function(data) {
             var dl = document.getElementById('fipe_modelos_list');
@@ -800,7 +800,7 @@ document.getElementById('troca_modelo').addEventListener('input', function() {
         anoSel.innerHTML = '<option value="">Carregando anos...</option>';
         document.getElementById('fipeAnoRow').style.display = 'block';
 
-        fetch('https://parallelum.com.br/fipe/api/v1/carros/marcas/' + fipeMarcaCodigoAtual + '/modelos/' + code + '/anos')
+        fetch('/admin/fipe/anos/' + fipeMarcaCodigoAtual + '/' + code)
             .then(function(r) { return r.json(); })
             .then(function(anos) {
                 anoSel.innerHTML = '<option value="">— Selecionar ano —</option>';
@@ -838,7 +838,7 @@ document.getElementById('fipe_ano_select').addEventListener('change', function()
 
     infoEl.innerHTML = '<span class="text-muted small"><i class="fas fa-spinner fa-spin mr-1"></i>Consultando tabela FIPE...</span>';
 
-    fetch('https://parallelum.com.br/fipe/api/v1/carros/marcas/' + fipeMarcaCodigoAtual + '/modelos/' + fipeModeloCodigoAtual + '/anos/' + codigoAno)
+    fetch('/admin/fipe/preco/' + fipeMarcaCodigoAtual + '/' + fipeModeloCodigoAtual + '/' + codigoAno)
         .then(function(r) { return r.json(); })
         .then(function(data) {
             var precoStr  = data.Valor || '';
