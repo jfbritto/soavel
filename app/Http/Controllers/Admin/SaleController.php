@@ -34,12 +34,19 @@ class SaleController extends Controller
             ->where('status', 'concluida')
             ->sum('preco_venda');
 
-        return view('admin.sales.index', compact('sales', 'totalMes'));
+        // Veículos marcados como "vendido" sem registro de venda
+        $vendidosSemVenda = Vehicle::where('status', 'vendido')
+            ->whereDoesntHave('sales')
+            ->with('principalPhoto')
+            ->get();
+
+        return view('admin.sales.index', compact('sales', 'totalMes', 'vendidosSemVenda'));
     }
 
     public function create(Request $request)
     {
-        $vehicles  = Vehicle::where('status', 'disponivel')
+        $vehicles  = Vehicle::whereIn('status', ['disponivel', 'reservado', 'vendido'])
+            ->whereDoesntHave('sales', fn ($q) => $q->where('status', '!=', 'cancelada'))
             ->orderBy('marca')
             ->get(['id', 'marca', 'modelo', 'versao', 'ano_modelo', 'preco']);
 

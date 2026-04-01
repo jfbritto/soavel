@@ -49,6 +49,48 @@
         </div>
     </div>
 
+    {{-- Veículos vendidos sem registro de venda --}}
+    @if($vendidosSemVenda->isNotEmpty())
+    <div class="card shadow-sm mb-3 border-warning">
+        <div class="card-header bg-warning py-2 d-flex justify-content-between align-items-center">
+            <span class="font-weight-bold" style="font-size:.85rem">
+                <i class="fas fa-exclamation-triangle mr-1"></i>
+                {{ $vendidosSemVenda->count() }} {{ $vendidosSemVenda->count() === 1 ? 'veículo marcado como vendido sem venda registrada' : 'veículos marcados como vendidos sem venda registrada' }}
+            </span>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-sm mb-0">
+                <tbody>
+                    @foreach($vendidosSemVenda as $v)
+                    <tr>
+                        <td class="align-middle pl-3" style="width:50px">
+                            @if($v->principalPhoto)
+                                <img src="{{ asset('storage/' . $v->principalPhoto->thumbnail_path) }}" alt="" style="width:40px;height:30px;object-fit:cover;border-radius:4px">
+                            @else
+                                <div style="width:40px;height:30px;background:#eee;border-radius:4px"></div>
+                            @endif
+                        </td>
+                        <td class="align-middle" style="font-size:.88rem">
+                            <strong>{{ $v->titulo }}</strong>
+                            <span class="text-muted ml-1">{{ $v->ano_fabricacao }}/{{ $v->ano_modelo }}</span>
+                        </td>
+                        <td class="align-middle font-weight-600" style="font-size:.9rem;white-space:nowrap">
+                            {{ $v->preco_formatado }}
+                        </td>
+                        <td class="align-middle text-right pr-3">
+                            <a href="{{ route('admin.sales.create', ['vehicle_id' => $v->id]) }}"
+                               class="btn btn-sm btn-primary" style="font-size:.75rem;padding:2px 10px">
+                                <i class="fas fa-plus mr-1"></i>Registrar Venda
+                            </a>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @endif
+
     {{-- Tabela --}}
     <div class="card shadow-sm">
         <div class="card-body p-0">
