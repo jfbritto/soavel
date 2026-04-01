@@ -207,10 +207,7 @@
                                 <input type="text" name="troca_marca" id="troca_marca"
                                     class="form-control @error('troca_marca') is-invalid @enderror"
                                     value="{{ old('troca_marca') }}"
-                                    placeholder="Digite para buscar..."
-                                    list="fipe_marcas_list"
-                                    autocomplete="off">
-                                <datalist id="fipe_marcas_list"></datalist>
+                                    placeholder="Ex: Chevrolet">
                                 @error('troca_marca')<span class="invalid-feedback">{{ $message }}</span>@enderror
                             </div>
                         </div>
@@ -220,10 +217,7 @@
                                 <input type="text" name="troca_modelo" id="troca_modelo"
                                     class="form-control @error('troca_modelo') is-invalid @enderror"
                                     value="{{ old('troca_modelo') }}"
-                                    placeholder="— Selecione a marca primeiro —"
-                                    list="fipe_modelos_list"
-                                    autocomplete="off" disabled>
-                                <datalist id="fipe_modelos_list"></datalist>
+                                    placeholder="Ex: Onix LT 1.0">
                                 @error('troca_modelo')<span class="invalid-feedback">{{ $message }}</span>@enderror
                             </div>
                         </div>
@@ -242,24 +236,6 @@
                                 <input type="text" name="troca_versao" id="troca_versao"
                                     class="form-control"
                                     value="{{ old('troca_versao') }}" placeholder="Opcional">
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- FIPE: Ano + preço de referência (aparece ao selecionar modelo) --}}
-                    <div id="fipeAnoRow" class="rounded mb-3 p-3" style="display:none; background:#f0f4ff; border:1px solid #c8d8f8">
-                        <div class="row align-items-end">
-                            <div class="col-md-3">
-                                <div class="form-group mb-0">
-                                    <label for="fipe_ano_select" class="text-primary font-weight-bold small"><i class="fas fa-search-dollar mr-1"></i>Tabela FIPE — Selecionar ano</label>
-                                    <select id="fipe_ano_select" class="form-control">
-                                        <option value="">— Selecionar ano —</option>
-                                    </select>
-                                    <small class="text-muted">Preenche o ano e sugere o valor</small>
-                                </div>
-                            </div>
-                            <div class="col-md-9">
-                                <div id="fipePrecoInfo"></div>
                             </div>
                         </div>
                     </div>
@@ -526,7 +502,7 @@ function togglePaymentFields() {
 
     var mostrarTroca = tipo === 'permuta' || tipo === 'misto';
     document.getElementById('cardTroca').style.display = mostrarTroca ? 'block' : 'none';
-    if (mostrarTroca) fipeInicializar();
+    // campos de troca são livres (sem integração FIPE)
 
     const labels = {
         'permuta':    'Valor do Negócio *',
@@ -694,181 +670,6 @@ document.getElementById('btnIgnorarClienteExistente').addEventListener('click', 
     clienteExistenteData = null;
 });
 
-// ── Integração FIPE ────────────────────────────────────────────────────────────
-var fipeMarcaCodigoAtual  = null;
-var fipeModeloCodigoAtual = null;
-var fipeMarcasCarregadas  = false;
-var fipeMarcasMap  = {};   // nome → codigo
-var fipeModelosMap = {};   // nome → codigo
-var fipeOldMarca  = '{{ addslashes(old("troca_marca", "")) }}';
-var fipeOldModelo = '{{ addslashes(old("troca_modelo", "")) }}';
-
-function fipeInicializar() {
-    if (fipeMarcasCarregadas) return;
-    fipeMarcasCarregadas = true;
-
-    var marcaInput = document.getElementById('troca_marca');
-    marcaInput.placeholder = 'Carregando marcas...';
-    marcaInput.disabled = true;
-
-    fetch('{{ route("admin.fipe.marcas") }}')
-        .then(function(r) { return r.json(); })
-        .then(function(marcas) {
-            var dl = document.getElementById('fipe_marcas_list');
-            dl.innerHTML = '';
-            marcas.forEach(function(m) {
-                fipeMarcasMap[m.nome] = m.codigo;
-                var opt = document.createElement('option');
-                opt.value = m.nome;
-                dl.appendChild(opt);
-            });
-            marcaInput.placeholder = 'Digite para buscar...';
-            marcaInput.disabled = false;
-            // Restaurar valor antigo após erro de validação
-            if (fipeOldMarca && fipeMarcasMap[fipeOldMarca]) {
-                fipeMarcaCodigoAtual = fipeMarcasMap[fipeOldMarca];
-                fipeCarregarModelos(fipeMarcaCodigoAtual, fipeOldModelo || null);
-            }
-        })
-        .catch(function() {
-            fipeMarcasCarregadas = false;
-            marcaInput.placeholder = 'Erro ao carregar — recarregue';
-            marcaInput.disabled = false;
-        });
-}
-
-function fipeCarregarModelos(codigoMarca, selecionarModelo) {
-    fipeModelosMap = {};
-    fipeModeloCodigoAtual = null;
-    var modeloInput = document.getElementById('troca_modelo');
-    modeloInput.disabled = true;
-    modeloInput.placeholder = 'Carregando modelos...';
-    document.getElementById('fipe_modelos_list').innerHTML = '';
-
-    fetch('/admin/fipe/modelos/' + codigoMarca)
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-            var dl = document.getElementById('fipe_modelos_list');
-            data.modelos.forEach(function(m) {
-                fipeModelosMap[m.nome] = m.codigo;
-                var opt = document.createElement('option');
-                opt.value = m.nome;
-                dl.appendChild(opt);
-            });
-            modeloInput.disabled = false;
-            modeloInput.placeholder = 'Digite para buscar...';
-            if (selecionarModelo) {
-                modeloInput.value = selecionarModelo;
-                fipeModeloCodigoAtual = fipeModelosMap[selecionarModelo] || null;
-            }
-        })
-        .catch(function() {
-            modeloInput.placeholder = 'Erro ao carregar modelos';
-            modeloInput.disabled = false;
-        });
-}
-
-document.getElementById('troca_marca').addEventListener('input', function() {
-    var val = this.value.trim();
-    var code = fipeMarcasMap[val] || null;
-    document.getElementById('fipeAnoRow').style.display = 'none';
-    document.getElementById('fipePrecoInfo').innerHTML = '';
-
-    if (code && code !== fipeMarcaCodigoAtual) {
-        fipeMarcaCodigoAtual = code;
-        document.getElementById('troca_modelo').value = '';
-        fipeCarregarModelos(code, null);
-    } else if (!code) {
-        fipeMarcaCodigoAtual = null;
-        fipeModeloCodigoAtual = null;
-        fipeModelosMap = {};
-        document.getElementById('fipe_modelos_list').innerHTML = '';
-        document.getElementById('troca_modelo').value = '';
-        document.getElementById('troca_modelo').disabled = true;
-        document.getElementById('troca_modelo').placeholder = '— Selecione a marca primeiro —';
-    }
-});
-
-document.getElementById('troca_modelo').addEventListener('input', function() {
-    var val = this.value.trim();
-    var code = fipeModelosMap[val] || null;
-    document.getElementById('fipePrecoInfo').innerHTML = '';
-
-    if (code && fipeMarcaCodigoAtual) {
-        fipeModeloCodigoAtual = code;
-        var anoSel = document.getElementById('fipe_ano_select');
-        anoSel.innerHTML = '<option value="">Carregando anos...</option>';
-        document.getElementById('fipeAnoRow').style.display = 'block';
-
-        fetch('/admin/fipe/anos/' + fipeMarcaCodigoAtual + '/' + code)
-            .then(function(r) { return r.json(); })
-            .then(function(anos) {
-                anoSel.innerHTML = '<option value="">— Selecionar ano —</option>';
-                anos.forEach(function(a) {
-                    var opt = document.createElement('option');
-                    opt.value = a.codigo;
-                    opt.textContent = a.nome;
-                    anoSel.appendChild(opt);
-                });
-            })
-            .catch(function() {
-                anoSel.innerHTML = '<option value="">Erro ao carregar anos</option>';
-            });
-    } else {
-        fipeModeloCodigoAtual = null;
-        document.getElementById('fipeAnoRow').style.display = 'none';
-    }
-});
-
-document.getElementById('fipe_ano_select').addEventListener('change', function() {
-    var codigoAno = this.value;
-    var infoEl = document.getElementById('fipePrecoInfo');
-
-    if (!codigoAno || !fipeModeloCodigoAtual || !fipeMarcaCodigoAtual) {
-        infoEl.innerHTML = '';
-        return;
-    }
-
-    // Auto-preenche Ano Fabricação/Modelo a partir do código FIPE "YYYY-N"
-    var anoFab = codigoAno.split('-')[0];
-    if (/^\d{4}$/.test(anoFab)) {
-        document.getElementById('troca_ano_fabricacao').value = anoFab;
-        document.getElementById('troca_ano_modelo').value = anoFab;
-    }
-
-    infoEl.innerHTML = '<span class="text-muted small"><i class="fas fa-spinner fa-spin mr-1"></i>Consultando tabela FIPE...</span>';
-
-    fetch('/admin/fipe/preco/' + fipeMarcaCodigoAtual + '/' + fipeModeloCodigoAtual + '/' + codigoAno)
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-            var precoStr  = data.Valor || '';
-            var precoNum  = precoStr.replace('R$', '').trim().replace(/\./g, '').replace(',', '.');
-            var precoFloat = parseFloat(precoNum);
-            infoEl.innerHTML =
-                '<div class="d-flex align-items-center flex-wrap" style="gap:10px">' +
-                    '<span class="badge badge-info px-2 py-1" style="font-size:0.9rem">' +
-                        '<i class="fas fa-chart-line mr-1"></i>Tabela FIPE: <strong>' + precoStr + '</strong>' +
-                    '</span>' +
-                    (precoFloat > 0
-                        ? '<button type="button" class="btn btn-sm btn-outline-warning" id="btnUsarFipe" data-valor="' + precoFloat.toFixed(2) + '">' +
-                              '<i class="fas fa-tag mr-1"></i>Usar como valor de troca' +
-                          '</button>'
-                        : '') +
-                '</div>';
-            var btnFipe = document.getElementById('btnUsarFipe');
-            if (btnFipe) {
-                btnFipe.addEventListener('click', function() {
-                    var val = parseFloat(this.dataset.valor);
-                    document.getElementById('valorTrocaDisplay').value = val.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
-                    document.getElementById('valorTroca').value = val.toFixed(2);
-                    document.getElementById('valorTrocaDisplay').focus();
-                });
-            }
-        })
-        .catch(function() {
-            infoEl.innerHTML = '<span class="text-danger small"><i class="fas fa-exclamation-triangle mr-1"></i>Erro ao consultar tabela FIPE.</span>';
-        });
-});
 
 // Limpar erros ao abrir o modal
 $('#modalNovoCliente').on('show.bs.modal', function() {
