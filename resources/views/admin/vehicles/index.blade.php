@@ -17,7 +17,7 @@
     {{-- Filtros --}}
     <div class="card shadow-sm mb-3">
         <div class="card-body py-2">
-            <form method="GET" class="form-inline flex-wrap" style="gap:8px">
+            <form method="GET" id="filterForm" class="form-inline flex-wrap" style="gap:8px">
                 <div class="input-group input-group-sm">
                     <input type="text" name="search" class="form-control"
                         placeholder="Buscar marca, modelo, placa..."
@@ -29,25 +29,24 @@
                     </div>
                 </div>
                 @php $currentStatus = request('status', 'disponivel'); @endphp
-                <select name="status" class="form-control form-control-sm">
+                <select name="status" class="form-control form-control-sm" onchange="this.form.submit()">
                     <option value="todos"      {{ $currentStatus === 'todos'      ? 'selected' : '' }}>Todos os status</option>
                     <option value="disponivel" {{ $currentStatus === 'disponivel' ? 'selected' : '' }}>Disponível</option>
                     <option value="reservado"  {{ $currentStatus === 'reservado'  ? 'selected' : '' }}>Reservado</option>
                     <option value="vendido"    {{ $currentStatus === 'vendido'    ? 'selected' : '' }}>Vendido</option>
                 </select>
-                <select name="marca" class="form-control form-control-sm">
+                <select name="marca" class="form-control form-control-sm" onchange="this.form.submit()">
                     <option value="">Todas as marcas</option>
                     @foreach($marcas as $m)
                         <option value="{{ $m }}" {{ (request('marca') === $m) ? 'selected' : '' }}>{{ $m }}</option>
                     @endforeach
                 </select>
-                <select name="categoria" class="form-control form-control-sm">
+                <select name="categoria" class="form-control form-control-sm" onchange="this.form.submit()">
                     <option value="">Todas as categorias</option>
                     @foreach(['hatch','sedan','suv','pickup','van','esportivo','outro'] as $cat)
                         <option value="{{ $cat }}" {{ (request('categoria') === $cat) ? 'selected' : '' }}>{{ ucfirst($cat) }}</option>
                     @endforeach
                 </select>
-                <button type="submit" class="btn btn-sm btn-outline-secondary">Filtrar</button>
                 <a href="{{ route('admin.vehicles.index') }}" class="btn btn-sm btn-link text-muted">Limpar</a>
             </form>
         </div>
