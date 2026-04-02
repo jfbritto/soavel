@@ -204,7 +204,14 @@
                                 </button>
                             </div>
                         </div>
-                        <small class="text-muted">JPG, PNG, WebP · máx. 5 MB · escolha a proporção no recorte (4:3, 4:5 ou 1:1)</small>
+                        <small class="text-muted mt-1 d-block">JPG, PNG, WebP · máx. 5 MB · escolha a proporção no recorte (4:3, 4:5 ou 1:1)</small>
+                    </form>
+                    <form action="{{ route('admin.vehicles.photos.emPreparacao', $vehicle) }}" method="POST" class="mt-2"
+                          data-confirm="Isso vai substituir todas as fotos atuais pela imagem 'Em Preparação'. Deseja continuar?">
+                        @csrf
+                        <button type="submit" class="btn btn-sm btn-outline-dark" style="font-size:.78rem">
+                            <i class="fas fa-car-side mr-1"></i>Usar foto "Em Preparação"
+                        </button>
                     </form>
 
                     @if($vehicle->photos->isNotEmpty())

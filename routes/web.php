@@ -71,6 +71,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
             Route::delete('/{photo}', [Admin\VehiclePhotoController::class, 'destroy'])->name('destroy');
             Route::patch('/{photo}/principal', [Admin\VehiclePhotoController::class, 'setPrincipal'])->name('principal');
             Route::post('/reorder', [Admin\VehiclePhotoController::class, 'reorder'])->name('reorder');
+            Route::post('/em-preparacao', [Admin\VehiclePhotoController::class, 'emPreparacao'])->name('emPreparacao');
         });
 
         // Documentos dos veículos

@@ -104,6 +104,51 @@ class VehiclePhotoController extends Controller
         return back()->with('success', 'Foto principal atualizada.');
     }
 
+    public function emPreparacao(Vehicle $vehicle)
+    {
+        $source = public_path('images/em-preparacao.jpg');
+
+        if (!file_exists($source)) {
+            return back()->with('error', 'Imagem "Em Preparação" não encontrada no sistema.');
+        }
+
+        // Remove todas as fotos atuais do veículo
+        foreach ($vehicle->photos as $photo) {
+            Storage::disk('public')->delete($photo->path);
+            $thumbPath = str_replace(basename($photo->path), 'thumbs/' . basename($photo->path), $photo->path);
+            Storage::disk('public')->delete($thumbPath);
+            $photo->delete();
+        }
+
+        $filename    = Str::uuid() . '.jpg';
+        $storagePath = "vehicles/{$vehicle->id}/{$filename}";
+        $thumbPath   = "vehicles/{$vehicle->id}/thumbs/{$filename}";
+
+        // Copia a imagem como foto principal
+        Storage::disk('public')->put($storagePath, file_get_contents($source));
+
+        // Gera thumbnail
+        try {
+            $thumb = \Intervention\Image\Facades\Image::make($source);
+            $thumb->resize(480, 480, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            });
+            Storage::disk('public')->put($thumbPath, $thumb->encode('jpg', 80));
+        } catch (\Throwable) {
+            Storage::disk('public')->put($thumbPath, file_get_contents($source));
+        }
+
+        VehiclePhoto::create([
+            'vehicle_id' => $vehicle->id,
+            'path'       => $storagePath,
+            'ordem'      => 0,
+            'principal'  => true,
+        ]);
+
+        return back()->with('success', 'Foto "Em Preparação" definida com sucesso!');
+    }
+
     public function reorder(Request $request, Vehicle $vehicle)
     {
         $request->validate(['order' => 'required|array']);
