@@ -17,8 +17,9 @@ class VehicleController extends Controller
         $query = Vehicle::withCount(['photos', 'sales', 'partners'])
             ->with('principalPhoto');
 
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
+        $status = $request->input('status', 'disponivel');
+        if ($status !== 'todos') {
+            $query->where('status', $status);
         }
 
         if ($request->filled('marca')) {

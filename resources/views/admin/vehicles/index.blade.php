@@ -28,11 +28,12 @@
                         </button>
                     </div>
                 </div>
+                @php $currentStatus = request('status', 'disponivel'); @endphp
                 <select name="status" class="form-control form-control-sm">
-                    <option value="">Todos os status</option>
-                    <option value="disponivel" {{ (request('status') === 'disponivel') ? 'selected' : '' }}>Disponível</option>
-                    <option value="reservado"  {{ (request('status') === 'reservado')  ? 'selected' : '' }}>Reservado</option>
-                    <option value="vendido"    {{ (request('status') === 'vendido')    ? 'selected' : '' }}>Vendido</option>
+                    <option value="todos"      {{ $currentStatus === 'todos'      ? 'selected' : '' }}>Todos os status</option>
+                    <option value="disponivel" {{ $currentStatus === 'disponivel' ? 'selected' : '' }}>Disponível</option>
+                    <option value="reservado"  {{ $currentStatus === 'reservado'  ? 'selected' : '' }}>Reservado</option>
+                    <option value="vendido"    {{ $currentStatus === 'vendido'    ? 'selected' : '' }}>Vendido</option>
                 </select>
                 <select name="marca" class="form-control form-control-sm">
                     <option value="">Todas as marcas</option>
