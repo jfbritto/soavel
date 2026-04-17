@@ -100,7 +100,11 @@ class MasterController extends Controller
             return response()->json(['error' => 'asaas_payment_id é obrigatório'], 400);
         }
 
-        $data['environment'] = $data['environment'] ?? 'production';
+        if (empty($data['environment'])) {
+            $data['environment'] = (!empty($data['invoice_url']) && str_contains($data['invoice_url'], 'sandbox.asaas.com'))
+                ? 'sandbox'
+                : 'production';
+        }
 
         \App\Models\BillingHistory::updateOrCreate(
             ['asaas_payment_id' => $data['asaas_payment_id']],
