@@ -30,8 +30,19 @@ class BillingController extends Controller
                     && in_array(strtolower((string) $item->status), ['confirmed', 'received']);
             });
             if ($paidRecord) {
-                $billing['status'] = 'received';
-                $billing['billing_type'] = $paidRecord->billing_type ?: $billing['billing_type'];
+                $nextPending = $history->sortBy('due_date')->first(function ($item) {
+                    return in_array(strtolower((string) $item->status), ['pending', 'overdue', 'awaiting_payment']);
+                });
+                if ($nextPending) {
+                    $billing['status'] = strtolower($nextPending->status);
+                    $billing['due_date'] = $nextPending->due_date->toDateString();
+                    $billing['amount'] = $nextPending->amount;
+                    $billing['invoice_url'] = $nextPending->invoice_url;
+                    $billing['billing_type'] = $nextPending->billing_type;
+                } else {
+                    $billing['status'] = 'received';
+                    $billing['billing_type'] = $paidRecord->billing_type ?: $billing['billing_type'];
+                }
             }
         }
 

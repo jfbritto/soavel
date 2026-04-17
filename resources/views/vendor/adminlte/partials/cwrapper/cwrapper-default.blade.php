@@ -27,18 +27,28 @@
             $billingOverdue = false;
             $billingDaysLate = 0;
             if ($billingDueDate) {
-                $due = \Carbon\Carbon::parse($billingDueDate)->startOfDay();
-                $billingDaysLate = (int) $due->diffInDays(now()->startOfDay(), false);
-                $billingOverdue = $billingStatus === 'overdue' || $billingDaysLate > 0;
+                $currentDuePaid = \App\Models\BillingHistory::where('environment', 'production')
+                    ->whereDate('due_date', \Carbon\Carbon::parse($billingDueDate)->toDateString())
+                    ->whereIn('status', ['confirmed', 'received', 'RECEIVED', 'CONFIRMED'])
+                    ->exists();
 
-                if ($billingOverdue) {
-                    $alreadyPaid = \App\Models\BillingHistory::where('environment', 'production')
-                        ->whereDate('due_date', $due->toDateString())
-                        ->whereIn('status', ['confirmed', 'received', 'RECEIVED', 'CONFIRMED'])
-                        ->exists();
-                    if ($alreadyPaid) {
-                        $billingOverdue = false;
+                if ($currentDuePaid) {
+                    $nextPending = \App\Models\BillingHistory::where('environment', 'production')
+                        ->whereIn('status', ['pending', 'overdue', 'awaiting_payment', 'PENDING', 'OVERDUE', 'AWAITING_PAYMENT'])
+                        ->orderBy('due_date', 'asc')
+                        ->first();
+                    if ($nextPending) {
+                        $billingDueDate = $nextPending->due_date->toDateString();
+                        $billingStatus = strtolower($nextPending->status);
+                    } else {
+                        $billingDueDate = null;
                     }
+                }
+
+                if ($billingDueDate) {
+                    $due = \Carbon\Carbon::parse($billingDueDate)->startOfDay();
+                    $billingDaysLate = (int) $due->diffInDays(now()->startOfDay(), false);
+                    $billingOverdue = $billingStatus === 'overdue' || $billingDaysLate > 0;
                 }
             }
         ?>
