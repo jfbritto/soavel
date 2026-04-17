@@ -19,7 +19,21 @@ class BillingController extends Controller
             'subscription_status' => Setting::get('billing_subscription_status', 'inactive'),
         ];
 
-        $history = BillingHistory::orderBy('due_date', 'desc')->get();
+        $history = BillingHistory::where('environment', 'production')
+            ->orderBy('due_date', 'desc')
+            ->get();
+
+        if ($billing['due_date']) {
+            $dueDate = \Carbon\Carbon::parse($billing['due_date'])->toDateString();
+            $paidRecord = $history->first(function ($item) use ($dueDate) {
+                return $item->due_date->toDateString() === $dueDate
+                    && in_array(strtolower((string) $item->status), ['confirmed', 'received']);
+            });
+            if ($paidRecord) {
+                $billing['status'] = 'received';
+                $billing['billing_type'] = $paidRecord->billing_type ?: $billing['billing_type'];
+            }
+        }
 
         return view('admin.billing.index', compact('billing', 'history'));
     }

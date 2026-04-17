@@ -30,6 +30,16 @@
                 $due = \Carbon\Carbon::parse($billingDueDate)->startOfDay();
                 $billingDaysLate = (int) $due->diffInDays(now()->startOfDay(), false);
                 $billingOverdue = $billingStatus === 'overdue' || $billingDaysLate > 0;
+
+                if ($billingOverdue) {
+                    $alreadyPaid = \App\Models\BillingHistory::where('environment', 'production')
+                        ->whereDate('due_date', $due->toDateString())
+                        ->whereIn('status', ['confirmed', 'received', 'RECEIVED', 'CONFIRMED'])
+                        ->exists();
+                    if ($alreadyPaid) {
+                        $billingOverdue = false;
+                    }
+                }
             }
         ?>
     <?php endif; ?>

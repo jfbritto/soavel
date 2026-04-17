@@ -16,6 +16,7 @@ class BillingHistory extends Model
         'paid_at',
         'billing_type',
         'invoice_url',
+        'environment',
     ];
 
     protected $casts = [

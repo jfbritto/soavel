@@ -94,11 +94,13 @@ class MasterController extends Controller
 
     public function updateBillingHistory(Request $request)
     {
-        $data = $request->only(['asaas_payment_id', 'amount', 'status', 'due_date', 'paid_at', 'billing_type', 'invoice_url']);
+        $data = $request->only(['asaas_payment_id', 'amount', 'status', 'due_date', 'paid_at', 'billing_type', 'invoice_url', 'environment']);
 
         if (empty($data['asaas_payment_id'])) {
             return response()->json(['error' => 'asaas_payment_id é obrigatório'], 400);
         }
+
+        $data['environment'] = $data['environment'] ?? 'production';
 
         \App\Models\BillingHistory::updateOrCreate(
             ['asaas_payment_id' => $data['asaas_payment_id']],
