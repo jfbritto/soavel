@@ -84,15 +84,20 @@
                             $dueDate = \Carbon\Carbon::parse($billing['due_date']);
                             $today = now()->startOfDay();
                             $daysUntil = (int) $today->diffInDays($dueDate, false);
-                            $isPast = $daysUntil < 0;
+                            $isPaid = in_array($billing['status'], ['confirmed', 'received']);
+                            $isPast = $daysUntil < 0 && !$isPaid;
                         @endphp
 
                         <div class="text-center mb-3">
-                            <div style="font-size:2.2rem;font-weight:700;color:{{ $isPast ? '#e74c3c' : '#2c3e50' }}">
+                            <div style="font-size:2.2rem;font-weight:700;color:{{ $isPaid ? '#27ae60' : ($isPast ? '#e74c3c' : '#2c3e50') }}">
                                 {{ $dueDate->format('d/m/Y') }}
                             </div>
                             <div class="mt-1">
-                                @if($isPast)
+                                @if($isPaid)
+                                    <span class="badge badge-success px-3 py-1" style="font-size:.8rem">
+                                        <i class="fas fa-check-circle mr-1"></i>Paga
+                                    </span>
+                                @elseif($isPast)
                                     <span class="badge badge-danger px-3 py-1" style="font-size:.8rem">
                                         <i class="fas fa-exclamation-triangle mr-1"></i>Vencida há {{ abs($daysUntil) }} {{ abs($daysUntil) == 1 ? 'dia' : 'dias' }}
                                     </span>

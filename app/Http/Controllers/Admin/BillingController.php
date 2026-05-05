@@ -40,8 +40,15 @@ class BillingController extends Controller
                     $billing['invoice_url'] = $nextPending->invoice_url;
                     $billing['billing_type'] = $nextPending->billing_type;
                 } else {
-                    $billing['status'] = 'received';
-                    $billing['billing_type'] = $paidRecord->billing_type ?: $billing['billing_type'];
+                    $latestPaid = $history->sortByDesc('due_date')->first(function ($item) {
+                        return in_array(strtolower((string) $item->status), ['confirmed', 'received']);
+                    });
+                    $reference = $latestPaid ?: $paidRecord;
+                    $billing['status'] = strtolower($reference->status);
+                    $billing['due_date'] = $reference->due_date->toDateString();
+                    $billing['amount'] = $reference->amount;
+                    $billing['invoice_url'] = $reference->invoice_url;
+                    $billing['billing_type'] = $reference->billing_type ?: $billing['billing_type'];
                 }
             }
         }
