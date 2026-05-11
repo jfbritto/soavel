@@ -90,14 +90,26 @@
             if (confirm(msg)) { form.removeAttribute('data-confirm'); form.submit(); }
             return;
         }
+        const methodInput = form.querySelector('input[name="_method"]');
+        const httpMethod = (methodInput?.value || form.method || 'POST').toUpperCase();
+        const isDestructive = httpMethod === 'DELETE'
+            || form.hasAttribute('data-confirm-destructive');
+        const title = form.getAttribute('data-confirm-title')
+            || (isDestructive ? 'Tem certeza?' : 'Confirmar ação');
+        const confirmText = form.getAttribute('data-confirm-button')
+            || (isDestructive ? 'Sim, excluir' : 'Confirmar');
+        const confirmColor = form.getAttribute('data-confirm-color')
+            || (isDestructive ? '#d33' : '#3085d6');
+        const icon = form.getAttribute('data-confirm-icon')
+            || (isDestructive ? 'warning' : 'question');
         Swal.fire({
-            title: 'Tem certeza?',
+            title: title,
             text: msg,
-            icon: 'warning',
+            icon: icon,
             showCancelButton: true,
-            confirmButtonColor: '#d33',
+            confirmButtonColor: confirmColor,
             cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Sim, excluir',
+            confirmButtonText: confirmText,
             cancelButtonText: 'Cancelar',
             reverseButtons: true
         }).then(result => {
