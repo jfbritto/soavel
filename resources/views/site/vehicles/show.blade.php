@@ -383,17 +383,16 @@ function generateStoryImage() {
     // Fotos do DOM — principal + thumbnails
     var logoImgEl = document.querySelector('.navbar-brand img');
 
-    // Coleta até 3 fotos: principal + 2 primeiras thumbnails
+    // Coleta até 5 fotos: principal + 4 primeiras thumbnails
     var allPhotoEls = [];
     var mainImg = document.querySelector('.vehicle-gallery-main');
     if (mainImg) allPhotoEls.push(mainImg);
     document.querySelectorAll('.vehicle-thumb-img').forEach(function(el, i) {
-        if (allPhotoEls.length < 3) allPhotoEls.push(el);
+        if (allPhotoEls.length < 5) allPhotoEls.push(el);
     });
 
-    // Helper: desenhar imagem cover em rounded rect
-    function drawCoverRounded(img, x, y, w, h, r) {
-        ctx.save();
+    // Helper: traça um caminho retangular arredondado
+    function roundRectPath(x, y, w, h, r) {
         ctx.beginPath();
         ctx.moveTo(x + r, y);
         ctx.lineTo(x + w - r, y);
@@ -405,6 +404,23 @@ function generateStoryImage() {
         ctx.lineTo(x, y + r);
         ctx.quadraticCurveTo(x, y, x + r, y);
         ctx.closePath();
+    }
+
+    // Helper: desenhar imagem cover em rounded rect (com sombra suave opcional)
+    function drawCoverRounded(img, x, y, w, h, r, withShadow) {
+        if (withShadow) {
+            ctx.save();
+            ctx.shadowColor = 'rgba(0,0,0,0.55)';
+            ctx.shadowBlur = 28;
+            ctx.shadowOffsetY = 10;
+            ctx.fillStyle = '#000';
+            roundRectPath(x, y, w, h, r);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        ctx.save();
+        roundRectPath(x, y, w, h, r);
         ctx.clip();
 
         var imgR = img.naturalWidth / img.naturalHeight;
@@ -421,6 +437,16 @@ function generateStoryImage() {
         ctx.restore();
     }
 
+    // Helper: linha accent com glow
+    function drawAccentLine(x, y, w, h) {
+        ctx.save();
+        ctx.shadowColor = accentColor;
+        ctx.shadowBlur = 24;
+        ctx.fillStyle = accentColor;
+        ctx.fillRect(x, y, w, h);
+        ctx.restore();
+    }
+
     function drawStory(photos, logoImg) {
         // Background
         var bgGrad = ctx.createLinearGradient(0, 0, 0, H);
@@ -430,13 +456,12 @@ function generateStoryImage() {
         ctx.fillStyle = bgGrad;
         ctx.fillRect(0, 0, W, H);
 
-        // Accent line top
-        ctx.fillStyle = accentColor;
-        ctx.fillRect(0, 0, W, 8);
+        // Accent line top (com glow)
+        drawAccentLine(0, 0, W, 8);
 
         var y = 60;
         var pad = 40;
-        var gap = 12;
+        var gap = 14;
 
         // Logo ou nome da loja
         if (logoImg) {
@@ -444,50 +469,72 @@ function generateStoryImage() {
             var logoW = logoImg.width * (logoH / logoImg.height);
             if (logoW > 400) { logoW = 400; logoH = logoImg.height * (400 / logoImg.width); }
             ctx.drawImage(logoImg, (W - logoW) / 2, y, logoW, logoH);
-            y += logoH + 35;
+            y += logoH + 30;
         } else {
             ctx.font = 'bold 42px "Inter", "Helvetica Neue", sans-serif';
             ctx.fillStyle = '#FFFFFF';
             ctx.textAlign = 'center';
             ctx.fillText(storeName, W / 2, y + 42);
-            y += 80;
+            y += 78;
         }
 
         // Fotos
         var contentW = W - pad * 2;
-        if (photos.length >= 3) {
-            // 1 grande + 2 menores lado a lado
+        if (photos.length >= 5) {
+            // 1 hero + grid 2x2
             var mainH = 540;
-            drawCoverRounded(photos[0], pad, y, contentW, mainH, 16);
+            drawCoverRounded(photos[0], pad, y, contentW, mainH, 18, true);
             y += mainH + gap;
 
             var thumbW = (contentW - gap) / 2;
-            var thumbH = 320;
-            drawCoverRounded(photos[1], pad, y, thumbW, thumbH, 12);
-            drawCoverRounded(photos[2], pad + thumbW + gap, y, thumbW, thumbH, 12);
-            y += thumbH + 45;
-        } else if (photos.length === 2) {
-            // 1 grande + 1 menor
+            var thumbH = 280;
+            drawCoverRounded(photos[1], pad,                 y, thumbW, thumbH, 14, true);
+            drawCoverRounded(photos[2], pad + thumbW + gap,  y, thumbW, thumbH, 14, true);
+            y += thumbH + gap;
+            drawCoverRounded(photos[3], pad,                 y, thumbW, thumbH, 14, true);
+            drawCoverRounded(photos[4], pad + thumbW + gap,  y, thumbW, thumbH, 14, true);
+            y += thumbH + 40;
+        } else if (photos.length === 4) {
+            // 1 hero + linha 2 thumbs + linha 1 thumb full
             var mainH = 560;
-            drawCoverRounded(photos[0], pad, y, contentW, mainH, 16);
+            drawCoverRounded(photos[0], pad, y, contentW, mainH, 18, true);
             y += mainH + gap;
 
-            var thumbH = 300;
-            drawCoverRounded(photos[1], pad, y, contentW, thumbH, 12);
-            y += thumbH + 45;
+            var thumbW = (contentW - gap) / 2;
+            var thumbH = 280;
+            drawCoverRounded(photos[1], pad,                 y, thumbW, thumbH, 14, true);
+            drawCoverRounded(photos[2], pad + thumbW + gap,  y, thumbW, thumbH, 14, true);
+            y += thumbH + gap;
+            drawCoverRounded(photos[3], pad, y, contentW, 260, 14, true);
+            y += 260 + 40;
+        } else if (photos.length === 3) {
+            // 1 hero + 2 thumbs lado a lado
+            var mainH = 620;
+            drawCoverRounded(photos[0], pad, y, contentW, mainH, 18, true);
+            y += mainH + gap;
+
+            var thumbW = (contentW - gap) / 2;
+            var thumbH = 360;
+            drawCoverRounded(photos[1], pad,                 y, thumbW, thumbH, 14, true);
+            drawCoverRounded(photos[2], pad + thumbW + gap,  y, thumbW, thumbH, 14, true);
+            y += thumbH + 40;
+        } else if (photos.length === 2) {
+            var mainH = 620;
+            drawCoverRounded(photos[0], pad, y, contentW, mainH, 18, true);
+            y += mainH + gap;
+            drawCoverRounded(photos[1], pad, y, contentW, 340, 14, true);
+            y += 340 + 40;
         } else if (photos.length === 1) {
-            // Só 1 foto grande
-            var mainH = 700;
-            drawCoverRounded(photos[0], pad, y, contentW, mainH, 16);
-            y += mainH + 45;
+            var mainH = 1020;
+            drawCoverRounded(photos[0], pad, y, contentW, mainH, 18, true);
+            y += mainH + 40;
         } else {
             y += 40;
         }
 
-        // Accent line separadora
-        ctx.fillStyle = accentColor;
-        ctx.fillRect(pad, y, contentW, 4);
-        y += 75;
+        // Accent line separadora (com glow)
+        drawAccentLine(pad, y, contentW, 4);
+        y += 70;
 
         // Título do veículo
         ctx.textAlign = 'center';
@@ -535,9 +582,8 @@ function generateStoryImage() {
         ctx.textAlign = 'center';
         ctx.fillText(siteUrl, W / 2, H - 55);
 
-        // Accent line bottom
-        ctx.fillStyle = accentColor;
-        ctx.fillRect(0, H - 8, W, 8);
+        // Accent line bottom (com glow)
+        drawAccentLine(0, H - 8, W, 8);
 
         // Download or share
         canvas.toBlob(function (blob) {
