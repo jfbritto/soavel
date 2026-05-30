@@ -536,43 +536,57 @@ function generateStoryImage() {
         drawAccentLine(pad, y, contentW, 4);
         y += 70;
 
+        // Helper: quebra texto em linhas respeitando largura máxima
+        function wrapTextLines(text, maxW) {
+            var words = text.split(' ');
+            var lines = [];
+            var line = '';
+            for (var i = 0; i < words.length; i++) {
+                var test = line + (line ? ' ' : '') + words[i];
+                if (ctx.measureText(test).width > maxW && line) {
+                    lines.push(line);
+                    line = words[i];
+                } else {
+                    line = test;
+                }
+            }
+            if (line) lines.push(line);
+            return lines;
+        }
+
+        // Margens internas para texto (mais respiro lateral)
+        var textPad = 90;
+        var textMaxW = W - textPad * 2;
+
         // Título do veículo
         ctx.textAlign = 'center';
         ctx.fillStyle = '#FFFFFF';
-        ctx.font = 'bold 60px "Inter", "Helvetica Neue", sans-serif';
-
-        var words = vehicleTitle.split(' ');
-        var lines = [];
-        var line = '';
-        var maxTitleW = W - 120;
-        for (var i = 0; i < words.length; i++) {
-            var test = line + (line ? ' ' : '') + words[i];
-            if (ctx.measureText(test).width > maxTitleW && line) {
-                lines.push(line);
-                line = words[i];
-            } else {
-                line = test;
-            }
+        ctx.font = 'bold 58px "Inter", "Helvetica Neue", sans-serif';
+        var titleLines = wrapTextLines(vehicleTitle, textMaxW);
+        var titleLineH = 70;
+        for (var j = 0; j < titleLines.length; j++) {
+            ctx.fillText(titleLines[j], W / 2, y + j * titleLineH);
         }
-        lines.push(line);
-
-        for (var j = 0; j < lines.length; j++) {
-            ctx.fillText(lines[j], W / 2, y + j * 72);
-        }
-        y += lines.length * 72 + 20;
+        y += titleLines.length * titleLineH + 25;
 
         // Preço
         ctx.font = 'bold 84px "Inter", "Helvetica Neue", sans-serif';
         ctx.fillStyle = accentColor;
         ctx.fillText(vehiclePrice, W / 2, y + 65);
-        y += 115;
+        y += 120;
 
-        // Specs em linha
-        ctx.font = '600 34px "Inter", "Helvetica Neue", sans-serif';
-        ctx.fillStyle = 'rgba(255,255,255,0.6)';
-        var specLine = vehicleYear + '  ·  ' + vehicleKm + '  ·  ' + vehicleFuel + '  ·  ' + vehicleTrans;
-        if (vehicleMotor) specLine += '  ·  ' + vehicleMotor;
-        ctx.fillText(specLine, W / 2, y + 10);
+        // Specs com wrap automático
+        ctx.font = '600 30px "Inter", "Helvetica Neue", sans-serif';
+        ctx.fillStyle = 'rgba(255,255,255,0.65)';
+        var specItems = [vehicleYear, vehicleKm, vehicleFuel, vehicleTrans];
+        if (vehicleMotor) specItems.push(vehicleMotor);
+        specItems = specItems.filter(function (s) { return s && s.length; });
+        var specLine = specItems.join('  ·  ');
+        var specLines = wrapTextLines(specLine, textMaxW);
+        var specLineH = 42;
+        for (var k = 0; k < specLines.length; k++) {
+            ctx.fillText(specLines[k], W / 2, y + 10 + k * specLineH);
+        }
 
         // Rodapé fixo no bottom
         ctx.fillStyle = 'rgba(255,255,255,0.15)';
