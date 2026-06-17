@@ -12,7 +12,7 @@
             : 'Estoque de Seminovos | ' . $nomeLoja);
     $seoDesc = $seoMarca
         ? 'Encontre ' . $seoMarca . ' seminovos com ótimos preços' . ($cidadeLoja ? ' em ' . $cidadeLoja : '') . '. Financiamento facilitado.'
-        : 'Confira nosso estoque de carros seminovos' . ($cidadeLoja ? ' em ' . $cidadeLoja : '') . '. Filtros por marca, modelo, preço e mais.';
+        : 'Confira nosso estoque de veículos seminovos' . ($cidadeLoja ? ' em ' . $cidadeLoja : '') . '. Filtros por marca, modelo, preço e mais.';
 @endphp
 @section('meta_title', $seoTitle)
 @section('meta_description', $seoDesc)
@@ -155,7 +155,7 @@
                 @elseif(request('categoria'))
                     {{ ucfirst(request('categoria')) }} Seminovos
                 @else
-                    Carros Seminovos{{ $cidadeLoja ? ' em ' . $cidadeLoja : '' }}
+                    Veículos Seminovos{{ $cidadeLoja ? ' em ' . $cidadeLoja : '' }}
                 @endif
             </h1>
 

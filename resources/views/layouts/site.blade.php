@@ -15,7 +15,7 @@
         $cidadeEstado     = \App\Models\Setting::get('cidade_estado', '');
         $enderecoCompleto = \App\Models\Setting::get('endereco_completo', '');
         $horarioAten      = \App\Models\Setting::get('horario_atendimento', 'Seg–Sex 8h–18h | Sáb 8h–12h');
-        $descricaoEmpresa = \App\Models\Setting::get('descricao_empresa', 'Sua loja de confiança para encontrar o carro seminovo ideal. Qualidade e transparência em cada negociação.');
+        $descricaoEmpresa = \App\Models\Setting::get('descricao_empresa', 'Sua loja de confiança para encontrar o veículo seminovo ideal. Qualidade e transparência em cada negociação.');
         $corPrimaria      = \App\Models\Setting::get('cor_primaria', '');
         $logoSrc          = $logoPath ? asset('storage/' . $logoPath) : asset('img/default-logo.svg');
         $faviconSrc       = $faviconPath ? asset('storage/' . $faviconPath) : asset('img/default-favicon.svg');

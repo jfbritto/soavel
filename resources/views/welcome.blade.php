@@ -1,7 +1,7 @@
 @extends('layouts.site')
 
 @section('meta_title', \App\Models\Setting::get('site_titulo_home', config('app.name') . ' | Seminovos'))
-@section('meta_description', \App\Models\Setting::get('site_descricao_home', 'Encontre carros seminovos de qualidade. Confira nosso estoque e encontre o veículo ideal para você.'))
+@section('meta_description', \App\Models\Setting::get('site_descricao_home', 'Encontre veículos seminovos de qualidade. Confira nosso estoque e encontre o veículo ideal para você.'))
 
 @section('schema')
 <script type="application/ld+json">
@@ -9,7 +9,7 @@
   "@context": "https://schema.org",
   "@type": "AutoDealer",
   "name": "{{ \App\Models\Setting::get('nome_sistema', config('app.name')) }}",
-  "description": "{{ \App\Models\Setting::get('descricao_empresa', 'Sua loja de confiança para encontrar o carro seminovo ideal.') }}",
+  "description": "{{ \App\Models\Setting::get('descricao_empresa', 'Sua loja de confiança para encontrar o veículo seminovo ideal.') }}",
   "image": "{{ \App\Models\Setting::get('logo_path') ? asset('storage/' . \App\Models\Setting::get('logo_path')) : asset('img/default-logo.svg') }}",
   "@id": "{{ url('/') }}",
   "url": "{{ url('/') }}",
@@ -62,7 +62,7 @@
 
 @php
     $whatsapp         = \App\Models\Setting::get('whatsapp_number', '');
-    $slogan           = \App\Models\Setting::get('slogan', 'Seu próximo carro está aqui');
+    $slogan           = \App\Models\Setting::get('slogan', 'Seu próximo veículo está aqui');
     $nomeSistema      = \App\Models\Setting::get('nome_sistema', config('app.name'));
     $telefone         = \App\Models\Setting::get('telefone_comercial', '');
     $cidadeEstado     = \App\Models\Setting::get('cidade_estado', '');
@@ -89,7 +89,7 @@
                     @if($heroTitulo)
                         {!! nl2br(e($heroTitulo)) !!}
                     @else
-                        Encontre o carro<br>
+                        Encontre o veículo<br>
                         perfeito para <span class="accent">você</span>
                     @endif
                 </h1>
