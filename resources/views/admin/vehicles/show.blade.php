@@ -206,13 +206,24 @@
                         </div>
                         <small class="text-muted mt-1 d-block">JPG, PNG, WebP · máx. 5 MB · escolha a proporção no recorte (4:3, 4:5 ou 1:1)</small>
                     </form>
-                    <form action="{{ route('admin.vehicles.photos.emPreparacao', $vehicle) }}" method="POST" class="mt-2"
-                          data-confirm="Isso vai substituir todas as fotos atuais pela imagem 'Em Preparação'. Deseja continuar?">
-                        @csrf
-                        <button type="submit" class="btn btn-sm btn-outline-dark" style="font-size:.78rem">
-                            <i class="fas fa-car-side mr-1"></i>Usar foto "Em Preparação"
-                        </button>
-                    </form>
+                    <div class="d-flex mt-2" style="gap:6px;flex-wrap:wrap">
+                        <form action="{{ route('admin.vehicles.photos.emPreparacao', $vehicle) }}" method="POST"
+                              data-confirm="Isso vai substituir todas as fotos atuais pela imagem 'Em Preparação' de carro. Deseja continuar?">
+                            @csrf
+                            <input type="hidden" name="tipo" value="carro">
+                            <button type="submit" class="btn btn-sm btn-outline-dark" style="font-size:.78rem">
+                                <i class="fas fa-car-side mr-1"></i>Em Preparação (Carro)
+                            </button>
+                        </form>
+                        <form action="{{ route('admin.vehicles.photos.emPreparacao', $vehicle) }}" method="POST"
+                              data-confirm="Isso vai substituir todas as fotos atuais pela imagem 'Em Preparação' de moto. Deseja continuar?">
+                            @csrf
+                            <input type="hidden" name="tipo" value="moto">
+                            <button type="submit" class="btn btn-sm btn-outline-dark" style="font-size:.78rem">
+                                <i class="fas fa-motorcycle mr-1"></i>Em Preparação (Moto)
+                            </button>
+                        </form>
+                    </div>
 
                     @if($vehicle->photos->isNotEmpty())
                     <div class="row mt-3" id="photoGrid">

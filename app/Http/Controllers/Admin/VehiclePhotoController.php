@@ -104,9 +104,11 @@ class VehiclePhotoController extends Controller
         return back()->with('success', 'Foto principal atualizada.');
     }
 
-    public function emPreparacao(Vehicle $vehicle)
+    public function emPreparacao(Request $request, Vehicle $vehicle)
     {
-        $source = public_path('images/em-preparacao.jpg');
+        $tipo = $request->input('tipo') === 'moto' ? 'moto' : 'carro';
+        $filename = $tipo === 'moto' ? 'em-preparacao-moto.jpg' : 'em-preparacao.jpg';
+        $source = public_path('images/' . $filename);
 
         if (!file_exists($source)) {
             return back()->with('error', 'Imagem "Em Preparação" não encontrada no sistema.');
