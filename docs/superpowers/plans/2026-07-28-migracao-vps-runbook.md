@@ -559,13 +559,35 @@ ls -la public/storage && stat -c '%U:%G %a' . storage bootstrap/cache .env
 
 ```bash
 cd /var/www/$SITE
+umask 022    # obrigatório: sem isso os caches nascem 600 e o www-data não os lê
+
 php8.3 artisan config:clear && php8.3 artisan cache:clear && php8.3 artisan view:clear && php8.3 artisan route:clear
 php8.3 artisan config:cache && php8.3 artisan route:cache && php8.3 artisan view:cache
+
+# permissões DEPOIS de gerar — esta é a ordem que importa
+chown -R deploy:www-data storage bootstrap/cache
+find storage bootstrap/cache -type d -exec chmod 2775 {} \;
+find storage bootstrap/cache -type f -exec chmod 664 {} \;
+
+echo "arquivos ilegíveis pelo grupo (tem de ser 0): $(find storage bootstrap/cache -type f ! -perm -g=r | wc -l)"
+sudo -u www-data test -r bootstrap/cache/config.php && echo "www-data lê o config cache: OK"
 ls -la bootstrap/cache/
 ```
 
-**Esperado:** `config.php` e `routes-v7.php` criados.
-**Claude valida:** limpar antes de gerar é essencial — caches da origem carregam caminhos absolutos `/home1/helpdi71/...`.
+**Esperado:** `config.php` e `routes-v7.php` criados, **zero** arquivos ilegíveis pelo grupo, e `www-data lê o config cache: OK`.
+
+> ⚠️ **A ordem é o que importa.** Gerar cache e *depois* ajustar permissão. Se
+> você rodar `chmod -R 775` antes de `config:cache`, os arquivos gerados em
+> seguida nascem com o umask da sessão — e se ele for restritivo, o site retorna
+> **500** com `ReflectionException: Class ` (nome de classe vazio), porque o
+> Laravel lê um cache de config que não consegue abrir. O `laravel.log` fica
+> vazio nesse caso: a falha acontece antes do logger existir, então o erro só
+> aparece em `/var/log/nginx/<site>-error.log`.
+>
+> Diagnóstico em um comando:
+> `sudo -u www-data test -r bootstrap/cache/config.php && echo OK || echo 'NAO LEGIVEL'`
+
+**Claude valida:** limpar antes de gerar também é essencial — caches da origem carregam caminhos absolutos `/home1/helpdi71/...`.
 
 ---
 
@@ -745,24 +767,33 @@ certbot certonly --manual --preferred-challenges dns \
   -d $DOMAIN -d www.$DOMAIN
 ```
 
-O certbot vai **pausar** e pedir um registro TXT em `_acme-challenge.$DOMAIN`. Ele pede **duas vezes** (apex e www) — para o mesmo nome `_acme-challenge`, com valores diferentes.
+O certbot vai **pausar duas vezes**, uma por domínio, pedindo um registro TXT diferente para cada:
 
-**Claude valida:** os valores TXT antes de você criar, e o resultado depois.
+| Domínio validado | Nome do registro TXT | Name no cPanel Zone Editor |
+|---|---|---|
+| `$DOMAIN` | `_acme-challenge.$DOMAIN` | `_acme-challenge` |
+| `www.$DOMAIN` | `_acme-challenge.www.$DOMAIN` | `_acme-challenge.www` |
 
-- [ ] **Passo 2: 🌐 `[cPanel]` Criar os registros TXT**
+> ⚠️ **São dois nomes distintos, não dois valores no mesmo nome.** O desafio
+> DNS-01 coloca o TXT em `_acme-challenge.<domínio-validado>`, e `www.$DOMAIN` é
+> um domínio diferente do apex. Errar isso faz a validação falhar — e a Let's
+> Encrypt limita tentativas falhas, então vale acertar de primeira.
 
-Zone Editor → **Add Record** → Type `TXT`, Name `_acme-challenge`, TTL `300`, Record = o valor que o certbot mostrou.
+**Claude valida:** os valores TXT antes de você criar, e a propagação antes de você continuar.
 
-Quando o certbot pedir o segundo valor, **adicione um segundo registro TXT com o mesmo nome** — não substitua o primeiro. Os dois coexistem.
+- [ ] **Passo 2: 🌐 `[cPanel]` Criar o registro TXT que o certbot pediu**
 
-- [ ] **Passo 3: ⬜ `[MAC]` Confirmar a propagação antes de continuar**
+Zone Editor → **Add Record** → Type `TXT`, TTL `300`, Name conforme a tabela acima, Record = o valor exato que o certbot mostrou.
+
+- [ ] **Passo 3: ⬜ `[MAC]` Confirmar a propagação ANTES de apertar Enter**
 
 ```bash
-dig +short TXT _acme-challenge.soavelveiculos.com.br @ns876.hostgator.com.br
+dig +short TXT _acme-challenge.soavelveiculos.com.br     @ns876.hostgator.com.br
+dig +short TXT _acme-challenge.www.soavelveiculos.com.br @ns876.hostgator.com.br
 ```
 
-**Esperado:** os valores esperados (dois, se já adicionou ambos).
-**Claude valida:** consultamos o NS autoritativo direto. **Só aperte Enter no certbot depois disso** — validar cedo é a causa mais comum de falha aqui.
+**Esperado:** o valor que o certbot mostrou, no nome correspondente.
+**Claude valida:** consultamos o NS autoritativo direto, não um resolver com cache. **Só aperte Enter no certbot depois de ver o valor aqui** — validar cedo é a causa mais comum de falha nesse passo.
 
 - [ ] **Passo 4: 🟦 `[VPS]` Confirmar a emissão**
 
@@ -1184,12 +1215,17 @@ echo "--> migrations"
 php8.3 artisan migrate --force
 
 echo "--> caches"
+umask 022   # sem isto os caches nascem 600 e o www-data nao os le -> HTTP 500
 php8.3 artisan config:clear && php8.3 artisan cache:clear && php8.3 artisan view:clear && php8.3 artisan route:clear
 php8.3 artisan config:cache && php8.3 artisan route:cache && php8.3 artisan view:cache && php8.3 artisan event:cache
 
-echo "--> permissoes"
+echo "--> permissoes (DEPOIS de gerar os caches — a ordem importa)"
 chown -R deploy:www-data "$APP"
-chmod -R 775 "$APP/storage" "$APP/bootstrap/cache"
+find "$APP/storage" "$APP/bootstrap/cache" -type d -exec chmod 2775 {} \;
+find "$APP/storage" "$APP/bootstrap/cache" -type f -exec chmod 664 {} \;
+
+ILEGIVEIS=$(find "$APP/storage" "$APP/bootstrap/cache" -type f ! -perm -g=r | wc -l)
+[ "$ILEGIVEIS" -eq 0 ] || { echo "FALHOU: $ILEGIVEIS arquivos ilegiveis pelo grupo www-data"; exit 1; }
 
 echo "--> reload fpm"
 systemctl reload php8.3-fpm
