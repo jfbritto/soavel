@@ -246,7 +246,7 @@ Checklist executado em T-24h contra o hostname temporário e repetido na virada,
 
 **Site público**
 - [ ] Home carrega com logo e favicon do tenant correto (vêm de `storage/app/public/settings`)
-- [ ] `/estoque` lista veículos com a contagem esperada (34 / 6)
+- [ ] `/estoque` lista os veículos com `status='disponivel'` (16 no Soavel, dos 34 no banco — o site filtra por `Vehicle::disponivel()`)
 - [ ] Página de veículo abre pelo slug, com galeria completa e thumbs
 - [ ] Imagens servidas por `/storage/vehicles/...` retornam 200 (valida o symlink)
 - [ ] `/sitemap.xml` e `/robots.txt` respondem

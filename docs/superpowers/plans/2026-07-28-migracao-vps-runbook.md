@@ -861,12 +861,26 @@ ping -c1 soavelveiculos.com.br | head -1
 Abra `https://soavelveiculos.com.br` e confirme:
 
 - [ ] Home carrega com logo e favicon corretos (vêm de `storage/app/public/settings`)
-- [ ] `/estoque` lista **34** veículos (Soavel) / **6** (Friedrich)
+- [ ] `/estoque` lista o número de veículos **`disponivel`** — não o total
 - [ ] Uma página de veículo abre pelo slug, galeria completa, thumbs aparecem
 - [ ] `/sitemap.xml` e `/robots.txt` respondem
 - [ ] Formulário de contato envia sem erro
 
-**Claude valida:** o número de veículos e o carregamento das imagens confirmam banco e symlink juntos.
+> ⚠️ **O site público filtra por status.** `Site\VehicleController::index` usa
+> `Vehicle::disponivel()`, que é `where('status','disponivel')`. No Soavel há 34
+> veículos no banco mas só **16** disponíveis (14 vendidos, 4 reservados) — o
+> `/estoque` mostra 16. Meça antes do teste visual, em vez de comparar com o
+> total:
+>
+> ```bash
+> mysql $SITE -e "SELECT status, COUNT(*) n FROM vehicles GROUP BY status;"
+> mysql $SITE -e "SELECT COUNT(*) AS aparece_no_estoque FROM vehicles WHERE status='disponivel';"
+> mysql $SITE -e "SELECT COUNT(*) AS aparece_na_home FROM vehicles WHERE status='disponivel' AND destaque=1;"
+> ```
+>
+> A home mostra até 6 dos `disponivel` **e** `destaque`.
+
+**Claude valida:** o número de veículos contra a consulta acima, e o carregamento das imagens confirma banco e symlink juntos.
 
 - [ ] **Passo 3: ⬜ `[MAC]` Admin — e o teste que importa mais**
 
