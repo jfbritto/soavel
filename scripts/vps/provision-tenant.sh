@@ -119,9 +119,13 @@ mkdir -p /root/migracao
 ( umask 077; echo "$DB_PASS" > "/root/migracao/$SITE-dbpass.txt" )
 ok "banco utf8mb4_unicode_ci, usuário restrito, senha em /root/migracao/$SITE-dbpass.txt"
 
-# confirma o isolamento em vez de presumir
-VISIVEIS=$(mysql -N -u "$SITE" -p"$DB_PASS" -e "SHOW DATABASES;" 2>/dev/null \
-  | grep -vE '^(information_schema|performance_schema)$' | grep -vx "$SITE" | wc -l)
+# Confirma o isolamento em vez de presumir.
+# O `|| true` interno e obrigatorio: quando o isolamento esta CORRETO o grep nao
+# encontra nada e sai com status 1, que o pipefail propagaria e o set -e mataria
+# o script — falhando justamente quando a verificacao passa.
+VISIVEIS=$( { mysql -N -u "$SITE" -p"$DB_PASS" -e "SHOW DATABASES;" 2>/dev/null \
+  | grep -vE '^(information_schema|performance_schema)$' \
+  | grep -vx "$SITE" || true; } | wc -l )
 [ "$VISIVEIS" -eq 0 ] || erro "o usuário $SITE vê $VISIVEIS banco(s) de outros tenants — GRANT vazou"
 ok "isolamento confirmado"
 
@@ -188,9 +192,11 @@ else
   ok "estoque vazio (use --with-demo para dados de demonstracao)"
 fi
 
-# confirma que nao ficou credencial default
-mysql -N "$SITE" -e "SELECT email FROM users;" | grep -qx 'admin@admin.com' \
-  && erro "usuario admin@admin.com foi criado — o ADMIN_EMAIL do .env nao foi lido"
+# Confirma que nao ficou credencial default. Usa `if` em vez de `cmd && erro`
+# porque com set -e o comportamento de listas && é fácil de errar.
+if mysql -N "$SITE" -e "SELECT email FROM users;" 2>/dev/null | grep -qx 'admin@admin.com'; then
+  erro "usuario admin@admin.com foi criado — o ADMIN_EMAIL do .env nao foi lido pelo seeder"
+fi
 ok "nenhuma credencial default no banco"
 
 # ── 5. storage e permissões ─────────────────────────────────────────────────
