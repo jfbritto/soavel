@@ -18,7 +18,7 @@ Hospeda **nove** aplicações Laravel. Apenas duas migram:
 | Diretório | `/home1/helpdi71/soavelveiculos.com.br` (522 MB) | `/home1/helpdi71/friedrichveiculos.com.br` (393 MB) |
 | Banco | `helpdi71_soavelveiculos` (0,7 MB) | `helpdi71_friedrichveiculos` (0,7 MB) |
 | Usuário MySQL | `helpdi71_master` (**compartilhado por todos os 9 apps**) | idem |
-| `storage/app` | 104 MB / 310 arquivos | 73 MB / 209 arquivos |
+| `storage/app` | 101 MB reais / 310 arquivos | 83 MB reais / 228 arquivos ⚠️ |
 | `storage/app/public/vehicles` | 100 MB | 66 MB |
 | `storage/app/public/settings` | 404 KB | 644 KB |
 | Privados fora do `public` | `customer-documents/`, `vehicle-documents/` | `vehicle-documents/` |
@@ -247,7 +247,7 @@ Checklist executado em T-24h contra o hostname temporário e repetido na virada,
 - [ ] `nginx -t` sem erro e **os sete sites pré-existentes continuam respondendo** (regressão de coabitação)
 - [ ] Master alcança `https://<domínio>/api/master/*` com o `MASTER_API_TOKEN` — o Master está no mesmo servidor, então o caminho passa a ser público-para-si-mesmo
 - [ ] `CheckSuspended` não bloqueia indevidamente
-- [ ] Contagem de arquivos em `storage/app` bate com a origem (310 / 209)
+- [ ] Contagem de arquivos em `storage/app` bate com a origem **medida no momento do rsync**
 - [ ] Charset das tabelas conforme decidido em §3.4
 - [ ] Sem `OOM` e sem erro no log do pool após 24h
 - [ ] `backup.sh` roda e o arquivo off-site chega

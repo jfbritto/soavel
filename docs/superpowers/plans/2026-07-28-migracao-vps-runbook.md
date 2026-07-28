@@ -328,8 +328,13 @@ grep -c 'CREATE TABLE' /root/migracao/$SITE-inicial.sql
 tail -2 /root/migracao/$SITE-inicial.sql
 ```
 
-**Esperado:** arquivo de alguns MB, **19 tabelas** (`CREATE TABLE`), e a última linha `-- Dump completed on ...`.
+**Esperado:** **18 tabelas** (`CREATE TABLE`) e a última linha `-- Dump completed on ...`.
 **Claude valida:** a linha `Dump completed` é a prova de que o dump não truncou. Sem ela, refazer.
+
+> São 18 tabelas, não 19: dos 19 arquivos de migration, `add_troca_to_sales` e
+> `add_environment_to_billing_history` são `ALTER`, não `CREATE`. 17 `CREATE TABLE`
+> mais a tabela `migrations` = 18. Já `migrate:status` (Task 1.7) mostra **19**
+> migrations, porque conta os arquivos. Os dois números estão certos.
 
 > A senha do banco de origem está no `.env` do compartilhado (`DB_PASSWORD`). Substitua `SENHA_DO_BANCO_ORIGEM`.
 
@@ -341,9 +346,14 @@ mysql $SITE -e "SELECT COUNT(*) AS tabelas FROM information_schema.tables WHERE 
 mysql $SITE -e "SELECT 'vehicles' t,COUNT(*) n FROM vehicles UNION ALL SELECT 'photos',COUNT(*) FROM vehicle_photos UNION ALL SELECT 'customers',COUNT(*) FROM customers UNION ALL SELECT 'sales',COUNT(*) FROM sales UNION ALL SELECT 'leads',COUNT(*) FROM leads UNION ALL SELECT 'users',COUNT(*) FROM users UNION ALL SELECT 'settings',COUNT(*) FROM settings;"
 ```
 
-**Esperado (Soavel):** 19 tabelas; 34 veículos, 293 fotos, 18 clientes, 19 vendas, 3 leads, 1 usuário.
-**Esperado (Friedrich):** 19 tabelas; 6 veículos, 82 fotos, 5 clientes, 3 vendas, 3 leads, 1 usuário.
-**Claude valida:** contagens idênticas ao inventário. Divergência = restauração incompleta.
+**Esperado (Soavel):** 18 tabelas; 34 veículos, 293 fotos, 18 clientes, 19 vendas, 3 leads, 1 usuário.
+**Esperado (Friedrich):** 18 tabelas; **≥** 6 veículos e **≥** 82 fotos, 5 clientes, 3 vendas, 3 leads, 1 usuário.
+**Claude valida:** contagens comparadas com a origem **medida no momento do dump**, não com o inventário de 28/07 09:30.
+
+> ⚠️ **O Friedrich está sendo editado ativamente.** Entre 09:30 e 10:34 de 28/07
+> ganhou 19 arquivos novos em `storage/app` (209 → 228) e provavelmente linhas
+> novas em `vehicle_photos`. Não trate os números do inventário como fixos: meça
+> a origem imediatamente antes de cada dump e compare com isso.
 
 - [ ] **Passo 3: 🟦 `[VPS]` Ver o charset herdado do dump**
 
@@ -432,9 +442,18 @@ ls /var/www/$SITE/storage/app
 du -sh /var/www/$SITE/storage/app/public/*/
 ```
 
-**Esperado (Soavel):** 310 arquivos, ~104 MB, com `public/`, `customer-documents/`, `vehicle-documents/`.
-**Esperado (Friedrich):** 209 arquivos, ~73 MB, com `public/`, `vehicle-documents/`.
-**Claude valida:** contagem exata contra o inventário, e presença dos diretórios privados — os documentos de cliente **não** podem ficar dentro de `public/`.
+**Esperado (Soavel):** 310 arquivos, ~101 MB reais, com `public/`, `customer-documents/`, `vehicle-documents/`.
+**Esperado (Friedrich):** **≥ 228** arquivos, ~83 MB reais, com `public/`, `vehicle-documents/`.
+**Claude valida:** contagem contra a origem medida no momento, e presença dos diretórios privados — os documentos de cliente **não** podem ficar dentro de `public/`.
+
+Para medir a origem na hora, em vez de confiar em número anotado:
+
+```bash
+ssh -i /root/.ssh/id_migracao -p $SSH_PORT helpdi71@108.167.132.218 \
+  "find ~/$DOMAIN/storage/app -type f | wc -l"
+```
+
+Rode antes e depois do rsync — os dois números têm de coincidir.
 
 - [ ] **Passo 5: 🟦 `[VPS]` Symlink e permissões**
 
@@ -815,7 +834,10 @@ SRC_DB=helpdi71_friedrichveiculos
 echo "SITE=$SITE DOMAIN=$DOMAIN SRC_DB=$SRC_DB"
 ```
 
-Contagens esperadas: **6** veículos, 82 fotos, 5 clientes, 3 vendas, 3 leads, 1 usuário; `storage/app` com **209** arquivos e ~73 MB; **sem** `customer-documents/`.
+Contagens de referência (28/07 10:34): **6** veículos, 82 fotos, 5 clientes, 3 vendas, 3 leads, 1 usuário; `storage/app` com **228** arquivos e ~83 MB; **sem** `customer-documents/`.
+
+⚠️ Este tenant **está sendo editado ativamente** — ganhou 19 fotos entre 09:30 e 10:34 de 28/07. Meça a origem na hora e compare com isso, não com o número acima.
+
 **Claude valida:** cada task na mesma ordem. O Task 1.5 (chave SSH) já está feito e não repete.
 
 ---
