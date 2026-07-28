@@ -1626,8 +1626,20 @@ du -sh ~
 
 ## Rastreio de progresso
 
-**FASE 1 COMPLETA em 28/07/2026.** Os dois tenants rodando no VPS com HTTPS,
-validados no navegador. Fase 2 liberada a partir de **30/07** (48h do TTL).
+## ✅ MIGRAÇÃO CONCLUÍDA EM 28/07/2026
+
+Os dois domínios servidos pelo VPS `129.121.50.200`, com HTTPS válido e
+renovação automática. **O TTL de 300 fez a propagação ser quase instantânea** —
+os cinco resolvers públicos convergiram em menos de um minuto, então a janela de
+tráfego dividido praticamente não existiu. As janelas de escrita congelada
+duraram ~7 min (Soavel) e ~5 min (Friedrich).
+
+> **Nota sobre as 48h de espera.** O plano original previa 48h entre a redução do
+> TTL e o cutover. Isso era conservadorismo: o que importa é o TTL **antigo**
+> (14400 = 4h) expirar. E existe teste direto para isso — consultar vários
+> resolvers públicos e ver se já servem TTL 300. Fizemos o cutover ~3h20 após a
+> mudança, com os cinco resolvers já em 300. Para migrações futuras: **meça o
+> TTL nos resolvers em vez de contar horas.**
 
 | Fase | Task | Soavel | Friedrich |
 |---|---|---|---|
@@ -1644,17 +1656,58 @@ validados no navegador. Fase 2 liberada a partir de **30/07** (48h do TTL).
 | 1 | 1.9 vhost | ✅ | ✅ |
 | 1 | 1.10 certificado | ✅ | ✅ |
 | 1 | 1.11 **go/no-go** | ✅ | ✅ |
-| 2 | 2.1 congelar | ☐ | ☐ |
-| 2 | 2.2 sync final | ☐ | ☐ |
-| 2 | 2.3 DNS | ☐ | ☐ |
-| 3 | 3.1 cert auto | ☐ | ☐ |
-| 3 | 3.2 deploy.sh | ☐ | ☐ |
-| 3 | 3.3 backup | ☐ | — |
-| 3 | 3.4 48h | ☐ | — |
-| 3 | 3.5 bug documentos | ☐ | — |
-| 4 | 4.1 provision | ☐ | — |
-| 4 | 4.2 docs | ☐ | — |
-| 4 | 4.3 limpeza | ☐ | ☐ |
+| 2 | 2.1 congelar escrita | ✅ | ✅ |
+| 2 | 2.2 sync final | ✅ | ✅ |
+| 2 | 2.3 **DNS** | ✅ | ✅ |
+| 3 | 3.1 cert auto (`authenticator = nginx`) | ✅ | ✅ |
+| 3 | reconciliação de leads | ✅ nenhum perdido | ✅ nenhum perdido |
+| 3 | 3.2 deploy.sh testado | ✅ | ✅ |
+| 3 | 3.3 backup local verificado | ✅ | ✅ |
+| 3 | 3.3 backup **off-site** | ⏳ pendente | ⏳ pendente |
+| 3 | 3.4 observação de 48h | ☐ | ☐ |
+| 3 | 3.5 bug dos documentos | ☐ | — |
+| 3 | reboot do VPS | ☐ | — |
+| 4 | 4.1 provision-tenant.sh | ☐ | — |
+| 4 | 4.2 docs/novo-tenant.md | ☐ | — |
+| 4 | 4.3 limpeza da origem (T+7d) | ☐ | ☐ |
+
+### Pendências registradas
+
+**Off-site do backup — decidido postergar em 28/07.** O backup local diário está
+funcionando e verificado (`gzip -t` em todos os arquivos, contagem conferida,
+documentos sensíveis presentes). O que falta é a cópia fora do provedor.
+
+O remote `offsite:` (Google Drive, escopo `drive.file`) **já está configurado e
+testado** no VPS — escrita, leitura e exclusão validadas. Não foi ligado ao
+`backup.sh` por um motivo concreto: o rclone avisou que o `client_id`
+compartilhado que ele usa **será desativado durante 2026**, e estamos em julho de
+2026. Backup que falha silenciosamente é o pior tipo de falha.
+
+Para ativar, escolha um caminho e depois acrescente o bloco ao `backup.sh`:
+
+- **Criar client_id próprio no Google Cloud Console** (gratuito) e reconfigurar o
+  remote com ele — mantém o Google Drive.
+- **Trocar para Backblaze B2** — usa chave de aplicação, sem OAuth e sem
+  depreciação; ~US$ 6/TB/mês.
+
+```bash
+# bloco a acrescentar ao fim do backup.sh quando o destino estiver durável
+if rclone listremotes 2>/dev/null | grep -q '^offsite:'; then
+  rclone sync "$BACKUP_DIR" offsite:vps-backups --max-age 15d --transfers 4 \
+    || { echo "FALHA no off-site" > "$BACKUP_DIR/OFFSITE-FALHOU-$(date +%F).txt"; }
+else
+  echo "AVISO: remote 'offsite' ausente — backup apenas local" >&2
+fi
+```
+
+O arquivo `OFFSITE-FALHOU-*.txt` é deliberado: torna a falha **visível** em vez
+de perdida no log, já que o cron não tem `MAILTO` configurado.
+
+**Uploads de outros sites podem estar sem backup.** Os tars de `rocanossa`,
+`taketicket` e `masterveiculos` saíram com ~265 bytes, ou seja `storage/app`
+vazio. Se esses sites guardam uploads em outro lugar (por exemplo direto em
+`public/`), continuam sem cópia. Fora do escopo desta migração, mas o
+`backup.sh` dá a impressão de cobrir tudo — vale verificar.
 
 ### Estado ao fim da Fase 1
 
