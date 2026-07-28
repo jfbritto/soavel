@@ -1720,12 +1720,12 @@ sete dias como rede de segurança — não é conservadorismo vazio como as 48h 
 TTL, e sim que problemas de migração aparecem no uso real ao longo de dias.
 ⛔ **Nunca remover os domínios do cPanel**: a zona DNS deles vive lá.
 
-**Teste de upload no Friedrich.** O rsync final não deletou arquivo nenhum do
-Friedrich (o do Soavel deletou 2, da foto de teste), indicando que o upload de
-arquivo grande não foi exercitado nele. A configuração do pool é idêntica à do
-Soavel e foi validada por `php-fpm -t` e leitura do arquivo, mas o teste de
-ponta a ponta continua pendente. Suba uma foto de alguns MB em
-`https://friedrichveiculos.com.br/admin` para fechar.
+**Teste de upload nos dois tenants: ✅ concluído em 28/07 14:32.** Foto de alguns
+MB redimensionada para 98.488 bytes mais thumb de 11.143 bytes, nos dois
+tenants, com os mesmos tamanhos (mesma foto de origem) e nenhum erro no log do
+pool. É o caminho que o `php.ini` global de 2 MB bloquearia — e cada pool tem
+configuração independente, então cada um precisava de teste próprio.
+"Funcionou no outro" não é evidência.
 
 ### Scripts entregues
 
