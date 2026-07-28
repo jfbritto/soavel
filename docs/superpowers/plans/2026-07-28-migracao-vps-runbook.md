@@ -1443,6 +1443,70 @@ rclone ls offsite:vps-backups | tail -5
 
 ---
 
+### Task 3.5: Corrigir o 404 dos documentos de cliente
+
+**Contexto:** bug pré-existente encontrado no Task 1.11 (28/07). Não é regressão da migração — ver §5.1 do spec. Fazer **depois** do cutover estável, como primeiro deploy real pelo `deploy.sh`.
+
+- [ ] **Passo 1: ⬜ `[MAC]` Branch e correção**
+
+```bash
+cd /Users/joaofilipibritto/Projetos/site-carros/soavel
+git checkout main && git pull
+git checkout -b fix/binding-customer-documents
+```
+
+Remover a linha 38 de `app/Providers/RouteServiceProvider.php`:
+
+```php
+Route::model('document', \App\Models\VehicleDocument::class);   // ← remover esta linha
+```
+
+Os quatro métodos de `VehicleDocumentController` já declaram
+`VehicleDocument $document`, e os de `CustomerDocumentController` declaram
+`CustomerDocument $document` — o binding implícito resolve os dois corretamente.
+
+- [ ] **Passo 2: ⬜ `[MAC]` Verificar que nenhuma outra rota depende do binding**
+
+```bash
+grep -rn '{document}' routes/
+grep -rn 'Route::model\|Route::bind' app/Providers/
+```
+
+**Esperado:** `{document}` aparece só nas rotas de documento de veículo e de cliente, e nenhum outro binding explícito.
+
+- [ ] **Passo 3: commit e push**
+
+```bash
+git add app/Providers/RouteServiceProvider.php
+git commit -m "fix: binding de {document} quebrava documentos de cliente
+
+Route::model('document', VehicleDocument::class) no RouteServiceProvider
+forcava todo parametro {document} a resolver para VehicleDocument, inclusive
+nas rotas de customer-documents. O download e o preview de documento de
+cliente retornavam 404. Os controllers ja declaram o model correto no
+type-hint, entao o binding implicito resolve os dois casos."
+git push -u origin fix/binding-customer-documents
+```
+
+- [ ] **Passo 4: 🟦 `[VPS]` Deploy pelo script (valida o deploy.sh com mudança real)**
+
+Após o merge em `main`:
+
+```bash
+/home/deploy/deploy-soavelveiculos.sh
+```
+
+- [ ] **Passo 5: ⬜ `[MAC]` Testar os DOIS tipos de documento**
+
+- [ ] Download de documento de **cliente** (o que estava 404) → baixa o PDF
+- [ ] Preview de documento de **cliente** → abre no navegador
+- [ ] Download de documento de **veículo** (o que já funcionava) → **continua** funcionando
+- [ ] Preview de documento de veículo → continua funcionando
+
+**Claude valida:** os dois últimos itens são o que importa — a correção não pode quebrar o caminho que já estava certo.
+
+---
+
 ### Task 3.4: Observação de 48h
 
 - [ ] **Passo 1: 🟦 `[VPS]` Checagem diária (rodar em D+1 e D+2)**

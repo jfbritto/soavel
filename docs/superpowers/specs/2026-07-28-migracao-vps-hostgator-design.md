@@ -238,6 +238,45 @@ Pequenas, de baixo risco, e o momento é oportuno:
 
 Não são causadas pela migração — são pré-existentes e ficam melhor resolvidas aqui do que depois.
 
+### 5.1 Bug encontrado durante a validação — corrigir DEPOIS do cutover
+
+**Download e preview de documento de cliente retornam 404.** Descoberto no
+Task 1.11 (28/07), ao validar o Soavel no VPS.
+
+**Causa.** `app/Providers/RouteServiceProvider.php:38` registra um binding
+explícito global:
+
+```php
+Route::model('document', \App\Models\VehicleDocument::class);
+```
+
+Isso força **todo** parâmetro de rota `{document}` a resolver para
+`VehicleDocument`, inclusive nas rotas de documentos de cliente
+(`routes/web.php:100-102`), que usam o mesmo nome de parâmetro. Binding
+explícito tem precedência sobre o implícito, então o
+`CustomerDocument $document` da assinatura de
+`CustomerDocumentController::download()` nunca é usado. O resultado é 404 por
+`ModelNotFoundException` (se não houver `VehicleDocument` com aquele id) ou pelo
+`abort_if($document->customer_id !== $customer->id, 404)` (porque
+`VehicleDocument` não tem coluna `customer_id`, então a comparação é `null !== 1`).
+
+**Não é regressão.** Mesmo commit e mesmo binding global no compartilhado — o
+recurso nunca funcionou em produção. Verificado: os arquivos existem em
+`storage/app/customer-documents/1/`, com permissão de leitura para `www-data`, e
+os três registros em `customer_documents` apontam corretamente para eles.
+
+**Correção (uma linha).** Remover a linha 38. Os quatro métodos de
+`VehicleDocumentController` já declaram `VehicleDocument $document` no
+type-hint, então o binding implícito resolve os dois casos corretamente, cada
+controller com seu próprio model.
+
+**Por que depois e não agora.** Hoje o VPS é uma cópia comportamentalmente
+idêntica à origem, e é isso que torna o rollback confiável. Alterar código antes
+da virada faria comparar duas coisas diferentes: se algo estranho aparecesse,
+não daria para separar o efeito da migração do efeito da mudança. Depois do
+cutover estável, essa correção é um bom primeiro deploy real — pequena,
+verificável e de valor concreto.
+
 ---
 
 ## 6. Verificação
