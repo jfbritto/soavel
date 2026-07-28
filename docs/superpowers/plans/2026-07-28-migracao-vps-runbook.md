@@ -26,6 +26,13 @@
 > já fixam `php8.4` pelo mesmo motivo. Todo comando artisan e composer deste
 > runbook usa `php8.3` explicitamente.
 
+> ⚠️ **Cuidado com `umask` na sessão.** Um `umask 077` solto vale para **todo
+> arquivo criado depois dele naquele shell**, e `chown` não conserta — arquivos
+> nascem `600` e o `www-data` não consegue ler. Use sempre em subshell:
+> `( umask 077; comando )`. Arquivos que o PHP-FPM precisa ler exigem `chmod 644`
+> explícito. Se aparecer `Permission denied ... Unable to open primary script`,
+> a causa é essa.
+
 > ⚠️ **`safe.directory` é necessário.** Os diretórios em `/var/www` pertencem a
 > `deploy`, e o Git 2.35.2+ se recusa a operá-los como root
 > (`fatal: detected dubious ownership`). Resolvemos de forma idempotente, sem o
@@ -289,8 +296,9 @@ GRANT ALL PRIVILEGES ON \`$SITE\`.* TO '$SITE'@'localhost';
 FLUSH PRIVILEGES;
 SQL
 
-mkdir -p /root/migracao && umask 077
-echo "$DB_PASS" > /root/migracao/$SITE-dbpass.txt
+mkdir -p /root/migracao
+# umask em subshell: fora dele o umask da sessão fica intacto
+( umask 077; echo "$DB_PASS" > /root/migracao/$SITE-dbpass.txt )
 chmod 600 /root/migracao/$SITE-dbpass.txt
 echo "SENHA: $DB_PASS"
 mysql -e "SELECT SCHEMA_NAME, DEFAULT_CHARACTER_SET_NAME, DEFAULT_COLLATION_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME='$SITE';"
