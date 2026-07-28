@@ -267,17 +267,36 @@ mysql -e "SHOW DATABASES LIKE '$SITE';" && echo "--- (vazio acima = livre)"
 
 - [ ] **Passo 2: 🟦 `[VPS]` Gerar senha e criar banco + usuário restrito**
 
+> ⚠️ **O MySQL deste VPS tem `validate_password` ativo.** A política exige
+> minúscula, maiúscula, dígito **e caractere especial**. Uma senha só
+> alfanumérica é rejeitada com `ERROR 1819`. E como o cliente `mysql` em modo
+> batch **para no primeiro erro**, um `CREATE USER` que falha impede o `GRANT`
+> e o `FLUSH` de rodarem — o banco fica criado e o usuário não, o que se
+> manifesta depois como `Access denied`.
+>
+> O sufixo `_1aZ` garante as quatro classes. Os caracteres especiais estão
+> limitados a `_`, `-` e `.` de propósito: são seguros no shell, no
+> `sed` do Task 1.7 e no `.env` sem precisar de aspas.
+
 ```bash
-DB_PASS=$(openssl rand -base64 24 | tr -d '/+=' | head -c 28)
+mysql -e "SHOW VARIABLES LIKE 'validate_password%';"
+
+DB_PASS="$(openssl rand -base64 32 | tr -dc 'A-Za-z0-9' | head -c 26)_1aZ"
 mysql <<SQL
-CREATE DATABASE \`$SITE\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS \`$SITE\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE USER '$SITE'@'localhost' IDENTIFIED BY '$DB_PASS';
 GRANT ALL PRIVILEGES ON \`$SITE\`.* TO '$SITE'@'localhost';
 FLUSH PRIVILEGES;
 SQL
-echo "GUARDE ESTA SENHA: $DB_PASS"
+
+mkdir -p /root/migracao && umask 077
+echo "$DB_PASS" > /root/migracao/$SITE-dbpass.txt
+chmod 600 /root/migracao/$SITE-dbpass.txt
+echo "SENHA: $DB_PASS"
 mysql -e "SELECT SCHEMA_NAME, DEFAULT_CHARACTER_SET_NAME, DEFAULT_COLLATION_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME='$SITE';"
 ```
+
+Note o `IF NOT EXISTS`: torna o passo reexecutável se o `CREATE USER` falhar e for preciso repetir.
 
 **Esperado:** `utf8mb4` / `utf8mb4_unicode_ci`, e a senha impressa.
 **Claude valida:** charset correto. **Copie a senha** — ela vai para o `.env` no Task 1.7.
@@ -343,13 +362,43 @@ SSH_PORT=2222   # ajuste conforme o resultado
 
 ### Task 1.6: Migrar o banco
 
-- [ ] **Passo 1: 🟦 `[VPS]` Dump da origem direto para o VPS**
+- [ ] **Passo 1a: 🟧 `[SHARED]` Criar o script de dump (uma vez, serve para os dois tenants e os dois dumps)**
+
+O script lê as credenciais do próprio `.env` do tenant e usa `MYSQL_PWD`, então **a senha nunca aparece** num comando que eu escrevo, no histórico do shell do VPS, nem na lista de processos (`-p` na linha de comando apareceria em `ps`).
 
 ```bash
+cat > ~/dump-tenant.sh <<'SCRIPT'
+#!/bin/bash
+# Uso: ~/dump-tenant.sh <diretorio-do-tenant>
+# Ex.:  ~/dump-tenant.sh soavelveiculos.com.br
+set -euo pipefail
+cd "$HOME/$1"
+unq() { sed -e 's/\r$//' -e 's/^"//' -e 's/"$//' -e "s/^'//" -e "s/'\$//"; }
+DB=$(grep '^DB_DATABASE=' .env | head -1 | cut -d= -f2- | unq)
+US=$(grep '^DB_USERNAME=' .env | head -1 | cut -d= -f2- | unq)
+MYSQL_PWD=$(grep '^DB_PASSWORD=' .env | head -1 | cut -d= -f2- | unq)
+export MYSQL_PWD
+mysqldump --single-transaction --no-tablespaces --routines --triggers -u "$US" "$DB"
+SCRIPT
+chmod 700 ~/dump-tenant.sh
+
+# testar localmente antes de usar via SSH
+~/dump-tenant.sh soavelveiculos.com.br | head -3
+~/dump-tenant.sh soavelveiculos.com.br | grep -c 'CREATE TABLE'
+```
+
+**Esperado:** o cabeçalho do mysqldump e **18** tabelas.
+**Claude valida:** se o script funciona local, funciona via SSH.
+
+- [ ] **Passo 1b: 🟦 `[VPS]` Dump da origem direto para o VPS**
+
+```bash
+SSH_PORT=22
+SSH_OPTS="-o BatchMode=yes -i /root/.ssh/id_migracao -p $SSH_PORT"
+REMOTE=helpdi71@108.167.132.218
+
 mkdir -p /root/migracao
-ssh -i /root/.ssh/id_migracao -p $SSH_PORT helpdi71@108.167.132.218 \
-  "mysqldump --single-transaction --no-tablespaces --routines --triggers -u helpdi71_master -p'SENHA_DO_BANCO_ORIGEM' $SRC_DB" \
-  > /root/migracao/$SITE-inicial.sql
+ssh $SSH_OPTS $REMOTE "~/dump-tenant.sh $DOMAIN" > /root/migracao/$SITE-inicial.sql
 ls -lh /root/migracao/$SITE-inicial.sql
 grep -c 'CREATE TABLE' /root/migracao/$SITE-inicial.sql
 tail -2 /root/migracao/$SITE-inicial.sql
@@ -916,9 +965,7 @@ curl -so /dev/null -w 'admin:   %{http_code}\n'  --resolve $DOMAIN:443:108.167.1
 - [ ] **Passo 1: 🟦 `[VPS]` Dump final e restauração**
 
 ```bash
-ssh -i /root/.ssh/id_migracao -p $SSH_PORT helpdi71@108.167.132.218 \
-  "mysqldump --single-transaction --no-tablespaces --routines --triggers -u helpdi71_master -p'SENHA_DO_BANCO_ORIGEM' $SRC_DB" \
-  > /root/migracao/$SITE-final.sql
+ssh $SSH_OPTS $REMOTE "~/dump-tenant.sh $DOMAIN" > /root/migracao/$SITE-final.sql
 tail -2 /root/migracao/$SITE-final.sql
 mysql -e "DROP DATABASE \`$SITE\`; CREATE DATABASE \`$SITE\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 mysql $SITE < /root/migracao/$SITE-final.sql
