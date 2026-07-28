@@ -757,15 +757,102 @@ tail -10 /var/log/nginx/$SITE-error.log
 
 ### Task 1.10: Certificado por DNS-01
 
-**Contexto:** o domínio ainda aponta para o compartilhado, então HTTP-01 é impossível. DNS-01 nos dá o certificado **antes** da virada, para o HTTPS já estar pronto no instante da troca.
+**Contexto:** queremos o certificado **antes** da virada, para não haver um segundo de aviso de certificado no navegador dos visitantes.
 
-- [ ] **Passo 1: 🟦 `[VPS]` Iniciar a emissão manual**
+> ✅ **Método validado em 28/07: HTTP-01 publicando no compartilhado via hook.**
+>
+> O domínio ainda aponta para o compartilhado, e temos SSH para lá. Então o
+> desafio HTTP-01 é publicado **no compartilhado** por um script, que verifica a
+> URL pública antes de liberar a validação. Vantagens sobre o DNS-01 manual:
+> criar arquivo é instantâneo (sem TTL nem propagação), é não interativo (imune
+> a queda de conexão SSH) e a verificação embutida evita queimar tentativas
+> contra o limite da Let's Encrypt.
+>
+> **Duas armadilhas descobertas na prática:**
+>
+> 1. **O Document Root do compartilhado é a pasta do domínio, não `public/`.** O
+>    `.htaccess` da raiz reescreve tudo para `public/`, e o desafio criado só em
+>    `public/.well-known/` retornava **404** (a requisição caía no Laravel). O
+>    hook publica nos **dois** locais, o que resolve sem depender de descobrir
+>    qual é o correto.
+> 2. **O mod_security da HostGator devolve 406 para `User-Agent` simplista** como
+>    `Mozilla/5.0`. O UA real da Let's Encrypt **não** é bloqueado. Se você testar
+>    o desafio com curl, use o UA real, senão terá falso negativo.
+
+- [ ] **Passo 1a: 🟦 `[VPS]` Criar os hooks (uma vez, serve para os dois tenants)**
 
 ```bash
-certbot certonly --manual --preferred-challenges dns \
-  --agree-tos --no-eff-email \
-  -d $DOMAIN -d www.$DOMAIN
+mkdir -p /root/migracao
+
+cat > /root/migracao/acme-auth.sh <<'HOOK'
+#!/bin/bash
+# certbot fornece: CERTBOT_DOMAIN, CERTBOT_TOKEN, CERTBOT_VALIDATION
+set -euo pipefail
+case "$CERTBOT_DOMAIN" in
+  www.*) DIR="${CERTBOT_DOMAIN#www.}" ;;
+  *)     DIR="$CERTBOT_DOMAIN" ;;
+esac
+SSH="ssh -o BatchMode=yes -o ConnectTimeout=15 -i /root/.ssh/id_migracao -p 22 helpdi71@108.167.132.218"
+LE_UA="Mozilla/5.0 (compatible; Let's Encrypt validation server; +https://www.letsencrypt.org)"
+$SSH "bash -s" <<REMOTE
+set -e
+for B in "\$HOME/$DIR" "\$HOME/$DIR/public"; do
+  mkdir -p "\$B/.well-known/acme-challenge"
+  chmod 755 "\$B/.well-known" "\$B/.well-known/acme-challenge"
+  printf '%s' '$CERTBOT_VALIDATION' > "\$B/.well-known/acme-challenge/$CERTBOT_TOKEN"
+  chmod 644 "\$B/.well-known/acme-challenge/$CERTBOT_TOKEN"
+done
+REMOTE
+URL="http://$CERTBOT_DOMAIN/.well-known/acme-challenge/$CERTBOT_TOKEN"
+for i in $(seq 1 10); do
+  GOT=$(curl -sSL --max-time 15 -A "$LE_UA" "$URL" 2>/dev/null || true)
+  if [ "$GOT" = "$CERTBOT_VALIDATION" ]; then
+    echo "  [hook] desafio publicado e verificado: $CERTBOT_DOMAIN"; exit 0
+  fi
+  sleep 2
+done
+echo "  [hook] FALHOU: $URL nao devolveu o valor esperado" >&2
+exit 1
+HOOK
+
+cat > /root/migracao/acme-cleanup.sh <<'HOOK'
+#!/bin/bash
+set -euo pipefail
+case "$CERTBOT_DOMAIN" in
+  www.*) DIR="${CERTBOT_DOMAIN#www.}" ;;
+  *)     DIR="$CERTBOT_DOMAIN" ;;
+esac
+SSH="ssh -o BatchMode=yes -o ConnectTimeout=15 -i /root/.ssh/id_migracao -p 22 helpdi71@108.167.132.218"
+$SSH "rm -f ~/$DIR/.well-known/acme-challenge/$CERTBOT_TOKEN ~/$DIR/public/.well-known/acme-challenge/$CERTBOT_TOKEN" || true
+echo "  [cleanup] removido: $CERTBOT_DOMAIN"
+HOOK
+
+chmod 700 /root/migracao/acme-auth.sh /root/migracao/acme-cleanup.sh
+bash -n /root/migracao/acme-auth.sh && bash -n /root/migracao/acme-cleanup.sh && echo "SINTAXE OK"
 ```
+
+- [ ] **Passo 1b: 🟦 `[VPS]` Emitir, de forma não interativa**
+
+Rode dentro de `screen` — se a conexão cair no meio de um certbot interativo, o processo fica **órfão e vivo**, travado num prompt sem stdin, e segura os locks em `/etc/letsencrypt`. Aí a próxima tentativa falha com `Another instance of Certbot is already running`, e a saída é `kill <pid>` antes de remover locks (**nunca** remova locks com o processo vivo).
+
+```bash
+command -v screen >/dev/null || apt-get install -y screen
+screen -S cert
+
+certbot certonly --manual --preferred-challenges http \
+  --manual-auth-hook /root/migracao/acme-auth.sh \
+  --manual-cleanup-hook /root/migracao/acme-cleanup.sh \
+  --agree-tos --no-eff-email --non-interactive \
+  -d $DOMAIN -d www.$DOMAIN
+echo "exit: $?"
+```
+
+**Esperado:** duas linhas `[hook] desafio publicado e verificado`, duas de `[cleanup] removido`, e `Successfully received certificate`.
+
+> ⚠️ **A renovação automática deste certificado vai FALHAR depois do cutover.** O
+> `renewal/*.conf` fica com `authenticator = manual` apontando para um hook que
+> publica no compartilhado — mas após a virada a Let's Encrypt busca o desafio no
+> VPS. Por isso o Task 3.1 reemite via `--nginx` logo depois da virada. Não pule.
 
 O certbot vai **pausar duas vezes**, uma por domínio, pedindo um registro TXT diferente para cada:
 
@@ -781,21 +868,7 @@ O certbot vai **pausar duas vezes**, uma por domínio, pedindo um registro TXT d
 
 **Claude valida:** os valores TXT antes de você criar, e a propagação antes de você continuar.
 
-- [ ] **Passo 2: 🌐 `[cPanel]` Criar o registro TXT que o certbot pediu**
-
-Zone Editor → **Add Record** → Type `TXT`, TTL `300`, Name conforme a tabela acima, Record = o valor exato que o certbot mostrou.
-
-- [ ] **Passo 3: ⬜ `[MAC]` Confirmar a propagação ANTES de apertar Enter**
-
-```bash
-dig +short TXT _acme-challenge.soavelveiculos.com.br     @ns876.hostgator.com.br
-dig +short TXT _acme-challenge.www.soavelveiculos.com.br @ns876.hostgator.com.br
-```
-
-**Esperado:** o valor que o certbot mostrou, no nome correspondente.
-**Claude valida:** consultamos o NS autoritativo direto, não um resolver com cache. **Só aperte Enter no certbot depois de ver o valor aqui** — validar cedo é a causa mais comum de falha nesse passo.
-
-- [ ] **Passo 4: 🟦 `[VPS]` Confirmar a emissão**
+- [ ] **Passo 2: 🟦 `[VPS]` Confirmar a emissão**
 
 ```bash
 certbot certificates --cert-name $DOMAIN
