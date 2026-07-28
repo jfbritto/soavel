@@ -35,7 +35,11 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Route::model('document', \App\Models\VehicleDocument::class);
+        // Sem binding explícito para {document}: ele valeria para TODAS as rotas
+        // com esse parâmetro, inclusive customers/{customer}/documents/{document},
+        // resolvendo VehicleDocument onde o esperado é CustomerDocument (404).
+        // Os controllers declaram o model no type-hint, então o binding implícito
+        // resolve cada caso corretamente.
 
         $this->configureRateLimiting();
 
