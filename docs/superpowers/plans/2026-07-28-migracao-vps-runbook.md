@@ -1626,21 +1626,24 @@ du -sh ~
 
 ## Rastreio de progresso
 
+**FASE 1 COMPLETA em 28/07/2026.** Os dois tenants rodando no VPS com HTTPS,
+validados no navegador. Fase 2 liberada a partir de **30/07** (48h do TTL).
+
 | Fase | Task | Soavel | Friedrich |
 |---|---|---|---|
-| 0 | 0.1 cron órfão | ☐ | — |
-| 0 | 0.2 TTL 300 | ☐ | ☐ |
-| 1 | 1.1 backups | ☐ | — |
-| 1 | 1.2 acesso git | ☐ | — |
-| 1 | 1.3 código | ☐ | ☐ |
-| 1 | 1.4 banco | ☐ | ☐ |
-| 1 | 1.5 canal SSH | ☐ | — |
-| 1 | 1.6 migrar banco | ☐ | ☐ |
-| 1 | 1.7 arquivos | ☐ | ☐ |
-| 1 | 1.8 pool FPM | ☐ | ☐ |
-| 1 | 1.9 vhost | ☐ | ☐ |
-| 1 | 1.10 certificado | ☐ | ☐ |
-| 1 | 1.11 **go/no-go** | ☐ | ☐ |
+| 0 | 0.1 cron órfão | ✅ | — |
+| 0 | 0.2 TTL 300 | ✅ | ✅ |
+| 1 | 1.1 backups | ✅ | — |
+| 1 | 1.2 acesso git | ✅ | — |
+| 1 | 1.3 código | ✅ | ✅ |
+| 1 | 1.4 banco | ✅ | ✅ |
+| 1 | 1.5 canal SSH | ✅ | — |
+| 1 | 1.6 migrar banco | ✅ | ✅ |
+| 1 | 1.7 arquivos | ✅ | ✅ |
+| 1 | 1.8 pool FPM | ✅ | ✅ |
+| 1 | 1.9 vhost | ✅ | ✅ |
+| 1 | 1.10 certificado | ✅ | ✅ |
+| 1 | 1.11 **go/no-go** | ✅ | ✅ |
 | 2 | 2.1 congelar | ☐ | ☐ |
 | 2 | 2.2 sync final | ☐ | ☐ |
 | 2 | 2.3 DNS | ☐ | ☐ |
@@ -1648,6 +1651,35 @@ du -sh ~
 | 3 | 3.2 deploy.sh | ☐ | ☐ |
 | 3 | 3.3 backup | ☐ | — |
 | 3 | 3.4 48h | ☐ | — |
+| 3 | 3.5 bug documentos | ☐ | — |
 | 4 | 4.1 provision | ☐ | — |
 | 4 | 4.2 docs | ☐ | — |
 | 4 | 4.3 limpeza | ☐ | ☐ |
+
+### Estado ao fim da Fase 1
+
+| | Soavel | Friedrich |
+|---|---|---|
+| Diretório | `/var/www/soavelveiculos` | `/var/www/friedrichveiculos` |
+| Banco / usuário | `soavelveiculos` (isolado) | `friedrichveiculos` (isolado) |
+| Pool FPM | `php8.3-fpm-soavelveiculos.sock` | `php8.3-fpm-friedrichveiculos.sock` |
+| Certificado | apex + www, expira 26/10 | apex + www, expira 26/10 |
+| Arquivos em `storage/app` | 310 | 228 |
+| Fotos (banco / conferidas no disco) | 293 / 293 | 101 / 101 |
+| Veículos (total / `disponivel`) | 34 / 16 | 6 / 3 |
+| Upload de arquivo grande testado | ✅ 6 MB → 98 KB + thumb | ✅ |
+
+**Baseline de coabitação:** os 7 sites pré-existentes seguem em
+`200/302/200/200/200/200/302`. RAM disponível 1673 MB (era 1653 antes de
+adicionarmos os dois), sem `OOM`.
+
+### Notas operacionais aprendidas na Fase 1
+
+- **Após `systemctl reload nginx`, aguarde ~2s antes de testar.** Requisições
+  disparadas imediatamente podem retornar `000` (falha de transporte, não código
+  HTTP). Não é erro de configuração — repetir o teste com `--max-time` confirma.
+- **Nunca usar `!` em strings de comando** colado em shell interativo: `!!`
+  dispara expansão de histórico do bash e corrompe o comando.
+- **Variáveis de sessão se perdem em queda de SSH.** Use
+  `source /root/migracao/vars-<tenant>.sh` ao reconectar. Na Fase 2 isso é
+  crítico — perder variável no meio da janela de cutover é caro.
