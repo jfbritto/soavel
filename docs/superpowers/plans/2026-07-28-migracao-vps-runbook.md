@@ -1665,7 +1665,7 @@ duraram ~7 min (Soavel) e ~5 min (Friedrich).
 | 3 | 3.3 backup local verificado | ✅ | ✅ |
 | 3 | 3.3 backup **off-site** | ⏳ pendente | ⏳ pendente |
 | 3 | 3.4 observação de 48h | ☐ | ☐ |
-| 3 | 3.5 bug dos documentos | ☐ | — |
+| 3 | 3.5 bug dos documentos | ✅ | ✅ |
 | 3 | reboot do VPS | ☐ | — |
 | 4 | 4.1 provision-tenant.sh | ☐ | — |
 | 4 | 4.2 docs/novo-tenant.md | ☐ | — |
