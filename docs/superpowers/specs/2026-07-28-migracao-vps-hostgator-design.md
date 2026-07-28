@@ -127,13 +127,32 @@ php_admin_flag[log_errors] = on
 
 **Observação registrada, não tratada aqui:** o pool `php8.4` está com `pm.max_children = 20` e processos observados em ~100 MB, ou seja, ~2 GB de comprometimento teórico contra 3,8 GB de RAM. Está sobrecomprometido hoje. Não mexemos nele nesta migração para não afetar sites em produção; vale medir e ajustar depois.
 
-### 3.4 MySQL: converter para utf8mb4_unicode_ci
+### 3.4 MySQL: nenhuma conversão de charset é necessária
 
-Origem `5.7.44-48` / `utf8_unicode_ci` (utf8mb3); destino `8.0.46` / `utf8mb4_0900_ai_ci`. O `config/database.php` do projeto **já declara** `'charset' => 'utf8mb4'` e `'collation' => 'utf8mb4_unicode_ci'` — ou seja, hoje a conexão e o schema divergem.
+> **Corrigido em 28/07 após medição.** A versão original desta seção previa
+> converter as tabelas de `utf8mb3` para `utf8mb4`, partindo do
+> `collation_server = utf8_unicode_ci` da origem. Isso estava errado: o
+> `collation_server` é o default do servidor compartilhado, não o collation das
+> tabelas. As tabelas foram criadas pelas migrations do Laravel, e
+> `config/database.php` declara `utf8mb4` / `utf8mb4_unicode_ci`
+> explicitamente — então sempre foram utf8mb4.
 
-A migração alinha os dois: banco criado como `utf8mb4` / `utf8mb4_unicode_ci` e tabelas convertidas após a restauração. Com 0,7 MB por banco a conversão é instantânea e verificável.
+Verificado no VPS após a restauração do dump do Soavel:
 
-Restaurar preservando o charset original e converter em seguida (em vez de editar o dump com `sed`) evita corromper dados. O MySQL 8 usa `DYNAMIC` row format e limite de prefixo de 3072 bytes por padrão, então `VARCHAR(255)` indexado sobrevive à conversão para utf8mb4. **Fallback:** se qualquer `ALTER` falhar por tamanho de índice, manter utf8mb3 e registrar — o app funciona nos dois casos.
+```
+SELECT DISTINCT table_collation FROM information_schema.tables WHERE table_schema='soavelveiculos';
+-> utf8mb4_unicode_ci   (linha única, todas as 18 tabelas)
+```
+
+Origem `5.7.44-48`, destino `8.0.46`. O banco de destino é criado como
+`utf8mb4` / `utf8mb4_unicode_ci`, alinhado com o `config/database.php`, e as
+tabelas chegam já nesse collation pelo próprio dump. **Nenhum `ALTER TABLE
+CONVERT` é executado**, o que elimina de uma vez o risco de índice acima do
+limite de prefixo.
+
+Permanece a verificação de integridade de acentuação após a restauração (§6):
+ela testa se os dados sobreviveram, independentemente do raciocínio sobre
+charset.
 
 ### 3.5 Usuário MySQL por site
 
@@ -282,7 +301,7 @@ Registrado como dívida real, deliberadamente não tratado aqui:
 | Risco | Probabilidade | Impacto | Mitigação |
 |---|---|---|---|
 | Upload falha por limite de 2M do PHP | **Alta** se não tratado | Admin inutilizável | Pool dedicado (§3.3) + teste com arquivo de 6 MB no checklist |
-| Conversão de charset 5.7 → 8.0 falha | Média | Restauração incompleta | Restaurar preservando charset e converter depois, com fallback para utf8mb3 |
+| ~~Conversão de charset 5.7 → 8.0 falha~~ | — | — | **Eliminado em 28/07:** as tabelas já são `utf8mb4_unicode_ci` na origem; nenhuma conversão é executada (§3.4) |
 | Escrita no admin antigo durante a propagação | Média | Perda de dados | Bloqueio do `/admin` **antes** do dump final |
 | Mudança de config compartilhada quebra os 7 sites | Baixa | Incidente amplo | Nenhuma alteração em pool ou `php.ini` compartilhados; `nginx -t` e regressão no checklist |
 | RAM insuficiente com dois sites a mais | Baixa | Swap / OOM | `pm = ondemand` com teto de 4; 6 GB de swap; monitoramento 48h |

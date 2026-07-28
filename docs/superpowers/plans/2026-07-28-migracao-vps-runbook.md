@@ -431,27 +431,26 @@ mysql $SITE -e "SELECT 'vehicles' t,COUNT(*) n FROM vehicles UNION ALL SELECT 'p
 > novas em `vehicle_photos`. Não trate os números do inventário como fixos: meça
 > a origem imediatamente antes de cada dump e compare com isso.
 
-- [ ] **Passo 3: 🟦 `[VPS]` Ver o charset herdado do dump**
+- [ ] **Passo 3: 🟦 `[VPS]` Confirmar o charset das tabelas restauradas**
 
 ```bash
-mysql -e "SELECT table_name, table_collation FROM information_schema.tables WHERE table_schema='$SITE' ORDER BY 1;"
-```
-
-**Esperado:** `utf8_unicode_ci` na maioria — o dump traz o charset da origem, apesar do banco ser utf8mb4.
-**Claude valida:** confirma a necessidade da conversão do próximo passo.
-
-- [ ] **Passo 4: 🟦 `[VPS]` Converter para utf8mb4_unicode_ci**
-
-```bash
-mysql -N -e "SELECT CONCAT('ALTER TABLE \`',table_name,'\` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;') FROM information_schema.tables WHERE table_schema='$SITE' AND table_type='BASE TABLE';" > /root/migracao/$SITE-convert.sql
-cat /root/migracao/$SITE-convert.sql | head -3
-mysql $SITE < /root/migracao/$SITE-convert.sql && echo "CONVERSÃO OK"
 mysql -e "SELECT DISTINCT table_collation FROM information_schema.tables WHERE table_schema='$SITE';"
+mysql -e "SELECT table_name, table_collation FROM information_schema.tables WHERE table_schema='$SITE' AND table_collation <> 'utf8mb4_unicode_ci';"
+echo "(segunda consulta vazia = todas as tabelas corretas)"
 ```
 
-**Esperado:** `CONVERSÃO OK` e apenas `utf8mb4_unicode_ci`.
-**Claude valida:** conversão completa.
-**Se falhar** com erro de tamanho de índice (`Specified key was too long`): **não insista**. O app funciona em utf8mb3. Restaure o dump limpo e siga sem converter — registramos como dívida. Me mostre o erro.
+**Esperado:** linha única `utf8mb4_unicode_ci`, e a segunda consulta **vazia**.
+**Claude valida:** nenhuma conversão necessária.
+
+> ✅ **Verificado em 28/07 no Soavel:** as 18 tabelas chegaram como
+> `utf8mb4_unicode_ci`. As migrations do Laravel criam as tabelas com o charset
+> do `config/database.php` (`utf8mb4` / `utf8mb4_unicode_ci`), independentemente
+> do `collation_server` do servidor de origem — que no compartilhado é
+> `utf8_unicode_ci` e me levou a prever conversão erradamente.
+>
+> **Não há passo de `ALTER TABLE CONVERT` neste runbook.** Se em algum tenant
+> futuro a segunda consulta acima retornar linhas, aí sim gere e rode a
+> conversão — mas meça antes de converter.
 
 - [ ] **Passo 5: 🟦 `[VPS]` Verificar integridade de acentuação**
 
@@ -969,10 +968,13 @@ ssh $SSH_OPTS $REMOTE "~/dump-tenant.sh $DOMAIN" > /root/migracao/$SITE-final.sq
 tail -2 /root/migracao/$SITE-final.sql
 mysql -e "DROP DATABASE \`$SITE\`; CREATE DATABASE \`$SITE\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 mysql $SITE < /root/migracao/$SITE-final.sql
-mysql $SITE < /root/migracao/$SITE-convert.sql
 mysql $SITE -e "SELECT 'vehicles' t,COUNT(*) n FROM vehicles UNION ALL SELECT 'photos',COUNT(*) FROM vehicle_photos UNION ALL SELECT 'customers',COUNT(*) FROM customers UNION ALL SELECT 'sales',COUNT(*) FROM sales UNION ALL SELECT 'leads',COUNT(*) FROM leads;"
 mysql -e "SELECT DISTINCT table_collation FROM information_schema.tables WHERE table_schema='$SITE';"
 ```
+
+> Sem `ALTER TABLE CONVERT` aqui: as tabelas chegam do dump já em
+> `utf8mb4_unicode_ci` (Task 1.6 Passo 3). O `DROP DATABASE` recria o banco com
+> esse mesmo default, então o resultado é idêntico ao da Fase 1.
 
 **Esperado:** `Dump completed`, contagens ≥ as do Task 1.6 (podem ter crescido), e `utf8mb4_unicode_ci`.
 **Claude valida:** o `DROP` é seguro porque o admin da origem está bloqueado — nada foi escrito no VPS ainda. Contagem menor que antes = investigar.
