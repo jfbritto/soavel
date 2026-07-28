@@ -2,10 +2,14 @@
 # =============================================================================
 # provision-tenant.sh — cria um novo tenant no VPS
 #
-#   Uso:  provision-tenant.sh <site> <dominio>
+#   Uso:  provision-tenant.sh <site> <dominio> [--with-demo]
 #         provision-tenant.sh --destroy <site> --yes
 #
 #   Ex.:  provision-tenant.sh friedrichveiculos friedrichveiculos.com.br
+#
+#   --with-demo  também cria os 9 veículos de demonstração do VehicleSeeder,
+#                com fotos de public/img/veiculos/. Sem a flag, o tenant nasce
+#                com estoque vazio — que é o correto para cliente real.
 #
 # Substitui os passos manuais de docs/novo-tenant.md. Idempotente onde é seguro
 # ser, e aborta em qualquer falha (set -euo pipefail).
@@ -56,11 +60,13 @@ fi
 # ─────────────────────────────────────────────────────────────────────────────
 # provisionamento
 # ─────────────────────────────────────────────────────────────────────────────
-SITE="${1:?Uso: provision-tenant.sh <site> <dominio>}"
-DOMAIN="${2:?Uso: provision-tenant.sh <site> <dominio>}"
+SITE="${1:?Uso: provision-tenant.sh <site> <dominio> [--with-demo]}"
+DOMAIN="${2:?Uso: provision-tenant.sh <site> <dominio> [--with-demo]}"
 APP="/var/www/$SITE"
+COM_DEMO=0
+[ "${3:-}" = "--with-demo" ] && COM_DEMO=1
 
-echo "site=$SITE  dominio=$DOMAIN  repo=$REPO"
+echo "site=$SITE  dominio=$DOMAIN  repo=$REPO  demo=$COM_DEMO"
 
 # ── 0. pré-condições ────────────────────────────────────────────────────────
 log "Verificando pré-condições"
@@ -121,6 +127,8 @@ ok "isolamento confirmado"
 
 # ── 3. .env ─────────────────────────────────────────────────────────────────
 log "Gerando .env"
+ADMIN_EMAIL="admin@$DOMAIN"
+ADMIN_PASS="$(openssl rand -base64 24 | tr -dc 'A-Za-z0-9' | head -c 18)"
 cat > "$APP/.env" <<ENV
 APP_NAME="$SITE"
 APP_ENV=production
@@ -150,15 +158,40 @@ MAIL_FROM_ADDRESS=nao-responda@$DOMAIN
 MAIL_FROM_NAME="\${APP_NAME}"
 
 MASTER_API_TOKEN=PREENCHER_COM_O_TOKEN_DO_MASTER
+
+# Lidos pelo AdminUserSeeder. Sem definir aqui, ele cairia no default
+# admin@admin.com / admin123 — credencial publica num site ao vivo.
+ADMIN_EMAIL=$ADMIN_EMAIL
+ADMIN_PASSWORD=$ADMIN_PASS
 ENV
 ( cd "$APP" && $PHP artisan key:generate --force --quiet )
 grep -q '^APP_KEY=base64:' "$APP/.env" || erro "APP_KEY não foi gerada"
 ok "APP_KEY gerada, MAIL_MAILER=log, APP_DEBUG=false"
 
 # ── 4. schema ───────────────────────────────────────────────────────────────
-log "Rodando migrations e seed"
-( cd "$APP" && $PHP artisan migrate --force --seed )
-ok "schema criado"
+log "Criando o schema"
+( cd "$APP" && $PHP artisan migrate --force )
+ok "migrations aplicadas"
+
+# Seeders escolhidos um a um, de propósito. O DatabaseSeeder chamaria também o
+# VehicleSeeder, que cria 9 veiculos de demonstracao com fotos de
+# public/img/veiculos/ — lixo que o cliente real teria de apagar.
+log "Populando dados iniciais"
+( cd "$APP" && $PHP artisan db:seed --class=AdminUserSeeder --force --quiet )
+( cd "$APP" && $PHP artisan db:seed --class=SettingSeeder   --force --quiet )
+ok "administrador e configuracoes padrao"
+
+if [ "$COM_DEMO" -eq 1 ]; then
+  ( cd "$APP" && $PHP artisan db:seed --class=VehicleSeeder --force )
+  ok "9 veiculos de demonstracao (--with-demo)"
+else
+  ok "estoque vazio (use --with-demo para dados de demonstracao)"
+fi
+
+# confirma que nao ficou credencial default
+mysql -N "$SITE" -e "SELECT email FROM users;" | grep -qx 'admin@admin.com' \
+  && erro "usuario admin@admin.com foi criado — o ADMIN_EMAIL do .env nao foi lido"
+ok "nenhuma credencial default no banco"
 
 # ── 5. storage e permissões ─────────────────────────────────────────────────
 log "Symlink e permissões"
@@ -304,6 +337,14 @@ cat <<FIM
     Deploy    : /home/deploy/deploy-$SITE.sh
     Backup    : automático — /home/deploy/backup.sh varre /var/www/*/
 
+    ACESSO AO ADMIN — anote agora, a senha não é recuperável:
+
+      URL   : https://$DOMAIN/admin
+      Email : $ADMIN_EMAIL
+      Senha : $ADMIN_PASS
+
+    (também está em $APP/.env como ADMIN_PASSWORD)
+
     PASSOS MANUAIS QUE FALTAM:
 
     1. Cadastrar o tenant no Master em veiculos.helpflux.com.br/tenants
@@ -311,8 +352,7 @@ cat <<FIM
          sed -i 's|^MASTER_API_TOKEN=.*|MASTER_API_TOKEN=<token>|' $APP/.env
          cd $APP && $PHP artisan config:cache
 
-    2. Criar o usuário administrador:
-         cd $APP && $PHP artisan tinker
+    2. Trocar a senha do administrador no primeiro acesso.
 
     3. Configurar identidade visual e dados da loja em /admin/settings
 
