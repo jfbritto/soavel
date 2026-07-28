@@ -18,6 +18,19 @@
 
 **Não avance sem validação.** Se a saída divergir do esperado, pare e cole o que apareceu.
 
+> ⚠️ **Sempre `php8.3`, nunca `php`.** O `php` padrão do VPS é **8.4.18**, mas
+> servimos estes sites em PHP 8.3-FPM — a versão que já roda em produção no
+> compartilhado. Usar `php` puro faria o Composer resolver dependências e os
+> caches de config/rotas serem gerados sob 8.4, divergindo do runtime que atende
+> as requisições. Os scripts `deploy-masterveiculos.sh` e `deploy-taketicket.sh`
+> já fixam `php8.4` pelo mesmo motivo. Todo comando artisan e composer deste
+> runbook usa `php8.3` explicitamente.
+
+> ⚠️ **`safe.directory` é necessário.** Os diretórios em `/var/www` pertencem a
+> `deploy`, e o Git 2.35.2+ se recusa a operá-los como root
+> (`fatal: detected dubious ownership`). Resolvemos de forma idempotente, sem o
+> acúmulo dos scripts atuais (o gitconfig global já tem `taketicket` 15 vezes).
+
 **Legenda de onde rodar:**
 - 🟦 `[VPS]` — SSH como root em `129.121.50.200`
 - 🟧 `[SHARED]` — cPanel → Terminal, ou SSH como `helpdi71`
@@ -209,22 +222,36 @@ ls -d /var/www/$SITE 2>/dev/null && echo "JÁ EXISTE — PARE" || echo "livre, p
 
 ```bash
 git clone https://github.com/jfbritto/soavel.git /var/www/$SITE
-cd /var/www/$SITE && git log --oneline -1 && git status --short
+git config --global --get-all safe.directory | grep -qx "/var/www/$SITE" \
+  || git config --global --add safe.directory /var/www/$SITE
+cd /var/www/$SITE && git log --oneline -1 && git status --short && echo "(status vazio acima = limpo)"
 ```
 
 **Esperado:** commit `436c8ea` (ou mais novo) e `git status` vazio.
-**Claude valida:** árvore limpa — nenhum `.htaccess` do cPanel veio junto.
+**Claude valida:** árvore limpa — nenhum `.htaccess` do cPanel veio junto. O `safe.directory` é adicionado só se ainda não existir.
 
-- [ ] **Passo 4: 🟦 `[VPS]` Instalar dependências de produção**
+- [ ] **Passo 4: 🟦 `[VPS]` Confirmar o binário do PHP 8.3 e do Composer**
+
+```bash
+ls -la /usr/bin/php8.3 && php8.3 -v | head -1
+echo "--- php default (NAO usar): $(php -v | head -1)"
+ls -la /usr/local/bin/composer 2>/dev/null || command -v composer
+php8.3 -r 'foreach(["pdo_mysql","mbstring","openssl","tokenizer","xml","ctype","json","bcmath","fileinfo","gd","exif","zip","curl"] as $e) printf("%s:%s ", $e, extension_loaded($e)?"ok":"FALTA"); echo PHP_EOL;'
+```
+
+**Esperado:** `php8.3` presente em 8.3.x; o default aparecendo como 8.4.x; e **todas** as extensões `ok`.
+**Claude valida:** qualquer `FALTA` bloqueia — instalamos a extensão antes de seguir. O `gd` e o `exif` são o que o `intervention/image` usa para redimensionar as fotos.
+
+- [ ] **Passo 5: 🟦 `[VPS]` Instalar dependências de produção com PHP 8.3**
 
 ```bash
 cd /var/www/$SITE
-composer install --no-dev --optimize-autoloader --no-interaction 2>&1 | tail -15
-php -r 'require "vendor/autoload.php"; echo "autoload OK\n";'
+php8.3 /usr/local/bin/composer install --no-dev --optimize-autoloader --no-interaction 2>&1 | tail -15
+php8.3 -r 'require "vendor/autoload.php"; echo "autoload OK\n";'
 ```
 
 **Esperado:** `Generating optimized autoload files` e `autoload OK`. Avisos de pacote abandonado são esperados (Laravel 8) e não bloqueiam.
-**Claude valida:** ausência de erro de extensão ou de versão de PHP.
+**Claude valida:** ausência de erro de extensão ou de plataforma. Se o composer não estiver em `/usr/local/bin`, ajuste o caminho conforme o passo anterior.
 
 ---
 
@@ -425,7 +452,7 @@ grep -E '^(APP_URL|APP_DEBUG|DB_DATABASE|DB_USERNAME|DB_HOST|MAIL_MAILER)' .env
 - [ ] **Passo 3: 🟦 `[VPS]` Testar a conexão com o banco pelo app**
 
 ```bash
-cd /var/www/$SITE && php artisan migrate:status 2>&1 | tail -8
+cd /var/www/$SITE && php8.3 artisan migrate:status 2>&1 | tail -8
 ```
 
 **Esperado:** as 19 migrations listadas como `Ran`. Nenhuma pendente.
@@ -459,7 +486,7 @@ Rode antes e depois do rsync — os dois números têm de coincidir.
 
 ```bash
 cd /var/www/$SITE
-rm -f public/storage && php artisan storage:link
+rm -f public/storage && php8.3 artisan storage:link
 chown -R deploy:www-data /var/www/$SITE
 find /var/www/$SITE -type d -not -path '*/.git/*' -exec chmod 755 {} \;
 find /var/www/$SITE -type f -not -path '*/.git/*' -exec chmod 644 {} \;
@@ -476,8 +503,8 @@ ls -la public/storage && stat -c '%U:%G %a' . storage bootstrap/cache .env
 
 ```bash
 cd /var/www/$SITE
-php artisan config:clear && php artisan cache:clear && php artisan view:clear && php artisan route:clear
-php artisan config:cache && php artisan route:cache && php artisan view:cache
+php8.3 artisan config:clear && php8.3 artisan cache:clear && php8.3 artisan view:clear && php8.3 artisan route:clear
+php8.3 artisan config:cache && php8.3 artisan route:cache && php8.3 artisan view:cache
 ls -la bootstrap/cache/
 ```
 
@@ -920,8 +947,8 @@ find /var/www/$SITE/storage/app -type f | wc -l
 cd /var/www/$SITE
 chown -R deploy:www-data storage
 chmod -R 775 storage
-php artisan config:clear && php artisan cache:clear && php artisan view:clear && php artisan route:clear
-php artisan config:cache && php artisan route:cache && php artisan view:cache
+php8.3 artisan config:clear && php8.3 artisan cache:clear && php8.3 artisan view:clear && php8.3 artisan route:clear
+php8.3 artisan config:cache && php8.3 artisan route:cache && php8.3 artisan view:cache
 systemctl reload php8.3-fpm
 ```
 
@@ -1065,18 +1092,29 @@ flock -n 9 || { echo "Deploy de $SITE já em andamento. Abortando."; exit 1; }
 echo "==> Deploy de $SITE — $(date '+%F %T')"
 cd "$APP"
 
-echo "--> git pull"
-git pull --ff-only
+# safe.directory idempotente: os scripts existentes fazem --add a cada deploy,
+# e por isso o gitconfig global já tem taketicket repetido 15 vezes.
+git config --global --get-all safe.directory | grep -qx "$APP" \
+  || git config --global --add safe.directory "$APP"
 
-echo "--> composer"
-composer install --no-dev --optimize-autoloader --no-interaction
+echo "--> modo de manutencao"
+php8.3 artisan down --retry=15 || true
+trap 'cd "$APP" && php8.3 artisan up || true' EXIT
+
+echo "--> codigo (fetch + reset, padrao masterveiculos/taketicket)"
+git fetch origin main
+git reset --hard origin/main
+git log --oneline -1
+
+echo "--> composer (PHP 8.3 explicito — o php default do servidor e 8.4)"
+php8.3 /usr/local/bin/composer install --no-dev --optimize-autoloader --no-interaction
 
 echo "--> migrations"
-php artisan migrate --force
+php8.3 artisan migrate --force
 
 echo "--> caches"
-php artisan config:clear && php artisan cache:clear && php artisan view:clear && php artisan route:clear
-php artisan config:cache && php artisan route:cache && php artisan view:cache
+php8.3 artisan config:clear && php8.3 artisan cache:clear && php8.3 artisan view:clear && php8.3 artisan route:clear
+php8.3 artisan config:cache && php8.3 artisan route:cache && php8.3 artisan view:cache && php8.3 artisan event:cache
 
 echo "--> permissoes"
 chown -R deploy:www-data "$APP"
@@ -1084,6 +1122,10 @@ chmod -R 775 "$APP/storage" "$APP/bootstrap/cache"
 
 echo "--> reload fpm"
 systemctl reload php8.3-fpm
+
+echo "--> saindo do modo de manutencao"
+php8.3 artisan up
+trap - EXIT
 
 echo "--> smoke test"
 CODE=$(curl -so /dev/null -w '%{http_code}' --max-time 20 "https://__DOMAIN__/")
@@ -1098,7 +1140,14 @@ bash -n /home/deploy/deploy-$SITE.sh && echo "SINTAXE OK"
 ```
 
 **Esperado:** `SINTAXE OK`.
-**Claude valida:** o `flock` evita deploy concorrente; o smoke test faz o script **falhar alto** se a home quebrar, em vez de sair silencioso.
+**Claude valida:** quatro coisas que os scripts existentes não têm e que valem a pena:
+
+| Adição | Por quê |
+|---|---|
+| `flock` | Impede dois deploys simultâneos corrompendo `vendor/` no meio do `composer install` |
+| `trap ... EXIT` no `artisan up` | Se o deploy falhar no meio, o site **sai** do modo de manutenção em vez de ficar preso nele. O `deploy-rocanossa.sh` atual deixaria o site fora do ar se o `composer install` falhasse |
+| smoke test com `exit 1` | Faz o script **falhar alto** se a home quebrar, em vez de terminar com "Deploy complete" sobre um site 500 |
+| `safe.directory` com `--get` antes | Evita o acúmulo infinito no gitconfig global |
 
 > ⚠️ O script precisa rodar **como root** (faz `chown` e `systemctl reload`), igual aos `deploy-*.sh` já existentes, que são `root:root`.
 
