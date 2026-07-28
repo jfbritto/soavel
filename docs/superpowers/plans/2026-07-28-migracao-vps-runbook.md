@@ -1666,10 +1666,10 @@ duraram ~7 min (Soavel) e ~5 min (Friedrich).
 | 3 | 3.3 backup **off-site** | ⏳ pendente | ⏳ pendente |
 | 3 | 3.4 observação de 48h | ☐ | ☐ |
 | 3 | 3.5 bug dos documentos | ✅ | ✅ |
-| 3 | reboot do VPS | ☐ | — |
-| 4 | 4.1 provision-tenant.sh | ☐ | — |
-| 4 | 4.2 docs/novo-tenant.md | ☐ | — |
-| 4 | 4.3 limpeza da origem (T+7d) | ☐ | ☐ |
+| 3 | reboot do VPS | ⏳ pendente | — |
+| 4 | 4.1 provision-tenant.sh | ✅ testado (criar + destruir) | — |
+| 4 | 4.2 docs/novo-tenant.md | ✅ | — |
+| 4 | 4.3 limpeza da origem (04/08) | ⏳ pendente | ⏳ pendente |
 
 ### Pendências registradas
 
@@ -1708,6 +1708,50 @@ de perdida no log, já que o cron não tem `MAILTO` configurado.
 vazio. Se esses sites guardam uploads em outro lugar (por exemplo direto em
 `public/`), continuam sem cópia. Fora do escopo desta migração, mas o
 `backup.sh` dá a impressão de cobrir tudo — vale verificar.
+
+**Reboot do VPS.** O servidor sinaliza `*** System restart required ***`, com 51
+atualizações pendentes e 1 de segurança. Não foi feito hoje porque derrubaria os
+nove sites, inclusive o Jitsi. Escolha uma janela de baixo tráfego. O Ubuntu
+22.04 tem suporte padrão até abril de 2027, então o upgrade para 24.04 é
+assunto separado e sem urgência.
+
+**Limpeza da origem em 04/08 (T+7d).** Ver Task 4.3. Os arquivos antigos ficam
+sete dias como rede de segurança — não é conservadorismo vazio como as 48h do
+TTL, e sim que problemas de migração aparecem no uso real ao longo de dias.
+⛔ **Nunca remover os domínios do cPanel**: a zona DNS deles vive lá.
+
+**Teste de upload no Friedrich.** O rsync final não deletou arquivo nenhum do
+Friedrich (o do Soavel deletou 2, da foto de teste), indicando que o upload de
+arquivo grande não foi exercitado nele. A configuração do pool é idêntica à do
+Soavel e foi validada por `php-fpm -t` e leitura do arquivo, mas o teste de
+ponta a ponta continua pendente. Suba uma foto de alguns MB em
+`https://friedrichveiculos.com.br/admin` para fechar.
+
+### Scripts entregues
+
+| Script | Onde | O que faz |
+|---|---|---|
+| [`scripts/vps/provision-tenant.sh`](../../../scripts/vps/provision-tenant.sh) | `/home/deploy/` | Cria tenant completo; `--destroy <site> --yes` remove. Testado criando e destruindo `teste-provision`, sem afetar os 9 sites. |
+| [`scripts/vps/deploy-tenant.sh`](../../../scripts/vps/deploy-tenant.sh) | `/home/deploy/` | Deploy com trava, modo de manutenção com `trap`, verificação de permissão e smoke test. |
+| `/home/deploy/deploy-<site>.sh` | `/home/deploy/` | Wrappers de uma linha por tenant. |
+| `/home/deploy/backup.sh` | `/home/deploy/` | Cron diário às 3h: todos os bancos, `storage/app` de todos os sites, os `.env` e a config do servidor. |
+
+Os dois primeiros são **versionados no repositório** e chegam ao servidor por
+`git pull` + `install -m 755`. Editar direto no servidor perde o histórico.
+
+### Bugs de aplicação encontrados durante a migração
+
+Validar de verdade revelou três problemas que não eram da infraestrutura:
+
+1. **404 no download de documento de cliente** — `Route::model('document', ...)`
+   global capturava as rotas de cliente. Corrigido e verificado nos dois
+   caminhos (Task 3.5, commit `5c60f6f`).
+2. **`/sitemap.xml` retornava 500 na origem** — 9.824 erros registrados num
+   `laravel.log` de 102 MB, view compilada obsoleta. A migração corrigiu: no VPS
+   responde 200. Estava quebrado há muito tempo, prejudicando o SEO.
+3. **`provision-tenant.sh` criaria admin com `admin@admin.com` / `admin123`** —
+   o `AdminUserSeeder` usa esse fallback quando o `.env` não define
+   `ADMIN_EMAIL`/`ADMIN_PASSWORD`. Corrigido antes do primeiro uso real.
 
 ### Estado ao fim da Fase 1
 
