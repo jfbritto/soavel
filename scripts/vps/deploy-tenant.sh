@@ -25,20 +25,20 @@ flock -n 9 || { echo "Deploy de $SITE ja em andamento. Abortando."; exit 1; }
 echo "==> Deploy de $SITE ($DOMAIN) — $(date '+%F %T')"
 cd "$APP"
 
-# os repos pertencem ao usuario deploy; o git recusa operar como root sem isto.
-# --get antes do --add para nao acumular entradas repetidas no gitconfig global.
-git config --global --get-all safe.directory | grep -qx "$APP" \
-  || git config --global --add safe.directory "$APP"
-
 echo "--> modo de manutencao"
 $PHP artisan down --retry=15 >/dev/null 2>&1 || true
 # se qualquer passo falhar, o site SAI da manutencao em vez de ficar preso nela
 trap 'cd "$APP" && '"$PHP"' artisan up >/dev/null 2>&1 || true' EXIT
 
+# git como deploy, nao como root: as chaves e os aliases "Host github-<site>"
+# vivem em /home/deploy/.ssh/config e os repos pertencem ao deploy. Como root o
+# fetch funcionava apenas nos dois remotes HTTPS publicos (soavel e friedrich) e
+# falhava nos outros sete com "Could not resolve hostname github-<site>".
+# Rodando como deploy tambem dispensa o git config safe.directory.
 echo "--> codigo"
-git fetch origin main
-git reset --hard origin/main
-git log --oneline -1
+sudo -u deploy git fetch origin main
+sudo -u deploy git reset --hard origin/main
+sudo -u deploy git log --oneline -1
 
 echo "--> composer (PHP 8.3 explicito: o php default do servidor e 8.4)"
 $PHP /usr/local/bin/composer install --no-dev --optimize-autoloader --no-interaction
