@@ -1727,6 +1727,65 @@ pool. É o caminho que o `php.ini` global de 2 MB bloquearia — e cada pool tem
 configuração independente, então cada um precisava de teste próprio.
 "Funcionou no outro" não é evidência.
 
+### ⚠️ Mudança de DNS: o incidente de 28/07 e como evitá-lo
+
+Mover a zona do `soavelveiculos.com.br` para o **DNS do Registro.br** custou
+**~3h de site fora do ar**. Não foi acidente de execução — é o comportamento da
+plataforma. Registro para os próximos domínios.
+
+**O que acontece ao clicar em "UTILIZAR DNS DO REGISTRO.BR":**
+
+| Fase | Delegação no `.br` | Zona servida |
+|---|---|---|
+| Antes | nameservers antigos | correta |
+| Transição (até ~2h) | **`a.auto.dns.br` / `b.auto.dns.br`** | **vazia** — editor bloqueado |
+| Depois | `d.sec.dns.br` / `e.sec.dns.br` (varia) | correta, completa |
+
+A delegação vai para os nameservers **transitórios** com a zona vazia, e o painel
+**não permite** popular a zona antes. Resultado: NXDOMAIN para todos os
+resolvers até a transição terminar. Não há como encurtar — republicar, o modo
+básico e reverter a delegação ficam todos travados pelo mesmo contador.
+
+**Dois erros meus de diagnóstico, que custaram tempo e ações inúteis:**
+
+1. **Interpretei "Servidores DNS externos poderão ser delegados em ~2h" como
+   sendo só a trava para remexer na delegação.** Era também o freio da
+   publicação da zona. Se eu tivesse medido em vez de ler — salvar a zona e
+   comparar o serial do SOA antes e depois — teria descoberto o congelamento
+   antes de a delegação virar.
+2. **Passei horas consultando `a.auto.dns.br` e concluindo que a publicação
+   estava quebrada.** Estava perguntando ao servidor errado: a zona real vive nos
+   `sec.dns.br`. A pista estava disponível desde o começo — o `treinaedu.com.br`,
+   que funciona, está em `a.sec.dns.br`/`c.sec.dns.br`. Comparar a delegação de um
+   domínio que funciona com a do que está quebrado deveria ter sido o primeiro
+   passo.
+
+**Diagnóstico correto, em um comando:**
+
+```bash
+dig +noall +authority NS <dominio> @a.dns.br
+#   auto.dns.br  -> transição em andamento, zona vazia, aguardar
+#   sec.dns.br   -> transição concluída, consultar ESTES para ver a zona real
+```
+
+**O caminho sem queda (adotado para os domínios seguintes):**
+
+Usar um DNS externo onde a zona pode ser construída **antes** de mexer na
+delegação — Cloudflare, por exemplo:
+
+1. Criar a zona no provedor externo, com todos os registros
+2. **Verificar por `dig` contra os nameservers dele** que a zona responde certo
+3. Só então trocar os nameservers no Registro.br
+4. Durante a propagação, as duas zonas (antiga e nova) apontam para o mesmo IP,
+   então a mudança é **invisível** — zero downtime
+
+O princípio geral: **a zona nova tem de estar servindo respostas corretas antes
+de a delegação apontar para ela.** O caminho do Registro.br viola isso por
+construção; um provedor externo permite respeitá-lo.
+
+Se ainda assim optar pelo DNS do Registro.br, faça em **janela de baixo tráfego**
+e assuma até 2h de indisponibilidade.
+
 ### Scripts entregues
 
 | Script | Onde | O que faz |
