@@ -67,6 +67,29 @@ Um `index.html`, nesta ordem:
 
 `Entrar` aponta para `https://planilhas.helpdiet.com.br`. `WhatsApp` reusa a URL atual, com o mesmo texto pré-preenchido.
 
+O mockup usou "Gestão Inteligente" como eyebrow do hero, mas esse é o título do **recurso 1** — repetir a mesma frase logo acima do grid que a contém fica redundante. O eyebrow deve ser outra coisa (ex.: "Segurança alimentar para cozinhas profissionais") ou simplesmente não existir.
+
+## Responsividade, metadados e ativos
+
+**Responsividade.** O hero da opção C é de duas colunas e precisa empilhar no celular: texto acima, foto abaixo. A nav colapsa para logo + `Entrar` + `WhatsApp`, escondendo as âncoras. O grid de recursos vai de 3 colunas para 2 e depois 1. É a parte que mais merece teste em tela estreita, porque o hero de duas colunas é o layout mais frágil dos três que avaliamos.
+
+**Metadados.** O WordPress fornecia isso de graça e um HTML escrito à mão não: `<title>`, `meta description`, `og:title`/`og:description`/`og:image` para o preview em WhatsApp — que importa aqui, já que o WhatsApp é o canal de contato — e `lang="pt-BR"`. Também um favicon derivado da logo, que hoje o site tem e não pode regredir.
+
+**Ativos.** A logo original é um PNG de **453 KB** em 877×870, usada num elemento de nav de algumas dezenas de pixels. Precisa de versão reduzida e otimizada; servir 453 KB para desenhar um ícone anularia o ganho de sair do WordPress. A foto do hero (99 KB, webp, 1536×878) está adequada e entra como está.
+
+## Verificação
+
+Antes da troca de DNS, validando pelo `/etc/hosts`:
+
+- a página responde 200 e renderiza com o CSS aplicado (não em texto puro, que é o sintoma de caminho errado do `.css`)
+- os dois CTAs abrem o destino certo: WhatsApp com o texto pré-preenchido, `Entrar` no sistema
+- as âncoras `Recursos` e `Sobre` rolam para as seções
+- o layout empilha corretamente em largura de celular
+- `www` responde 301 para o apex, com certificado válido nos **dois** nomes (conferir com `--cacert`, não com `-k`, que esconderia falha de cadeia)
+- o preview de link no WhatsApp mostra título, descrição e imagem
+
+Depois da troca: os três resolvers públicos apontando para `129.121.50.200`, e `ftp`/`cpanel`/`webmail` deixando de resolver.
+
 ## Infraestrutura
 
 - **Repo:** novo, público, remote HTTPS
