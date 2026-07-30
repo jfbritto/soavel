@@ -121,11 +121,21 @@ Esperado: logo com ~453 KB (877×870) e hero com ~99 KB.
 
 O original tem 453 KB para desenhar um ícone de algumas dezenas de pixels na nav. Servi-lo cru anularia o ganho de sair do WordPress. `sips` é nativo do macOS — não há ImageMagick nesta máquina.
 
+Nome `logo-2x.png` e não `logo@2x.png`: o `@` em URL dentro de `srcset` funciona, mas convida a problema de codificação sem oferecer nada em troca.
+
 ```bash
 sips -Z 96  /tmp/logo-orig.png --out assets/logo.png       >/dev/null
-sips -Z 192 /tmp/logo-orig.png --out assets/logo@2x.png    >/dev/null
+sips -Z 192 /tmp/logo-orig.png --out assets/logo-2x.png    >/dev/null
 sips -Z 32  /tmp/logo-orig.png --out assets/favicon.png    >/dev/null
 sips -Z 180 /tmp/logo-orig.png --out assets/apple-touch-icon.png >/dev/null
+```
+
+- [ ] **Etapa 2b [MAC]: `robots.txt`**
+
+O vhost referencia `/robots.txt`; sem o arquivo, todo rastreador gera um 404.
+
+```bash
+printf 'User-agent: *\nAllow: /\n' > robots.txt
 ```
 
 - [ ] **Etapa 3 [MAC]: verificar o ganho**
@@ -182,7 +192,7 @@ Colapsa no celular escondendo as âncoras e mantendo os dois CTAs, que são a ra
 <header class="sticky top-0 z-50 bg-brand-900 text-white">
   <nav class="mx-auto flex max-w-6xl items-center gap-6 px-5 py-3">
     <a href="/" class="flex items-center gap-2">
-      <img src="/assets/logo.png" srcset="/assets/logo.png 1x, /assets/logo@2x.png 2x"
+      <img src="/assets/logo.png" srcset="/assets/logo.png 1x, /assets/logo-2x.png 2x"
            alt="HelpDiet" width="32" height="32" class="h-8 w-8">
       <span class="text-lg font-bold">HelpDiet</span>
     </a>
@@ -302,16 +312,32 @@ Esperado: arquivo gerado, na casa de poucos KB. Se passar de ~50 KB, o Tailwind 
 
 - [ ] **Etapa 2 [MAC]: servir e conferir**
 
+O `python3` desta máquina é um shim do asdf sem versão definida e falha com "No version is set" — usar `npx serve`.
+
 ```bash
-cd ~/Projetos/helpdiet-site && python3 -m http.server 8099 >/dev/null 2>&1 &
-sleep 1
+cd ~/Projetos/helpdiet-site && npx serve -l 8099 >/dev/null 2>&1 &
+sleep 3
 curl -s -o /dev/null -w 'HTTP %{http_code}\n' http://localhost:8099/
 curl -s -o /dev/null -w 'CSS  HTTP %{http_code}  %{size_download} bytes\n' http://localhost:8099/dist/style.css
 ```
 
-Se o `python3` falhar com "No version is set" (asdf nesta máquina), usar `npx serve -l 8099` no lugar.
-
 Esperado: 200 nos dois. **CSS em 404 é o erro mais provável desta etapa** — significa caminho errado no `<link>`, e a página abriria sem estilo nenhum.
+
+- [ ] **Etapa 2b [MAC]: confirmar que as classes do gradiente existem na saída**
+
+O Tailwind v4 **renomeou** as utilidades de gradiente: `bg-gradient-to-br` virou `bg-linear-to-br`. Classe inexistente não gera erro de build — o Tailwind simplesmente não a emite, e o hero renderiza chapado em vez de com gradiente. É falha silenciosa, então tem que ser verificada explicitamente.
+
+```bash
+grep -c 'linear-gradient' dist/style.css
+```
+
+Esperado: pelo menos 1. Se der `0`, trocar no `index.html`:
+
+```
+bg-gradient-to-br  ->  bg-linear-to-br
+```
+
+e recompilar. Conferir também no navegador que a faixa do hero tem gradiente, não cor única.
 
 - [ ] **Etapa 3 [MAC]: conferir no navegador**
 
@@ -576,14 +602,22 @@ git push origin main
 
 Cópia do servidor divergente do repo faz perder o rastro do que está em produção.
 
+O VPS não tem o repo da soavel clonado num lugar de onde dê para copiar sem arrastar o app junto, e o Mac não alcança o VPS por SSH. Então o arquivo é reescrito no VPS por heredoc — e o `md5` é o que garante que nenhum caractere se perdeu na transcrição.
+
 ```bash
-# escrever /home/deploy/deploy-static.sh com o conteudo identico ao do repo
+# no MAC, obter o md5 de referencia:
+md5 -q ~/Projetos/site-carros/soavel/scripts/vps/deploy-static.sh
+
+# no VPS, escrever o arquivo com heredoc citado ('SCRIPT' entre aspas simples
+# preserva o conteudo literalmente, sem expandir $VARIAVEIS):
+cat > /home/deploy/deploy-static.sh <<'SCRIPT'
+...conteudo identico ao do repo, byte a byte...
+SCRIPT
 chmod 755 /home/deploy/deploy-static.sh
 md5sum /home/deploy/deploy-static.sh | cut -d' ' -f1
-# comparar com o md5 do arquivo no repo (calculado no Mac com: md5 -q scripts/vps/deploy-static.sh)
 ```
 
-Esperado: os dois md5 idênticos.
+Esperado: os dois md5 idênticos. Se divergirem, **parar** — script de deploy diferente do versionado faz perder o rastro do que está em produção.
 
 ---
 
@@ -636,6 +670,19 @@ done
 ```
 
 Esperado: `ttl` ≤ 60 nos três, ainda com `ip=108.167.132.218`. Só seguir quando os três estiverem em 60.
+
+- [ ] **Etapa 2b [VPS]: registrar os CNAMEs antes de apagá-los**
+
+Apagar sem anotar deixa o rollback incompleto — não há como recriar o que não foi registrado.
+
+```bash
+for H in ftp cpanel webmail; do
+  printf "  %-10s CNAME -> %s\n" "$H" \
+    "$(dig +short CNAME $H.helpdiet.com.br @poppy.ns.cloudflare.com)"
+done | tee /root/migracao/cnames-helpdiet-antes.txt
+```
+
+Esperado: os três como CNAME para `helpdiet.com.br.`
 
 - [ ] **Etapa 3 [CLOUDFLARE]: trocar o A e apagar os CNAMEs**
 
