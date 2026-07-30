@@ -63,8 +63,8 @@ $PHP artisan migrate --force
 
 echo "--> caches (umask 022: sem isto nascem 600 e o www-data nao le -> HTTP 500)"
 umask 022
-$PHP artisan config:clear && $PHP artisan cache:clear && $PHP artisan view:clear && $PHP artisan route:clear
-$PHP artisan config:cache && $PHP artisan route:cache && $PHP artisan view:cache
+$PHP artisan config:clear && $PHP artisan cache:clear && $PHP artisan view:clear && $PHP artisan route:clear && $PHP artisan event:clear
+$PHP artisan config:cache && $PHP artisan route:cache && $PHP artisan view:cache && $PHP artisan event:cache
 
 echo "--> permissoes (DEPOIS dos caches — a ordem importa)"
 chown -R deploy:www-data "$APP"
