@@ -25,6 +25,14 @@ flock -n 9 || { echo "Deploy de $SITE ja em andamento. Abortando."; exit 1; }
 echo "==> Deploy de $SITE ($DOMAIN) — $(date '+%F %T')"
 cd "$APP"
 
+# O composer roda como root (abaixo) e chama o git por conta propria para
+# resolver versao de pacote. Sem isto ele imprime "detected dubious ownership"
+# e desiste do git — nao aborta o deploy, mas quebraria pacote de fonte VCS.
+# Os passos de fetch/reset nao precisam disto: rodam como deploy, dono do repo.
+# --get antes do --add para nao acumular entradas repetidas no gitconfig global.
+git config --global --get-all safe.directory | grep -qx "$APP" \
+  || git config --global --add safe.directory "$APP"
+
 echo "--> modo de manutencao"
 $PHP artisan down --retry=15 >/dev/null 2>&1 || true
 # se qualquer passo falhar, o site SAI da manutencao em vez de ficar preso nela
