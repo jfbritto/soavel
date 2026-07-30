@@ -99,8 +99,23 @@ class SiteControllerTest extends TestCase
 
     public function test_sitemap_returns_xml()
     {
-        // Skip: sitemap <?xml tag conflicts with PHP short_open_tag=On in Docker test env
-        // Works correctly in production
-        $this->markTestSkipped('Sitemap view requires short_open_tag=Off.');
+        // Este teste esteve markTestSkipped incondicionalmente, com o comentario
+        // "Works correctly in production" — e nao funcionava: /sitemap.xml
+        // devolvia 500 na hospedagem compartilhada, com 9.824 erros acumulados
+        // no log, descoberto na migracao para o VPS.
+        //
+        // A causa era a view abrir com <?xml literal, que o PHP interpreta como
+        // tag de abertura quando short_open_tag=On. A view ja foi corrigida para
+        // emitir a declaracao como expressao Blade, entao o teste volta a valer.
+        $vehicle = Vehicle::factory()->create(['status' => 'disponivel']);
+
+        $response = $this->get('/sitemap.xml');
+
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'application/xml; charset=utf-8');
+        // false no segundo argumento: sem escapar, senao o < viraria &lt;
+        $response->assertSee('<?xml version="1.0" encoding="UTF-8"?>', false);
+        $response->assertSee('<urlset', false);
+        $response->assertSee($vehicle->slug, false);
     }
 }

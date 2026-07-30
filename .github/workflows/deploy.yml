@@ -1,0 +1,84 @@
+name: Test & Deploy
+
+on:
+  push:
+    branches:
+      - main
+  # Para reexecutar sem commit vazio.
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo, pdo_sqlite, sqlite3, xml, ctype, json, bcmath, gd, zip
+          coverage: none
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: Install Dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      # Nao precisa de servico de MySQL: o phpunit.xml do projeto ja define
+      # DB_CONNECTION=sqlite e DB_DATABASE=:memory:. So o APP_KEY falta.
+      - name: Prepare Environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Run Tests
+        run: php artisan test
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: test
+
+    # Deploys NUNCA em paralelo. No treinaedu, merges em sequencia rapida
+    # dispararam dois SSH simultaneos que brigaram no composer e no
+    # config:cache. Um por vez; os pendentes esperam em vez de serem
+    # cancelados, para nao deixar o servidor em estado intermediario.
+    concurrency:
+      group: deploy-soavel
+      cancel-in-progress: false
+
+    steps:
+      # Este repo serve DOIS sites. Os dois passos sao sequenciais de proposito:
+      # ambos chamam systemctl reload php8.3-fpm (servico compartilhado) e ambos
+      # escrevem safe.directory no gitconfig do root.
+      #
+      # Sem guarda de sessao, ao contrario do planilhasnutri: aqui as sessoes sao
+      # de visitante anonimo navegando o catalogo, e um guarda por sessao
+      # bloquearia quase todo deploy. Os ~15s de manutencao custam um soluco de
+      # navegacao, nao trabalho perdido.
+      - name: Deploy soavelveiculos
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: sudo /home/deploy/deploy-soavelveiculos.sh
+
+      - name: Deploy friedrichveiculos
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: sudo /home/deploy/deploy-friedrichveiculos.sh
