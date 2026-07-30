@@ -2,8 +2,9 @@
 # =============================================================================
 # deploy-tenant.sh — deploy de um tenant no VPS
 #
-#   Uso:  deploy-tenant.sh <site> <dominio>
+#   Uso:  deploy-tenant.sh <site> <dominio> [grupo-supervisor]
 #   Ex.:  deploy-tenant.sh soavelveiculos soavelveiculos.com.br
+#         deploy-tenant.sh beautymetrics beautymetrics.com.br 'beautymetrics-worker:*'
 #
 # Os wrappers em /home/deploy/deploy-<site>.sh chamam este script.
 # Rodar como root (faz chown e systemctl reload).
@@ -12,6 +13,12 @@ set -euo pipefail
 
 SITE="${1:?falta o nome do site}"
 DOMAIN="${2:?falta o dominio}"
+# Opcional: grupo do supervisor a reiniciar. Worker de fila e processo de vida
+# longa — carrega o codigo ao subir e continua executando a versao antiga ate
+# ser reiniciado. Sem isto, deploy num site com fila deixa a fila rodando codigo
+# velho, e o sintoma aparece horas depois sem ligacao obvia com o deploy.
+# Vazio nos sites com QUEUE_CONNECTION=sync, que nao tem worker.
+SUPERVISOR_GROUP="${3:-}"
 APP="/var/www/$SITE"
 PHP=php8.3
 LOCK="/tmp/deploy-$SITE.lock"
@@ -71,6 +78,12 @@ ILEGIVEIS=$(find "$APP/storage" "$APP/bootstrap/cache" -type f ! -perm -g=r | wc
 echo "--> reload php-fpm"
 systemctl reload php8.3-fpm
 sleep 2
+
+if [ -n "$SUPERVISOR_GROUP" ]; then
+  echo "--> reiniciando worker ($SUPERVISOR_GROUP)"
+  # roda como root (o wrapper e chamado via sudo), entao dispensa o sudo
+  supervisorctl restart "$SUPERVISOR_GROUP"
+fi
 
 echo "--> saindo da manutencao"
 $PHP artisan up
