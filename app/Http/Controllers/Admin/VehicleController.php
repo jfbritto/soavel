@@ -144,6 +144,7 @@ class VehicleController extends Controller
         ]);
 
         $apiKey = config('services.gemini.key');
+        $modelo = config('services.gemini.model');
         if (!$apiKey) {
             return response()->json(['error' => 'Chave da API Gemini não configurada.'], 422);
         }
@@ -188,7 +189,7 @@ class VehicleController extends Controller
         try {
             $response = \Illuminate\Support\Facades\Http::timeout(30)->withHeaders([
                 'Content-Type' => 'application/json',
-            ])->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={$apiKey}", [
+            ])->post("https://generativelanguage.googleapis.com/v1beta/models/{$modelo}:generateContent?key={$apiKey}", [
                 'contents' => [
                     ['parts' => [['text' => $prompt]]]
                 ],
@@ -202,7 +203,24 @@ class VehicleController extends Controller
             ]);
 
             if (!$response->successful()) {
-                return response()->json(['error' => 'Erro na API Gemini: ' . $response->status()], 500);
+                // O corpo da resposta vai para o log, e nao so o numero.
+                //
+                // Em 04/08/2026 o "Revisar com IA" caiu com 404 e a tela dizia
+                // apenas "Erro na API Gemini: 404". A causa estava no corpo, que
+                // este codigo descartava: "This model gemini-2.5-flash is no
+                // longer available to new users". Sem isso o diagnostico levou
+                // varias rodadas de tentativa.
+                \Illuminate\Support\Facades\Log::warning('Gemini recusou a requisicao', [
+                    'status'  => $response->status(),
+                    'modelo'  => $modelo,
+                    'method'  => __METHOD__,
+                    'retorno' => \Illuminate\Support\Str::limit($response->body(), 500),
+                ]);
+
+                // Ao cliente, mensagem util em vez de codigo tecnico.
+                return response()->json([
+                    'error' => 'Nao foi possivel falar com a IA agora. Tente novamente em instantes.',
+                ], 500);
             }
 
             // Concatena todos os parts (Gemini 2.5 pode ter thinking + resposta)
@@ -244,6 +262,7 @@ class VehicleController extends Controller
     public function reviewVehicle(Request $request)
     {
         $apiKey = config('services.gemini.key');
+        $modelo = config('services.gemini.model');
         if (!$apiKey) {
             return response()->json(['error' => 'Chave da API Gemini não configurada.'], 422);
         }
@@ -306,7 +325,7 @@ class VehicleController extends Controller
         try {
             $response = \Illuminate\Support\Facades\Http::timeout(30)->withHeaders([
                 'Content-Type' => 'application/json',
-            ])->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={$apiKey}", [
+            ])->post("https://generativelanguage.googleapis.com/v1beta/models/{$modelo}:generateContent?key={$apiKey}", [
                 'contents' => [
                     ['parts' => [['text' => $prompt]]]
                 ],
@@ -318,7 +337,24 @@ class VehicleController extends Controller
             ]);
 
             if (!$response->successful()) {
-                return response()->json(['error' => 'Erro na API Gemini: ' . $response->status()], 500);
+                // O corpo da resposta vai para o log, e nao so o numero.
+                //
+                // Em 04/08/2026 o "Revisar com IA" caiu com 404 e a tela dizia
+                // apenas "Erro na API Gemini: 404". A causa estava no corpo, que
+                // este codigo descartava: "This model gemini-2.5-flash is no
+                // longer available to new users". Sem isso o diagnostico levou
+                // varias rodadas de tentativa.
+                \Illuminate\Support\Facades\Log::warning('Gemini recusou a requisicao', [
+                    'status'  => $response->status(),
+                    'modelo'  => $modelo,
+                    'method'  => __METHOD__,
+                    'retorno' => \Illuminate\Support\Str::limit($response->body(), 500),
+                ]);
+
+                // Ao cliente, mensagem util em vez de codigo tecnico.
+                return response()->json([
+                    'error' => 'Nao foi possivel falar com a IA agora. Tente novamente em instantes.',
+                ], 500);
             }
 
             $parts = $response->json('candidates.0.content.parts', []);

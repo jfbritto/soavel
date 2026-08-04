@@ -137,6 +137,7 @@ class OnboardingController extends Controller
     public function aiGenerate(Request $request)
     {
         $apiKey = config('services.gemini.key');
+        $modelo = config('services.gemini.model');
         if (! $apiKey) {
             return response()->json(['error' => 'Chave da API Gemini não configurada.'], 422);
         }
@@ -169,7 +170,7 @@ class OnboardingController extends Controller
         try {
             $response = Http::timeout(30)->withHeaders([
                 'Content-Type' => 'application/json',
-            ])->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={$apiKey}", [
+            ])->post("https://generativelanguage.googleapis.com/v1beta/models/{$modelo}:generateContent?key={$apiKey}", [
                 'contents' => [
                     ['parts' => [['text' => $prompt]]]
                 ],
@@ -181,7 +182,19 @@ class OnboardingController extends Controller
             ]);
 
             if (! $response->successful()) {
-                return response()->json(['error' => 'Erro na API: ' . $response->status()], 500);
+                // Corpo no log, e nao so o numero — ver o comentario equivalente
+                // no VehicleController: foi o corpo descartado que escondeu o
+                // motivo real do 404 de 04/08/2026.
+                \Illuminate\Support\Facades\Log::warning('Gemini recusou a requisicao', [
+                    'status'  => $response->status(),
+                    'modelo'  => $modelo,
+                    'method'  => __METHOD__,
+                    'retorno' => \Illuminate\Support\Str::limit($response->body(), 500),
+                ]);
+
+                return response()->json([
+                    'error' => 'Nao foi possivel falar com a IA agora. Tente novamente em instantes.',
+                ], 500);
             }
 
             $parts = $response->json('candidates.0.content.parts', []);
