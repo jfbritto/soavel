@@ -32,6 +32,19 @@ return [
 
     'gemini' => [
         'key' => env('GEMINI_API_KEY'),
+
+        // O modelo fica aqui, e nao fixo no codigo, porque o Google descontinua
+        // versoes: em 04/08/2026 o gemini-2.5-flash passou a responder 404 com
+        // "no longer available to new users" e o "Revisar com IA" parou.
+        //
+        // Versao FIXA, e nao um apelido como gemini-flash-latest: apelido muda
+        // sozinho, e o proprio gemini-flash-latest ja rejeita o thinkingConfig
+        // que este codigo envia. Versao fixa nao muda comportamento em producao
+        // sem deploy, e o env permite trocar sem alterar codigo se voltar a cair.
+        //
+        // Ao trocar, testar CHAMANDO o modelo: aparecer em GET /models nao
+        // significa poder usar. O 2.5-flash aparecia na lista e dava 404.
+        'model' => env('GEMINI_MODEL', 'gemini-3.5-flash'),
     ],
 
     'master' => [
