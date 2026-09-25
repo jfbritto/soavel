@@ -166,7 +166,7 @@
         </div>
 
         {{-- ── Veículos de Troca ───────────────────────────────────────────── --}}
-        <div id="cardTroca" style="display:none">
+        <div id="cardTroca" class="mb-3" style="display:none">
             <div class="card card-warning card-outline">
                 <div class="card-header">
                     <h3 class="card-title"><i class="fas fa-exchange-alt mr-2"></i>Veículos de Troca</h3>
@@ -210,8 +210,8 @@
             @include('admin.sales.partials.troca-item', ['i' => '__INDEX__', 't' => []])
         </template>
 
-        {{-- Botões --}}
-        <div class="pb-4">
+        {{-- Botões (padding, não margin: margin colapsaria com a do card acima) --}}
+        <div class="pt-3 pb-4">
             <button type="submit" class="btn btn-success btn-lg px-4">
                 <i class="fas fa-save mr-2"></i>Registrar Venda
             </button>

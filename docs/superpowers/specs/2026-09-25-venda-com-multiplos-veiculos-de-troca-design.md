@@ -37,9 +37,11 @@ seguindo o padrão já usado em `vehicle_partners` (belongsToMany com `withPivot
 ### Compatibilidade
 
 - A migration copia os dados existentes de `troca_vehicle_id`/`valor_troca` para a nova tabela.
-- As colunas antigas **não são removidas** nesta entrega: o projeto não tem `doctrine/dbal`
-  (Laravel 8) e os testes rodam em SQLite, onde `dropColumn` falharia. Elas deixam de ser
-  lidas e escritas pelo código. Podem ser removidas numa migration futura.
+- As colunas antigas foram mantidas na primeira entrega (25/09, PR #1) e **removidas em
+  seguida** pela migration `000017`, em MySQL. Em SQLite (só testes) a remoção é pulada:
+  o Laravel 8 sem `doctrine/dbal` não remove coluna com chave estrangeira sem recriar a
+  tabela. O `down()` da `000017` recria as colunas e recopia o primeiro carro de troca de
+  cada venda, para que a versão anterior do código volte a funcionar num rollback.
 - Sem regra de unicidade em `vehicle_id` na nova tabela (dados legados poderiam violar);
   unicidade só do par `(sale_id, vehicle_id)`.
 
