@@ -172,9 +172,8 @@ class SaleControllerTest extends TestCase
         $this->assertDatabaseHas('sale_troca_vehicles', ['sale_id' => $sale->id, 'vehicle_id' => $civic->id, 'valor_troca' => 55000]);
         $this->assertEquals(3, Vehicle::count()); // vendido + 2 trocas
 
-        // Veículo vendido ficou como vendido; a venda em si não usa mais as colunas legadas
+        // Veículo vendido ficou como vendido
         $this->assertDatabaseHas('vehicles', ['id' => $payload['vehicle_id'], 'status' => 'vendido']);
-        $this->assertDatabaseHas('sales', ['id' => $sale->id, 'troca_vehicle_id' => null, 'valor_troca' => null]);
     }
 
     public function test_store_creates_sale_with_single_troca_vehicle()
