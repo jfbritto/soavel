@@ -53,7 +53,7 @@
             <a href="{{ route('admin.sales.show', $vehicle->vendaOrigem) }}"><strong>Venda #{{ $vehicle->vendaOrigem->id }}</strong></a>
             ({{ $vehicle->vendaOrigem->data_venda->format('d/m/Y') }})
             @if($vehicle->vendaOrigem->customer) — Cliente: <strong>{{ $vehicle->vendaOrigem->customer->nome }}</strong>@endif
-            @if($vehicle->vendaOrigem->valor_troca) · Valor avaliado: <strong>R$ {{ number_format($vehicle->vendaOrigem->valor_troca, 0, ',', '.') }}</strong>@endif
+            @if($vehicle->vendaOrigem->pivot->valor_troca) · Valor avaliado: <strong>R$ {{ number_format($vehicle->vendaOrigem->pivot->valor_troca, 0, ',', '.') }}</strong>@endif
         </span>
         <button type="button" class="close ml-auto" data-dismiss="alert"><span>&times;</span></button>
     </div>

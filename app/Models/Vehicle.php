@@ -94,11 +94,22 @@ class Vehicle extends Model
     }
 
     /**
-     * Venda na qual este veículo foi entrado como troca.
+     * Vendas nas quais este veículo entrou como troca.
+     * O valor avaliado fica no pivot (valor_troca). Na prática é uma só.
      */
-    public function vendaOrigem()
+    public function vendasOrigem()
     {
-        return $this->hasOne(Sale::class, 'troca_vehicle_id');
+        return $this->belongsToMany(Sale::class, 'sale_troca_vehicles')
+                    ->withPivot('valor_troca')
+                    ->withTimestamps();
+    }
+
+    /**
+     * Venda na qual este veículo foi entrado como troca (a primeira, se houver).
+     */
+    public function getVendaOrigemAttribute(): ?Sale
+    {
+        return $this->vendasOrigem->first();
     }
 
     // ── Accessors ─────────────────────────────────────────────────────────────

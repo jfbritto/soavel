@@ -112,15 +112,17 @@
                     </div>
                     @endif
 
-                    {{-- Veículo de Troca --}}
-                    @if($sale->trocaVehicle)
+                    {{-- Veículos de Troca --}}
+                    @if($sale->trocaVehicles->isNotEmpty())
                     <hr class="my-3">
                     <p class="text-muted text-uppercase mb-2" style="font-size:.72rem;letter-spacing:.08em;font-weight:700">
-                        <i class="fas fa-exchange-alt mr-1"></i>Veículo de Troca
+                        <i class="fas fa-exchange-alt mr-1"></i>
+                        {{ $sale->trocaVehicles->count() > 1 ? 'Veículos de Troca (' . $sale->trocaVehicles->count() . ')' : 'Veículo de Troca' }}
                     </p>
-                    <div class="d-flex align-items-center p-3" style="background:#fafafa;border:1px solid #e9ecef;border-radius:6px">
-                        @if($sale->trocaVehicle->principalPhoto)
-                            <img src="{{ $sale->trocaVehicle->principalPhoto->url }}" width="72" height="54"
+                    @foreach($sale->trocaVehicles as $troca)
+                    <div class="d-flex align-items-center p-3 {{ $loop->last ? '' : 'mb-2' }}" style="background:#fafafa;border:1px solid #e9ecef;border-radius:6px">
+                        @if($troca->principalPhoto)
+                            <img src="{{ $troca->principalPhoto->url }}" width="72" height="54"
                                  style="object-fit:cover;border-radius:6px;margin-right:12px;flex-shrink:0;border:1px solid #dee2e6">
                         @else
                             <div style="width:72px;height:54px;background:#e9ecef;border-radius:6px;margin-right:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center">
@@ -128,22 +130,29 @@
                             </div>
                         @endif
                         <div class="flex-grow-1">
-                            <span class="font-weight-bold" style="font-size:.95rem">{{ $sale->trocaVehicle->titulo }}</span>
-                            <span class="text-muted ml-1" style="font-size:.85rem">{{ $sale->trocaVehicle->ano_fabricacao }}/{{ $sale->trocaVehicle->ano_modelo }}</span><br>
+                            <span class="font-weight-bold" style="font-size:.95rem">{{ $troca->titulo }}</span>
+                            <span class="text-muted ml-1" style="font-size:.85rem">{{ $troca->ano_fabricacao }}/{{ $troca->ano_modelo }}</span><br>
                             <span class="text-muted" style="font-size:.82rem">
-                                {{ $sale->trocaVehicle->km_formatado }} · {{ ucfirst($sale->trocaVehicle->combustivel) }} · {{ $sale->trocaVehicle->cor }}
+                                {{ $troca->km_formatado }} · {{ ucfirst($troca->combustivel) }} · {{ $troca->cor }}
                             </span>
                         </div>
                         <div class="text-right ml-3" style="flex-shrink:0">
-                            @if($sale->valor_troca)
-                                <div class="font-weight-bold" style="font-size:1rem">R$ {{ number_format($sale->valor_troca, 0, ',', '.') }}</div>
+                            @if($troca->pivot->valor_troca)
+                                <div class="font-weight-bold" style="font-size:1rem">R$ {{ number_format($troca->pivot->valor_troca, 0, ',', '.') }}</div>
                                 <small class="text-muted d-block mb-2">valor avaliado</small>
                             @endif
-                            <a href="{{ route('admin.vehicles.show', $sale->trocaVehicle) }}" class="btn btn-sm btn-outline-secondary">
+                            <a href="{{ route('admin.vehicles.show', $troca) }}" class="btn btn-sm btn-outline-secondary">
                                 <i class="fas fa-eye mr-1"></i>Ver no estoque
                             </a>
                         </div>
                     </div>
+                    @endforeach
+                    @if($sale->trocaVehicles->count() > 1 && $sale->valor_troca_total > 0)
+                    <div class="text-right mt-2" style="font-size:.9rem">
+                        <span class="text-muted">Total avaliado em troca:</span>
+                        <span class="font-weight-bold ml-1">R$ {{ number_format($sale->valor_troca_total, 0, ',', '.') }}</span>
+                    </div>
+                    @endif
                     @endif
 
                     {{-- Observações --}}

@@ -11,7 +11,6 @@ class Sale extends Model
 
     protected $fillable = [
         'vehicle_id', 'customer_id', 'user_id',
-        'troca_vehicle_id', 'valor_troca',
         'preco_venda', 'tipo_pagamento', 'financiadora',
         'parcelas', 'entrada', 'data_venda', 'status', 'observacoes',
     ];
@@ -19,7 +18,6 @@ class Sale extends Model
     protected $casts = [
         'preco_venda'  => 'decimal:2',
         'entrada'      => 'decimal:2',
-        'valor_troca'  => 'decimal:2',
         'data_venda'   => 'date',
     ];
 
@@ -38,9 +36,23 @@ class Sale extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function trocaVehicle()
+    /**
+     * Veículos que o cliente entregou como parte do pagamento (troca).
+     * O valor avaliado de cada um fica no pivot (valor_troca).
+     */
+    public function trocaVehicles()
     {
-        return $this->belongsTo(Vehicle::class, 'troca_vehicle_id');
+        return $this->belongsToMany(Vehicle::class, 'sale_troca_vehicles')
+                    ->withPivot('valor_troca')
+                    ->withTimestamps();
+    }
+
+    /**
+     * Soma dos valores avaliados de todos os veículos de troca.
+     */
+    public function getValorTrocaTotalAttribute(): float
+    {
+        return (float) $this->trocaVehicles->sum(fn ($v) => (float) $v->pivot->valor_troca);
     }
 
     public function getTipoPagamentoLabelAttribute(): string
