@@ -75,4 +75,28 @@ class SaleTest extends TestCase
         $sale = Sale::factory()->create(['preco_venda' => 75000.00]);
         $this->assertStringContainsString('75', $sale->precoVendaFormatado);
     }
+
+    public function test_troca_vehicles_relation_and_total()
+    {
+        $sale = Sale::factory()->create(['tipo_pagamento' => 'misto']);
+        $a = Vehicle::factory()->create();
+        $b = Vehicle::factory()->create();
+
+        $sale->trocaVehicles()->attach($a->id, ['valor_troca' => 30000]);
+        $sale->trocaVehicles()->attach($b->id, ['valor_troca' => 55000.50]);
+
+        $sale->refresh();
+
+        $this->assertCount(2, $sale->trocaVehicles);
+        $this->assertEquals(85000.50, $sale->valor_troca_total);
+        $this->assertEquals(30000, $sale->trocaVehicles->firstWhere('id', $a->id)->pivot->valor_troca);
+        $this->assertEquals($sale->id, $a->fresh()->vendaOrigem->id);
+        $this->assertNull(Vehicle::factory()->create()->vendaOrigem);
+    }
+
+    public function test_valor_troca_total_is_zero_without_troca()
+    {
+        $sale = Sale::factory()->create();
+        $this->assertSame(0.0, $sale->valor_troca_total);
+    }
 }

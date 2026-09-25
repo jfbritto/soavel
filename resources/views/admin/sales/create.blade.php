@@ -165,165 +165,38 @@
             </div>
         </div>
 
-        {{-- ── Veículo de Troca ────────────────────────────────────────────── --}}
+        {{-- ── Veículos de Troca ───────────────────────────────────────────── --}}
         <div id="cardTroca" style="display:none">
             <div class="card card-warning card-outline">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-exchange-alt mr-2"></i>Veículo de Troca</h3>
+                    <h3 class="card-title"><i class="fas fa-exchange-alt mr-2"></i>Veículos de Troca</h3>
                     <div class="card-tools">
-                        <span class="badge badge-warning px-2 py-1">Será cadastrado no estoque como Disponível</span>
+                        <span class="badge badge-warning px-2 py-1">Serão cadastrados no estoque como Disponível</span>
                     </div>
                 </div>
                 <div class="card-body">
 
-                    {{-- Valor Avaliado (destaque) --}}
-                    <div class="row mb-2">
-                        <div class="col-md-4">
-                            <div class="form-group mb-0">
-                                <label for="valorTrocaDisplay"><i class="fas fa-tag mr-1 text-warning"></i>Valor Avaliado na Troca *</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend"><span class="input-group-text font-weight-bold text-warning">R$</span></div>
-                                    <input type="text" id="valorTrocaDisplay"
-                                        class="form-control font-weight-bold @error('valor_troca') is-invalid @enderror"
-                                        placeholder="0,00"
-                                        value="{{ old('valor_troca') ? number_format(old('valor_troca'), 2, ',', '.') : '' }}"
-                                        autocomplete="off">
-                                </div>
-                                <input type="hidden" name="valor_troca" id="valorTroca" value="{{ old('valor_troca') }}">
-                                @error('valor_troca')<span class="text-danger small">{{ $message }}</span>@enderror
-                                <small class="text-muted">Quanto este veículo vale na troca</small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <hr class="mt-2 mb-3">
-                    <p class="text-muted font-weight-bold mb-2 small text-uppercase"><i class="fas fa-car mr-1"></i>Identificação</p>
-
-                    {{-- Identificação --}}
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label for="troca_marca">Marca *</label>
-                                <input type="text" name="troca_marca" id="troca_marca"
-                                    class="form-control @error('troca_marca') is-invalid @enderror"
-                                    value="{{ old('troca_marca') }}"
-                                    placeholder="Ex: Chevrolet">
-                                @error('troca_marca')<span class="invalid-feedback">{{ $message }}</span>@enderror
-                            </div>
-                        </div>
-                        <div class="col-md-5">
-                            <div class="form-group">
-                                <label for="troca_modelo">Modelo *</label>
-                                <input type="text" name="troca_modelo" id="troca_modelo"
-                                    class="form-control @error('troca_modelo') is-invalid @enderror"
-                                    value="{{ old('troca_modelo') }}"
-                                    placeholder="Ex: Onix LT 1.0">
-                                @error('troca_modelo')<span class="invalid-feedback">{{ $message }}</span>@enderror
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <label for="troca_cor">Cor *</label>
-                                <input type="text" name="troca_cor" id="troca_cor"
-                                    class="form-control @error('troca_cor') is-invalid @enderror"
-                                    value="{{ old('troca_cor') }}" placeholder="Ex: Prata">
-                                @error('troca_cor')<span class="invalid-feedback">{{ $message }}</span>@enderror
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <label for="troca_versao">Versão</label>
-                                <input type="text" name="troca_versao" id="troca_versao"
-                                    class="form-control"
-                                    value="{{ old('troca_versao') }}" placeholder="Opcional">
-                            </div>
-                        </div>
-                    </div>
-
-                    <p class="text-muted font-weight-bold mb-2 small text-uppercase"><i class="fas fa-cog mr-1"></i>Dados Técnicos</p>
-
-                    {{-- Dados técnicos --}}
-                    <div class="row">
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <label for="troca_ano_fabricacao">Ano Fab. *</label>
-                                <input type="text" name="troca_ano_fabricacao" id="troca_ano_fabricacao"
-                                    class="form-control mask-ano @error('troca_ano_fabricacao') is-invalid @enderror"
-                                    value="{{ old('troca_ano_fabricacao') }}" placeholder="{{ date('Y') }}"
-                                    maxlength="4" inputmode="numeric">
-                                @error('troca_ano_fabricacao')<span class="invalid-feedback">{{ $message }}</span>@enderror
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <label for="troca_ano_modelo">Ano Mod. *</label>
-                                <input type="text" name="troca_ano_modelo" id="troca_ano_modelo"
-                                    class="form-control mask-ano @error('troca_ano_modelo') is-invalid @enderror"
-                                    value="{{ old('troca_ano_modelo') }}" placeholder="{{ date('Y') + 1 }}"
-                                    maxlength="4" inputmode="numeric">
-                                @error('troca_ano_modelo')<span class="invalid-feedback">{{ $message }}</span>@enderror
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label for="troca_km_display">Quilometragem *</label>
-                                <div class="input-group">
-                                    <input type="text" id="troca_km_display"
-                                        class="form-control @error('troca_km') is-invalid @enderror"
-                                        value="{{ old('troca_km') ? number_format(old('troca_km'), 0, ',', '.') : '' }}"
-                                        placeholder="45.000" autocomplete="off" inputmode="numeric">
-                                    <div class="input-group-append"><span class="input-group-text">km</span></div>
-                                </div>
-                                <input type="hidden" name="troca_km" id="troca_km" value="{{ old('troca_km') }}">
-                                @error('troca_km')<span class="text-danger small">{{ $message }}</span>@enderror
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <label for="troca_categoria">Categoria *</label>
-                                <select name="troca_categoria" id="troca_categoria"
-                                    class="form-control @error('troca_categoria') is-invalid @enderror">
-                                    <option value="">— Selec. —</option>
-                                    @foreach(['hatch'=>'Hatch','sedan'=>'Sedan','suv'=>'SUV','pickup'=>'Pickup','van'=>'Van','esportivo'=>'Esportivo','outro'=>'Outro'] as $val => $lbl)
-                                        <option value="{{ $val }}" {{ (old('troca_categoria') === $val) ? 'selected' : '' }}>{{ $lbl }}</option>
-                                    @endforeach
-                                </select>
-                                @error('troca_categoria')<span class="invalid-feedback">{{ $message }}</span>@enderror
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label for="troca_combustivel">Combustível *</label>
-                                <select name="troca_combustivel" id="troca_combustivel"
-                                    class="form-control @error('troca_combustivel') is-invalid @enderror">
-                                    <option value="">— Selecionar —</option>
-                                    @foreach(['flex'=>'Flex','gasolina'=>'Gasolina','etanol'=>'Etanol','diesel'=>'Diesel','gnv'=>'GNV','hibrido'=>'Híbrido','eletrico'=>'Elétrico'] as $val => $lbl)
-                                        <option value="{{ $val }}" {{ (old('troca_combustivel') === $val) ? 'selected' : '' }}>{{ $lbl }}</option>
-                                    @endforeach
-                                </select>
-                                @error('troca_combustivel')<span class="invalid-feedback">{{ $message }}</span>@enderror
-                            </div>
-                        </div>
+                    @php
+                        // Restaura os blocos digitados após erro de validação; senão, um bloco vazio
+                        $trocasOld = old('trocas');
+                        $trocasOld = is_array($trocasOld) && count($trocasOld) ? array_values($trocasOld) : [[]];
+                    @endphp
+                    <div id="trocasContainer">
+                        @foreach($trocasOld as $i => $t)
+                            @include('admin.sales.partials.troca-item', ['i' => $i, 't' => $t])
+                        @endforeach
                     </div>
 
                     <div class="row align-items-center">
                         <div class="col-md-4">
-                            <div class="form-group mb-0">
-                                <label for="troca_transmissao">Transmissão *</label>
-                                <select name="troca_transmissao" id="troca_transmissao"
-                                    class="form-control @error('troca_transmissao') is-invalid @enderror">
-                                    <option value="">— Selecionar —</option>
-                                    @foreach(['manual'=>'Manual','automatico'=>'Automático','cvt'=>'CVT','semi_automatico'=>'Semi-automático'] as $val => $lbl)
-                                        <option value="{{ $val }}" {{ (old('troca_transmissao') === $val) ? 'selected' : '' }}>{{ $lbl }}</option>
-                                    @endforeach
-                                </select>
-                                @error('troca_transmissao')<span class="invalid-feedback">{{ $message }}</span>@enderror
-                            </div>
+                            <button type="button" class="btn btn-outline-warning" id="btnAddTroca">
+                                <i class="fas fa-plus mr-1"></i>Adicionar outro veículo de troca
+                            </button>
                         </div>
                         <div class="col-md-8">
-                            <div class="callout callout-info mb-0 mt-3" style="padding:10px 14px">
+                            <div class="callout callout-info mb-0" style="padding:10px 14px">
                                 <i class="fas fa-info-circle mr-1"></i>
-                                O veículo será criado no estoque como <strong>Disponível</strong>. Edite-o depois para adicionar fotos e opcionais.
+                                Cada veículo será criado no estoque como <strong>Disponível</strong>. Edite-os depois para adicionar fotos e opcionais.
                             </div>
                         </div>
                     </div>
@@ -331,6 +204,11 @@
                 </div>
             </div>
         </div>
+
+        {{-- Modelo de um bloco de troca, clonado pelo JS ao clicar em "Adicionar" --}}
+        <template id="trocaTemplate">
+            @include('admin.sales.partials.troca-item', ['i' => '__INDEX__', 't' => []])
+        </template>
 
         {{-- Botões --}}
         <div class="pb-4">
@@ -458,11 +336,12 @@ function applyKmMask(displayEl, hiddenEl) {
 }
 
 // ── Máscara de ano (4 dígitos numéricos) ──────────────────────────────────────
-document.querySelectorAll('.mask-ano').forEach(function(el) {
+function applyAnoMask(el) {
     el.addEventListener('input', function() {
         this.value = this.value.replace(/\D/g, '').slice(0, 4);
     });
-});
+}
+document.querySelectorAll('.mask-ano').forEach(applyAnoMask);
 
 // ── Aplicar máscaras ──────────────────────────────────────────────────────────
 applyCurrencyMask(
@@ -473,14 +352,43 @@ applyCurrencyMask(
     document.getElementById('entradaDisplay'),
     document.getElementById('entrada')
 );
-applyCurrencyMask(
-    document.getElementById('valorTrocaDisplay'),
-    document.getElementById('valorTroca')
-);
-applyKmMask(
-    document.getElementById('troca_km_display'),
-    document.getElementById('troca_km')
-);
+
+// ── Veículos de troca (blocos repetíveis) ─────────────────────────────────────
+var trocasContainer = document.getElementById('trocasContainer');
+var trocaIndex = trocasContainer.querySelectorAll('.troca-item').length;
+
+function renumerarTrocas() {
+    var itens = trocasContainer.querySelectorAll('.troca-item');
+    itens.forEach(function(item, idx) {
+        item.querySelector('.troca-numero').textContent = idx + 1;
+        // Com um único bloco não faz sentido remover: o bloco vazio é ignorado no servidor
+        item.querySelector('.btnRemoverTroca').style.display = itens.length > 1 ? '' : 'none';
+    });
+}
+
+function initTrocaItem(item) {
+    applyCurrencyMask(item.querySelector('.troca-valor-display'), item.querySelector('.troca-valor'));
+    applyKmMask(item.querySelector('.troca-km-display'), item.querySelector('.troca-km'));
+    item.querySelector('.btnRemoverTroca').addEventListener('click', function() {
+        item.remove();
+        renumerarTrocas();
+    });
+}
+
+trocasContainer.querySelectorAll('.troca-item').forEach(initTrocaItem);
+renumerarTrocas();
+
+document.getElementById('btnAddTroca').addEventListener('click', function() {
+    var html    = document.getElementById('trocaTemplate').innerHTML.replace(/__INDEX__/g, trocaIndex++);
+    var wrapper = document.createElement('div');
+    wrapper.innerHTML = html.trim();
+    var item = wrapper.firstElementChild;
+    trocasContainer.appendChild(item);
+    item.querySelectorAll('.mask-ano').forEach(applyAnoMask);
+    initTrocaItem(item);
+    renumerarTrocas();
+    item.querySelector('.troca-valor-display').focus();
+});
 
 // ── Preenche preço ao selecionar veículo ──────────────────────────────────────
 document.getElementById('vehicle_id').addEventListener('change', function() {

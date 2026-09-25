@@ -8,6 +8,7 @@ use App\Models\Customer;
 use App\Models\Sale;
 use App\Models\Vehicle;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class SaleController extends Controller
 {
@@ -62,58 +63,52 @@ class SaleController extends Controller
     public function store(StoreSaleRequest $request)
     {
         $data            = $request->validated();
+        $trocas          = $data['trocas'] ?? [];
         $data['user_id'] = auth()->id();
+        unset($data['trocas']);
 
-        // Se há veículo de troca, cadastrá-lo antes de criar a venda
-        if (in_array($data['tipo_pagamento'], ['permuta', 'misto']) && $request->filled('troca_marca')) {
-            $request->validate([
-                'troca_marca'          => 'required|string|max:50',
-                'troca_modelo'         => 'required|string|max:60',
-                'troca_versao'         => 'nullable|string|max:80',
-                'troca_ano_fabricacao' => 'required|integer|min:1950|max:' . (date('Y') + 1),
-                'troca_ano_modelo'     => 'required|integer|min:1950|max:' . (date('Y') + 1),
-                'troca_km'             => 'required|integer|min:0',
-                'troca_cor'            => 'required|string|max:30',
-                'troca_categoria'      => 'required|in:hatch,sedan,suv,pickup,van,esportivo,outro',
-                'troca_combustivel'    => 'required|in:gasolina,etanol,flex,diesel,gnv,hibrido,eletrico',
-                'troca_transmissao'    => 'required|in:manual,automatico,cvt,semi_automatico',
-            ]);
+        $sale = DB::transaction(function () use ($data, $trocas) {
+            $sale = Sale::create($data);
 
-            $slug = Vehicle::generateSlug(
-                $request->troca_marca,
-                $request->troca_modelo,
-                (int) $request->troca_ano_modelo
-            );
+            // Cada veículo de troca entra no estoque como Disponível e fica
+            // vinculado à venda com o seu valor avaliado
+            foreach ($trocas as $troca) {
+                $valorTroca = $troca['valor_troca'] ?? null;
 
-            $trocaVehicle = Vehicle::create([
-                'marca'          => $request->troca_marca,
-                'modelo'         => $request->troca_modelo,
-                'versao'         => $request->troca_versao,
-                'ano_fabricacao' => $request->troca_ano_fabricacao,
-                'ano_modelo'     => $request->troca_ano_modelo,
-                'km'             => $request->troca_km,
-                'cor'            => $request->troca_cor,
-                'categoria'      => $request->troca_categoria,
-                'combustivel'    => $request->troca_combustivel,
-                'transmissao'    => $request->troca_transmissao,
-                'portas'         => 4,
-                'preco_compra'   => $data['valor_troca'] ?? null,
-                'preco'          => $data['valor_troca'] ?? 0,
-                'status'         => 'disponivel',
-                'slug'           => $slug,
-            ]);
+                $trocaVehicle = Vehicle::create([
+                    'marca'          => $troca['marca'],
+                    'modelo'         => $troca['modelo'],
+                    'versao'         => $troca['versao'] ?? null,
+                    'ano_fabricacao' => $troca['ano_fabricacao'],
+                    'ano_modelo'     => $troca['ano_modelo'],
+                    'km'             => $troca['km'],
+                    'cor'            => $troca['cor'],
+                    'categoria'      => $troca['categoria'],
+                    'combustivel'    => $troca['combustivel'],
+                    'transmissao'    => $troca['transmissao'],
+                    'portas'         => 4,
+                    'preco_compra'   => $valorTroca,
+                    'preco'          => $valorTroca ?? 0,
+                    'status'         => 'disponivel',
+                    'slug'           => Vehicle::generateSlug(
+                        $troca['marca'],
+                        $troca['modelo'],
+                        (int) $troca['ano_modelo']
+                    ),
+                ]);
 
-            $data['troca_vehicle_id'] = $trocaVehicle->id;
-        }
+                $sale->trocaVehicles()->attach($trocaVehicle->id, ['valor_troca' => $valorTroca]);
+            }
 
-        $sale = Sale::create($data);
+            // Sincronizar status do veículo vendido
+            if ($sale->status === 'concluida') {
+                $sale->vehicle->update(['status' => 'vendido']);
+            } elseif ($sale->status === 'pendente') {
+                $sale->vehicle->update(['status' => 'reservado']);
+            }
 
-        // Sincronizar status do veículo vendido
-        if ($sale->status === 'concluida') {
-            $sale->vehicle->update(['status' => 'vendido']);
-        } elseif ($sale->status === 'pendente') {
-            $sale->vehicle->update(['status' => 'reservado']);
-        }
+            return $sale;
+        });
 
         return redirect()->route('admin.sales.show', $sale)
             ->with('success', 'Venda registrada com sucesso!');
@@ -121,7 +116,7 @@ class SaleController extends Controller
 
     public function show(Sale $sale)
     {
-        $sale->load(['vehicle.principalPhoto', 'trocaVehicle.principalPhoto', 'customer', 'user']);
+        $sale->load(['vehicle.principalPhoto', 'trocaVehicles.principalPhoto', 'customer', 'user']);
         return view('admin.sales.show', compact('sale'));
     }
 
