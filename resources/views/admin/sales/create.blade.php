@@ -56,7 +56,7 @@
                                 <option value="">— Selecionar cliente —</option>
                                 @foreach($customers as $c)
                                     <option value="{{ $c->id }}" {{ $selectedCustomerId == $c->id ? 'selected' : '' }}>
-                                        {{ $c->nome }}{{ $c->cpf ? ' — ' . $c->cpf : '' }}{{ $c->telefone ? ' · ' . $c->telefone : '' }}
+                                        {{ $c->nome }}{{ $c->documento ? ' — ' . $c->documento : '' }}{{ $c->telefone ? ' · ' . $c->telefone : '' }}
                                     </option>
                                 @endforeach
                             </select>
@@ -231,11 +231,11 @@
                 <div class="modal-body">
                     <div id="modalClienteErros" class="alert alert-danger d-none"></div>
 
-                    {{-- Card: cliente existente com mesmo CPF --}}
+                    {{-- Card: cliente existente com mesmo CPF/CNPJ --}}
                     <div id="modalClienteExistente" class="d-none">
                         <div class="callout callout-warning">
-                            <h6 class="mb-1"><i class="fas fa-user-check mr-1"></i>CPF já cadastrado</h6>
-                            <p class="mb-2 text-muted small">Este CPF pertence ao cliente abaixo. Deseja usá-lo?</p>
+                            <h6 class="mb-1"><i class="fas fa-user-check mr-1"></i><span id="clienteExistenteTitulo">CPF já cadastrado</span></h6>
+                            <p class="mb-2 text-muted small">Este documento pertence ao cliente abaixo. Deseja usá-lo?</p>
                             <div id="clienteExistenteInfo" class="mb-3 font-weight-bold"></div>
                             <button type="button" class="btn btn-success btn-sm" id="btnUsarClienteExistente">
                                 <i class="fas fa-check mr-1"></i>Sim, usar este cliente
@@ -247,17 +247,33 @@
                     </div>
 
                     <div id="modalClienteForm">
+                    <div class="form-group mb-2">
+                        <div class="custom-control custom-radio custom-control-inline">
+                            <input type="radio" id="mc_tipo_pf" name="mc_tipo_pessoa" value="pf" class="custom-control-input mc-tipo-pessoa" checked>
+                            <label class="custom-control-label" for="mc_tipo_pf"><i class="fas fa-user mr-1 text-muted"></i>Pessoa Física (CPF)</label>
+                        </div>
+                        <div class="custom-control custom-radio custom-control-inline">
+                            <input type="radio" id="mc_tipo_pj" name="mc_tipo_pessoa" value="pj" class="custom-control-input mc-tipo-pessoa">
+                            <label class="custom-control-label" for="mc_tipo_pj"><i class="fas fa-building mr-1 text-muted"></i>Pessoa Jurídica (CNPJ)</label>
+                        </div>
+                    </div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Nome Completo *</label>
+                                <label id="mc_labelNome">Nome Completo *</label>
                                 <input type="text" id="mc_nome" class="form-control" placeholder="Nome do cliente" required>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-3" id="mc_colCpf">
                             <div class="form-group">
                                 <label>CPF</label>
                                 <input type="text" id="mc_cpf" class="form-control" placeholder="000.000.000-00" maxlength="14" inputmode="numeric">
+                            </div>
+                        </div>
+                        <div class="col-md-3" id="mc_colCnpj" style="display:none">
+                            <div class="form-group">
+                                <label>CNPJ</label>
+                                <input type="text" id="mc_cnpj" class="form-control" placeholder="00.000.000/0000-00" maxlength="18" inputmode="numeric">
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -431,8 +447,24 @@ function mcTitleCase(str) {
         return word.charAt(0).toUpperCase() + word.slice(1);
     }).join(' ');
 }
+// Tipo de cliente no modal: PF mostra CPF, PJ mostra CNPJ
+function mcTipoPessoa() {
+    return document.querySelector('.mc-tipo-pessoa:checked').value;
+}
+function mcAplicarTipoPessoa() {
+    var pj = mcTipoPessoa() === 'pj';
+    document.getElementById('mc_colCpf').style.display  = pj ? 'none' : '';
+    document.getElementById('mc_colCnpj').style.display = pj ? '' : 'none';
+    document.getElementById('mc_labelNome').textContent = pj ? 'Razão Social / Nome da Empresa *' : 'Nome Completo *';
+    document.getElementById('mc_nome').placeholder      = pj ? 'Ex: Transportes Silva Ltda' : 'Nome do cliente';
+}
+document.querySelectorAll('.mc-tipo-pessoa').forEach(function(el) {
+    el.addEventListener('change', mcAplicarTipoPessoa);
+});
+mcAplicarTipoPessoa();
+
 document.getElementById('mc_nome').addEventListener('blur', function() {
-    if (this.value.trim()) this.value = mcTitleCase(this.value.trim());
+    if (this.value.trim() && mcTipoPessoa() === 'pf') this.value = mcTitleCase(this.value.trim());
 });
 
 var cpfCheckTimer = null;
@@ -445,12 +477,27 @@ document.getElementById('mc_cpf').addEventListener('input', function() {
 
     clearTimeout(cpfCheckTimer);
     if (v.replace(/\D/g, '').length === 11) {
-        cpfCheckTimer = setTimeout(function() { verificarCpf(v); }, 300);
+        cpfCheckTimer = setTimeout(function() { verificarDocumento('cpf', v); }, 300);
     }
 });
 
-function verificarCpf(cpf) {
-    fetch('{{ route('admin.customers.cpf-check') }}?cpf=' + encodeURIComponent(cpf), {
+document.getElementById('mc_cnpj').addEventListener('input', function() {
+    let v = this.value.replace(/\D/g, '').slice(0, 14);
+    if (v.length > 12)      v = v.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{1,2})/, '$1.$2.$3/$4-$5');
+    else if (v.length > 8)  v = v.replace(/^(\d{2})(\d{3})(\d{3})(\d{1,4})/,        '$1.$2.$3/$4');
+    else if (v.length > 5)  v = v.replace(/^(\d{2})(\d{3})(\d{1,3})/,               '$1.$2.$3');
+    else if (v.length > 2)  v = v.replace(/^(\d{2})(\d{1,3})/,                      '$1.$2');
+    this.value = v;
+
+    clearTimeout(cpfCheckTimer);
+    if (v.replace(/\D/g, '').length === 14) {
+        cpfCheckTimer = setTimeout(function() { verificarDocumento('cnpj', v); }, 300);
+    }
+});
+
+// Procura cliente já cadastrado com o mesmo CPF ou CNPJ
+function verificarDocumento(campo, valor) {
+    fetch('{{ route('admin.customers.cpf-check') }}?' + campo + '=' + encodeURIComponent(valor), {
         headers: { 'Accept': 'application/json' }
     })
     .then(function(r) { return r.json(); })
@@ -478,7 +525,9 @@ document.getElementById('btnSalvarCliente').addEventListener('click', function()
     const btn     = this;
     const errosEl = document.getElementById('modalClienteErros');
     const nome    = document.getElementById('mc_nome').value.trim();
+    const tipo    = mcTipoPessoa();
     const cpf     = document.getElementById('mc_cpf').value.trim();
+    const cnpj    = document.getElementById('mc_cnpj').value.trim();
     const tel     = document.getElementById('mc_telefone').value.trim();
     const email   = document.getElementById('mc_email').value.trim();
     const cidade  = document.getElementById('mc_cidade').value.trim();
@@ -504,7 +553,7 @@ document.getElementById('btnSalvarCliente').addEventListener('click', function()
                          || '{{ csrf_token() }}',
             'Accept': 'application/json',
         },
-        body: JSON.stringify({ nome, cpf, telefone: tel, email, cidade, estado }),
+        body: JSON.stringify({ nome, tipo_pessoa: tipo, cpf, cnpj, telefone: tel, email, cidade, estado }),
     })
     .then(r => r.json().then(data => ({ status: r.status, data })))
     .then(({ status, data }) => {
@@ -531,7 +580,8 @@ document.getElementById('btnSalvarCliente').addEventListener('click', function()
 // ── Helpers do modal ──────────────────────────────────────────────────────────
 function adicionarClienteNoSelect(data) {
     const select = document.getElementById('customer_id');
-    const label  = data.nome + (data.cpf ? ' — ' + data.cpf : '') + (data.telefone ? ' · ' + data.telefone : '');
+    const doc    = data.documento || data.cnpj || data.cpf;
+    const label  = data.nome + (doc ? ' — ' + doc : '') + (data.telefone ? ' · ' + data.telefone : '');
     const opt    = new Option(label, data.id, false, false);
 
     if (typeof $ !== 'undefined' && $(select).data('select2')) {
@@ -543,9 +593,11 @@ function adicionarClienteNoSelect(data) {
     }
 
     $('#modalNovoCliente').modal('hide');
-    ['mc_nome','mc_cpf','mc_telefone','mc_email','mc_cidade','mc_estado'].forEach(function(id) {
+    ['mc_nome','mc_cpf','mc_cnpj','mc_telefone','mc_email','mc_cidade','mc_estado'].forEach(function(id) {
         document.getElementById(id).value = '';
     });
+    document.getElementById('mc_tipo_pf').checked = true;
+    mcAplicarTipoPessoa();
 }
 
 var clienteExistenteData = null;
@@ -553,9 +605,12 @@ var clienteExistenteData = null;
 function selecionarClienteExistente(data) {
     clienteExistenteData = data;
     var localidade = [data.cidade, data.estado].filter(Boolean).join('/');
+    var docLabel   = data.documento_label || 'CPF';
+    var doc        = data.documento || data.cnpj || data.cpf;
+    document.getElementById('clienteExistenteTitulo').textContent = docLabel + ' já cadastrado';
     document.getElementById('clienteExistenteInfo').innerHTML =
-        '<i class="fas fa-user mr-1 text-warning"></i>' + data.nome +
-        (data.cpf      ? ' &mdash; CPF: <code>' + data.cpf + '</code>' : '') +
+        '<i class="fas ' + (data.tipo_pessoa === 'pj' ? 'fa-building' : 'fa-user') + ' mr-1 text-warning"></i>' + data.nome +
+        (doc           ? ' &mdash; ' + docLabel + ': <code>' + doc + '</code>' : '') +
         (data.telefone ? ' &middot; ' + data.telefone : '') +
         (localidade    ? ' &middot; ' + localidade : '');
     document.getElementById('modalClienteExistente').classList.remove('d-none');

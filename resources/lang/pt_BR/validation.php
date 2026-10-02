@@ -119,6 +119,8 @@ return [
     'attributes' => [
         'nome'        => 'nome',
         'cpf'         => 'CPF',
+        'cnpj'        => 'CNPJ',
+        'tipo_pessoa' => 'tipo de cliente',
         'telefone'    => 'telefone',
         'email'       => 'e-mail',
         'cep'         => 'CEP',

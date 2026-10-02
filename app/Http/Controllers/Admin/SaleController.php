@@ -51,7 +51,7 @@ class SaleController extends Controller
             ->orderBy('marca')
             ->get(['id', 'marca', 'modelo', 'versao', 'ano_modelo', 'preco']);
 
-        $customers = Customer::orderBy('nome')->get(['id', 'nome', 'cpf', 'telefone']);
+        $customers = Customer::orderBy('nome')->get(['id', 'nome', 'tipo_pessoa', 'cpf', 'cnpj', 'telefone']);
 
         $selectedVehicle = $request->filled('vehicle_id')
             ? Vehicle::find($request->vehicle_id)

@@ -18,6 +18,7 @@ class CustomerController extends Controller
             $query->where(function ($q) use ($s) {
                 $q->where('nome', 'like', "%{$s}%")
                   ->orWhere('cpf', 'like', "%{$s}%")
+                  ->orWhere('cnpj', 'like', "%{$s}%")
                   ->orWhere('telefone', 'like', "%{$s}%")
                   ->orWhere('email', 'like', "%{$s}%");
             });
@@ -41,43 +42,70 @@ class CustomerController extends Controller
             ->with('success', 'Cliente cadastrado com sucesso!');
     }
 
+    /**
+     * Procura cliente já cadastrado pelo documento (?cpf= ou ?cnpj=).
+     * Usado pelo modal de cliente rápido na tela de venda.
+     */
     public function cpfCheck(Request $request)
     {
-        $cpf = $request->query('cpf');
-        if (!$cpf) return response()->json(null);
+        $cpf  = $request->query('cpf');
+        $cnpj = $request->query('cnpj');
 
-        $customer = Customer::where('cpf', $cpf)->first();
+        if ($cpf) {
+            $customer = Customer::where('cpf', $cpf)->first();
+        } elseif ($cnpj) {
+            $customer = Customer::where('cnpj', $cnpj)->first();
+        } else {
+            return response()->json(null);
+        }
+
         if (!$customer) return response()->json(null);
 
-        return response()->json([
-            'id'       => $customer->id,
-            'nome'     => $customer->nome,
-            'cpf'      => $customer->cpf,
-            'telefone' => $customer->telefone,
-            'cidade'   => $customer->cidade,
-            'estado'   => $customer->estado,
+        return response()->json($this->quickPayload($customer) + [
+            'cidade' => $customer->cidade,
+            'estado' => $customer->estado,
         ]);
     }
 
     public function quickStore(Request $request)
     {
+        $tipo = $request->input('tipo_pessoa') ?: 'pf';
+
+        // PJ guarda só CNPJ, PF guarda só CPF
+        $request->merge([
+            'tipo_pessoa' => $tipo,
+            'cpf'         => $tipo === 'pj' ? null : $request->input('cpf'),
+            'cnpj'        => $tipo === 'pj' ? $request->input('cnpj') : null,
+        ]);
+
         $request->validate([
-            'nome'     => 'required|string|max:100',
-            'cpf'      => 'nullable|string|max:14',
-            'telefone' => 'required|string|max:20',
-            'email'    => 'nullable|email|max:150',
-            'cidade'   => 'nullable|string|max:80',
-            'estado'   => 'nullable|string|size:2',
+            'nome'        => 'required|string|max:100',
+            'tipo_pessoa' => 'required|in:pf,pj',
+            'cpf'         => 'nullable|string|max:14|unique:customers,cpf',
+            'cnpj'        => 'nullable|string|max:18|unique:customers,cnpj',
+            'telefone'    => 'required|string|max:20',
+            'email'       => 'nullable|email|max:150',
+            'cidade'      => 'nullable|string|max:80',
+            'estado'      => 'nullable|string|size:2',
         ]);
 
-        $customer = Customer::create($request->only('nome','cpf','telefone','email','cidade','estado'));
+        $customer = Customer::create($request->only('nome','tipo_pessoa','cpf','cnpj','telefone','email','cidade','estado'));
 
-        return response()->json([
-            'id'       => $customer->id,
-            'nome'     => $customer->nome,
-            'cpf'      => $customer->cpf,
-            'telefone' => $customer->telefone,
-        ]);
+        return response()->json($this->quickPayload($customer));
+    }
+
+    private function quickPayload(Customer $customer): array
+    {
+        return [
+            'id'              => $customer->id,
+            'nome'            => $customer->nome,
+            'tipo_pessoa'     => $customer->tipo_pessoa,
+            'cpf'             => $customer->cpf,
+            'cnpj'            => $customer->cnpj,
+            'documento'       => $customer->documento,
+            'documento_label' => $customer->documento_label,
+            'telefone'        => $customer->telefone,
+        ];
     }
 
     public function show(Customer $customer)
