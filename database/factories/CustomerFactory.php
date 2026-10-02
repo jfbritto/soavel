@@ -13,7 +13,9 @@ class CustomerFactory extends Factory
     {
         return [
             'nome' => $this->faker->name(),
+            'tipo_pessoa' => 'pf',
             'cpf' => $this->faker->unique()->numerify('###.###.###-##'),
+            'cnpj' => null,
             'telefone' => '(28) 99999-' . $this->faker->numerify('####'),
             'email' => $this->faker->unique()->safeEmail(),
             'cep' => $this->faker->numerify('#####-###'),
@@ -23,5 +25,15 @@ class CustomerFactory extends Factory
             'cidade' => $this->faker->city(),
             'estado' => 'ES',
         ];
+    }
+
+    public function pj()
+    {
+        return $this->state([
+            'nome'        => $this->faker->company(),
+            'tipo_pessoa' => 'pj',
+            'cpf'         => null,
+            'cnpj'        => $this->faker->unique()->numerify('##.###.###/####-##'),
+        ]);
     }
 }

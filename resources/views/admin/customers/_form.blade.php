@@ -2,15 +2,33 @@
 <div class="alert alert-danger"><ul class="mb-0">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul></div>
 @endif
 
+@php $tipoPessoa = old('tipo_pessoa', $customer?->tipo_pessoa ?? 'pf'); @endphp
+
 <div class="card">
     <div class="card-header"><h3 class="card-title">Dados do Cliente</h3></div>
     <div class="card-body">
 
-        {{-- Nome + CPF + Telefone --}}
+        {{-- Tipo de cliente --}}
+        <div class="form-group mb-3">
+            <label class="d-block mb-2">Tipo de Cliente</label>
+            <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" id="tipo_pf" name="tipo_pessoa" value="pf" class="custom-control-input tipo-pessoa"
+                    {{ $tipoPessoa === 'pj' ? '' : 'checked' }}>
+                <label class="custom-control-label" for="tipo_pf"><i class="fas fa-user mr-1 text-muted"></i>Pessoa Física (CPF)</label>
+            </div>
+            <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" id="tipo_pj" name="tipo_pessoa" value="pj" class="custom-control-input tipo-pessoa"
+                    {{ $tipoPessoa === 'pj' ? 'checked' : '' }}>
+                <label class="custom-control-label" for="tipo_pj"><i class="fas fa-building mr-1 text-muted"></i>Pessoa Jurídica (CNPJ)</label>
+            </div>
+            @error('tipo_pessoa')<span class="text-danger small d-block">{{ $message }}</span>@enderror
+        </div>
+
+        {{-- Nome + CPF/CNPJ + Telefone --}}
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group">
-                    <label>Nome Completo <span class="text-danger">*</span></label>
+                    <label id="labelNome">Nome Completo <span class="text-danger">*</span></label>
                     <input type="text" id="nome" name="nome"
                         class="form-control form-control-lg @error('nome') is-invalid @enderror"
                         value="{{ old('nome', $customer?->nome) }}"
@@ -19,15 +37,26 @@
                     @error('nome')<span class="invalid-feedback">{{ $message }}</span>@enderror
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-3" id="colCpf">
                 <div class="form-group">
                     <label>CPF</label>
                     <input type="text" id="cpf" name="cpf"
                         class="form-control form-control-lg @error('cpf') is-invalid @enderror"
                         value="{{ old('cpf', $customer?->cpf) }}"
                         placeholder="000.000.000-00"
-                        maxlength="14">
+                        maxlength="14" inputmode="numeric">
                     @error('cpf')<span class="invalid-feedback">{{ $message }}</span>@enderror
+                </div>
+            </div>
+            <div class="col-md-3" id="colCnpj">
+                <div class="form-group">
+                    <label>CNPJ</label>
+                    <input type="text" id="cnpj" name="cnpj"
+                        class="form-control form-control-lg @error('cnpj') is-invalid @enderror"
+                        value="{{ old('cnpj', $customer?->cnpj) }}"
+                        placeholder="00.000.000/0000-00"
+                        maxlength="18" inputmode="numeric">
+                    @error('cnpj')<span class="invalid-feedback">{{ $message }}</span>@enderror
                 </div>
             </div>
             <div class="col-md-3">
@@ -134,8 +163,30 @@
 <script>
 (function () {
 
-    /* ── Capitalizar nome (Title Case) ──────────────────────────── */
-    const nomeInput  = document.getElementById('nome');
+    /* ── Tipo de cliente: PF mostra CPF, PJ mostra CNPJ ───────────── */
+    const colCpf    = document.getElementById('colCpf');
+    const colCnpj   = document.getElementById('colCnpj');
+    const labelNome = document.getElementById('labelNome');
+    const nomeInput = document.getElementById('nome');
+
+    function tipoPessoa() {
+        return document.querySelector('.tipo-pessoa:checked').value;
+    }
+
+    function aplicarTipoPessoa() {
+        const pj = tipoPessoa() === 'pj';
+        colCpf.style.display  = pj ? 'none' : '';
+        colCnpj.style.display = pj ? '' : 'none';
+        labelNome.innerHTML   = (pj ? 'Razão Social / Nome da Empresa' : 'Nome Completo') + ' <span class="text-danger">*</span>';
+        nomeInput.placeholder = pj ? 'Ex: Transportes Silva Ltda' : 'Ex: João da Silva';
+    }
+
+    document.querySelectorAll('.tipo-pessoa').forEach(function (el) {
+        el.addEventListener('change', aplicarTipoPessoa);
+    });
+    aplicarTipoPessoa();
+
+    /* ── Capitalizar nome (Title Case) — só pessoa física ───────────── */
     const smallWords = ['de','da','do','das','dos','e','em','com','por','para','a','o','as','os'];
 
     function toTitleCase(str) {
@@ -147,7 +198,7 @@
     }
 
     nomeInput.addEventListener('blur', function () {
-        if (this.value.trim()) {
+        if (this.value.trim() && tipoPessoa() === 'pf') {
             this.value = toTitleCase(this.value.trim());
         }
     });
@@ -158,6 +209,16 @@
         if (v.length > 9)      v = v.replace(/^(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
         else if (v.length > 6) v = v.replace(/^(\d{3})(\d{3})(\d{1,3})/,        '$1.$2.$3');
         else if (v.length > 3) v = v.replace(/^(\d{3})(\d{1,3})/,               '$1.$2');
+        this.value = v;
+    });
+
+    /* ── Máscara CNPJ (00.000.000/0000-00) ───────────────────────── */
+    document.getElementById('cnpj').addEventListener('input', function () {
+        let v = this.value.replace(/\D/g, '').slice(0, 14);
+        if (v.length > 12)      v = v.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{1,2})/, '$1.$2.$3/$4-$5');
+        else if (v.length > 8)  v = v.replace(/^(\d{2})(\d{3})(\d{3})(\d{1,4})/,        '$1.$2.$3/$4');
+        else if (v.length > 5)  v = v.replace(/^(\d{2})(\d{3})(\d{1,3})/,               '$1.$2.$3');
+        else if (v.length > 2)  v = v.replace(/^(\d{2})(\d{1,3})/,                      '$1.$2');
         this.value = v;
     });
 

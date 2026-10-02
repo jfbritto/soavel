@@ -2,7 +2,7 @@
 @section('title', $customer->nome . ' — ' . config('adminlte.title'))
 @section('content_header')
     <div class="d-flex justify-content-between">
-        <h1><i class="fas fa-user mr-2"></i>{{ $customer->nome }}</h1>
+        <h1><i class="fas {{ $customer->is_pj ? 'fa-building' : 'fa-user' }} mr-2"></i>{{ $customer->nome }}</h1>
         <div>
             <a href="{{ route('admin.customers.edit', $customer) }}" class="btn btn-warning" title="Editar dados do cliente"><i class="fas fa-edit mr-1"></i>Editar</a>
             <a href="{{ route('admin.customers.index') }}" class="btn btn-default ml-1" title="Voltar para a lista de clientes"><i class="fas fa-arrow-left mr-1"></i>Voltar</a>
@@ -15,8 +15,9 @@
         <div class="col-md-4">
             <div class="card card-primary card-outline">
                 <div class="card-body text-center pt-4">
-                    <i class="fas fa-user-circle fa-4x text-muted mb-3"></i>
+                    <i class="fas {{ $customer->is_pj ? 'fa-building' : 'fa-user-circle' }} fa-4x text-muted mb-3"></i>
                     <h3>{{ $customer->nome }}</h3>
+                    <p class="mb-1"><span class="badge badge-light border px-2 py-1">{{ $customer->tipo_pessoa_label }}</span></p>
                     <p class="text-muted">{{ $customer->cidade ? $customer->cidade.'/'.$customer->estado : '' }}</p>
                     <a href="https://wa.me/55{{ preg_replace('/\D/', '', $customer->telefone) }}" target="_blank" class="btn btn-success btn-sm"
                        title="Abrir conversa no WhatsApp">
@@ -25,7 +26,7 @@
                 </div>
                 <div class="card-footer">
                     <table class="table table-sm table-borderless mb-0">
-                        <tr><th>CPF</th><td>{{ $customer->cpf ?? '—' }}</td></tr>
+                        <tr><th>{{ $customer->documento_label }}</th><td>{{ $customer->documento ?? '—' }}</td></tr>
                         <tr><th>E-mail</th><td>{{ $customer->email ?? '—' }}</td></tr>
                         <tr><th>Endereço</th><td>{{ $customer->endereco_completo ?: '—' }}</td></tr>
                         @if($customer->observacoes)

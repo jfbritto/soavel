@@ -15,6 +15,8 @@ class CustomerDocument extends Model
         'identidade'    => 'Identidade / RG',
         'cpf'           => 'CPF',
         'cnh'           => 'CNH',
+        'cnpj'          => 'Cartão CNPJ',
+        'contrato_social' => 'Contrato Social',
         'comprovante'   => 'Comprovante de residência',
         'contrato'      => 'Contrato',
         'recibo'        => 'Recibo',

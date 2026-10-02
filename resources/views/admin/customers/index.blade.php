@@ -19,7 +19,7 @@
             <form method="GET" class="form-inline">
                 <div class="input-group input-group-sm">
                     <input type="text" name="search" class="form-control"
-                        placeholder="Nome, CPF, telefone ou e-mail..."
+                        placeholder="Nome, CPF, CNPJ, telefone ou e-mail..."
                         value="{{ request('search') }}" style="min-width:260px">
                     <div class="input-group-append">
                         <button class="btn btn-outline-secondary" type="submit"><i class="fas fa-search"></i></button>
@@ -38,7 +38,7 @@
                 <thead>
                     <tr style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:#6c757d;border-top:0">
                         <th class="border-top-0 pl-3">Nome</th>
-                        <th class="border-top-0 d-none d-lg-table-cell">CPF</th>
+                        <th class="border-top-0 d-none d-lg-table-cell">CPF / CNPJ</th>
                         <th class="border-top-0">Telefone</th>
                         <th class="border-top-0 d-none d-md-table-cell">E-mail</th>
                         <th class="border-top-0 d-none d-md-table-cell">Cidade</th>
@@ -54,8 +54,11 @@
                                class="font-weight-600 text-dark" style="font-size:.9rem">
                                 {{ $customer->nome }}
                             </a>
+                            @if($customer->is_pj)
+                                <span class="badge badge-light border ml-1" style="font-size:.68rem" title="Pessoa Jurídica">PJ</span>
+                            @endif
                         </td>
-                        <td class="align-middle text-muted d-none d-lg-table-cell" style="font-size:.88rem">{{ $customer->cpf ?? '—' }}</td>
+                        <td class="align-middle text-muted d-none d-lg-table-cell" style="font-size:.88rem">{{ $customer->documento ?? '—' }}</td>
                         <td class="align-middle" style="font-size:.88rem">
                             <a href="https://wa.me/55{{ preg_replace('/\D/', '', $customer->telefone) }}"
                                target="_blank" class="text-success" style="white-space:nowrap">
