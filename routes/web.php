@@ -7,7 +7,6 @@ use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
-use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Admin;
 use App\Http\Controllers\Site;
@@ -141,12 +140,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
 Route::get('/home', fn() => redirect()->route('admin.dashboard'))->name('home')->middleware('auth');
 
 
+// Sem cadastro público: todo usuário entra no painel da loja. O primeiro
+// usuário nasce no provisionamento (AdminUserSeeder em provision-tenant.sh).
 Route::middleware('guest')->group(function () {
-    Route::get('register', [RegisteredUserController::class, 'create'])
-                ->name('register');
-
-    Route::post('register', [RegisteredUserController::class, 'store']);
-
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
                 ->name('login');
 
