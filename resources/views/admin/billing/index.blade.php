@@ -213,7 +213,7 @@
                         <i class="fab fa-whatsapp mr-1"></i>WhatsApp
                     </a>
 
-                    <a href="mailto:jf.britto@hotmail.com?subject=Suporte HelpFlux Veículos"
+                    <a href="mailto:financeiro@helpflux.com.br?subject=Suporte HelpFlux Veículos"
                         class="btn btn-outline-secondary btn-block">
                         <i class="fas fa-envelope mr-1"></i>E-mail
                     </a>
